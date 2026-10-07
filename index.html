@@ -614,9 +614,7 @@ function todayView(){
       <div class="tm">${badge(D.oppId)}<div class="tmname">${esc(team(D.oppId).n)}</div><div class="rec">${oppRec||esc(team(D.oppId).city)}</div></div>
     </div>
     <div class="clock cond">${q===5?`${esc(team(D.oppId).n)} are done · final buzzer 4am`:q===0?`Tip-off ${TIPOFF_H}am`:`${QLABEL[q]} · live`}</div>
-    <div class="bar"><i style="width:${pctMe}%"></i></div>
-    <div class="bar opp"><i style="width:${pctLive}%"></i></div>
-    <div class="status">${status2}</div>
+    <div class="status" style="margin-top:6px">${status2}</div>
   </div>
   ${note?`<div class="coach"><span>${note.i}</span><div>${esc(note.m)}</div></div>`:''}
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
