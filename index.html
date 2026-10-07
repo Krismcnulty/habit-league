@@ -317,20 +317,15 @@ const divById=id=>DIVS.find(x=>x.id===id);
 const fullMax=()=>S.squad.reduce((a,p)=>a+pv(p),0);
 function recDiv(){const m=fullMax()*.7;let r=DIVS[0];for(const d of DIVS)if(d.avg<=m)r=d;return r}
 const prevKey=key=>skey(addDays(key+'-01',-1));
-function divOf(se){if(se&&se.div)return divById(se.div);const pv_=se&&S.seasons[prevKey(se.key)];if(pv_&&pv_.div)return divById(pv_.div);return S.pendingDiv?divById(S.pendingDiv):recDiv()}
+// Your level: opponents average PAR_SHARE of your squad's max, snapshotted when the season's squad locks.
+const PAR_SHARE=.75;
+const tierFor=par=>par<62?DIVS[0]:par<100?DIVS[1]:par<145?DIVS[2]:DIVS[3];
+function parOf(se){return se&&se.par?se.par:Math.round(fullMax()*PAR_SHARE)}
+function divOf(se){const par=parOf(se);return{...tierFor(par),avg:par,provisional:!(se&&se.par)}}
 function dayDiv(d){if(!S.firstStart)return divOf(null);return divOf(ensureSeason(skey(!d||d<S.firstStart?S.firstStart:d)))}
-function canPickDiv(){if(!S.firstStart)return true;const se=curSeason();return !!se&&(!se.locked||!se.div)}
-function divSheet(){
-  const se=S.firstStart?curSeason():null,cur=divOf(se),rec=recDiv(),fm=fullMax();
-  const last=S.history[0];let hint='';
-  if(last&&last.div){const pct=last.w/Math.max(1,last.w+last.l),dn=divById(last.div).n;
-    if(pct>=.75)hint=`<div class="banner small" style="margin:8px 0">You went ${last.w}–${last.l} in ${dn} last season. Time to step up?</div>`;
-    else if(pct<.35)hint=`<div class="banner small" style="margin:8px 0">Tough season in ${dn} (${last.w}–${last.l}). A lower division can keep it fun while you build.</div>`;}
-  sheet(`<h2>Choose your division</h2>
-  <p class="small muted" style="margin:4px 0 8px">Opponents score around their division's average. Your squad maxes out at ${fm} pts a day, so a good day (about 70%) is ${Math.round(fm*.7)} pts.</p>${hint}
-  <div class="stack">${DIVS.map(d=>`<button class="pl ${cur.id===d.id?'divon':''}" data-a="pickDiv" data-v="${d.id}" style="width:100%;text-align:left"><div class="sp"><b>${d.n}</b>${d.id===rec.id?' <span class="chip" style="color:var(--green)">Recommended</span>':''}<div class="small muted">${d.d}</div><div class="small" style="margin-top:2px">Opponents average <b>${d.avg}</b> · XP ×${d.xp}</div></div>${cur.id===d.id?'<span class="tick" style="background:var(--orange);border-color:var(--orange);color:#1a0d00">✓</span>':''}</button>`).join('')}</div>
-  <p class="small muted" style="margin:10px 0 0">Your division locks with your squad for the season. Signing harder players raises your ceiling.</p>`);
-}
+function snapPar(se){if(se&&!se.par)se.par=Math.round(fullMax()*PAR_SHARE)}
+function levelRow(se){const dv=divOf(se);
+  return `<div class="card row" style="margin-bottom:12px;background:var(--panel2)"><div class="sp"><div class="small muted">Your level${dv.provisional?' · set when your squad locks':''}</div><b>${dv.n}</b> <span class="small muted">· opponents average ${dv.avg} pts · XP ×${dv.xp}</span><div class="small muted" style="margin-top:2px">${Math.round(PAR_SHARE*100)}% of your squad's ${dv.provisional?'':'starting '}max of ${dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE)} pts a day. Sign harder players to get ahead of it.</div></div></div>`}
 function ensureSeason(key){
   if(S.seasons[key])return S.seasons[key];
   const first=key===skey(S.firstStart);
@@ -409,7 +404,7 @@ function ensureDay(d){
 const pv=p=>Math.round(SHOTS[p.shot].pts*(p.slot==='court'?1:.5));
 function isDone(p,D){const v=D.t[p.id];return p.steps&&p.steps.length?Array.isArray(v)&&p.steps.every((_,i)=>v[i]):v===true}
 function score(D){let me=0,max=0,full=0;for(const p of S.squad){const v=pv(p);full+=v;if(D.inj.includes(p.id))continue;max+=v;if(isDone(p,D))me+=v}
-  const dv=dayDiv(D.d);return{me,max,opp:max?Math.round(dv.avg*D.f/.66*(max/full)):0}}
+  const dv=dayDiv(D.d);return{me,max,opp:max&&full?Math.round(dv.avg*(1+(D.f-.66)*.8)*(max/full)):0}}
 function lockDay(d){
   const D=ensureDay(d);const sc=score(D);
   D.me=sc.me;D.max=sc.max;D.opp=sc.opp;
@@ -421,7 +416,7 @@ function lockDay(d){
   if(d>=S.firstStart){
     const se=ensureSeason(skey(d));
     if(!se.locked&&d>=se.start)se.locked=true;
-    if(!se.div&&d>=se.start)se.div=divOf(se).id;
+    if(d>=se.start)snapPar(se);
     if(D.ph==='po'){const b=bracket(se,addDays(d,1));b.rounds.forEach((rs,i)=>rs.forEach(s=>{if(s.winner==='me'&&!se.sw.includes(i)){se.sw.push(i);S.xp+=100}}))}
     if(d===monthEnd(se.key))finalize(se);
   }
@@ -439,7 +434,9 @@ function finalize(se){
   S.history.unshift({k:se.key,w:me.w,l:me.l,seed,result,champ,div:dvid});
   S.squad.forEach(p=>p.seasons=(p.seasons||0)+1);
 }
+function migratePar(){for(const se of Object.values(S.seasons))if(se.locked&&!se.par)snapPar(se)}
 function processDays(){
+  migratePar();
   if(!S.startDate)return;
   const today=gameDate();let d=S.lastLocked?addDays(S.lastLocked,1):S.startDate;let n=0;
   while(d<today&&n<800){lockDay(d);S.lastLocked=d;d=addDays(d,1);n++}
@@ -617,7 +614,7 @@ function setupView(){
   <div class="card stack">
     <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one transfer in the first ${TRANSFER_DAYS} days</b> and the <b>injury list</b> (${INJURY_USES} rest days a season). Renaming and editing steps are always allowed.</p>
     <p class="muted small" style="margin:0">Results lock at 4am. The last 9 days of each month are the playoffs: top 8, best-of-3, quarterfinals to Finals.</p>
-    <div class="row card" style="background:var(--panel2)"><div class="sp"><div class="small muted">Division</div><b>${divOf(null).n}</b> <span class="small muted">· opponents average ${divOf(null).avg}${divOf(null).id===recDiv().id?' · recommended':''}</span></div><button class="btn" data-a="divs">Change</button></div>
+    ${levelRow(null)}
     ${short?`<div class="banner small">It's too late in ${monthName(skey(t))} for a regular season, so you'll play friendlies until the new season starts on ${nice(addDays(monthEnd(skey(t)),1),{day:'numeric',month:'long'})}.</div>
       <button class="btn primary block" data-a="tipoff" data-d="${addDays(monthEnd(skey(t)),1)}">Lock in for ${monthName(nextKey(skey(t)))}</button>`
     :`<button class="btn primary block" data-a="tipoff" data-d="${t}">Tip off today</button>
@@ -649,7 +646,6 @@ function todayView(){
   }
   let pre='';
   if(se&&!se.locked)pre=`<div class="banner" style="margin-bottom:12px"><b>Pre-season for ${monthName(se.key)}.</b> <span class="small">Make squad changes now. Your squad locks when you lock in, or automatically after today's game.</span><div style="margin-top:8px"><button class="btn" data-a="go" data-v="squad">Open squad</button></div></div>`;
-  if(se&&!se.div)pre+=`<div class="banner" style="margin-bottom:12px"><b>Pick your division for ${monthName(se.key)}.</b> <span class="small">Today's opponent uses ${divOf(se).n}${divOf(se).id===recDiv().id?' (recommended)':''} until you choose. It locks in at 4am.</span><div style="margin-top:8px"><button class="btn primary" data-a="divs">Choose division</button></div></div>`;
   if(transferOpen())pre+=`<div class="banner small" style="margin-bottom:12px">🔁 Transfer window open for ${TRANSFER_DAYS-diffDays(se.start,t)} more day${TRANSFER_DAYS-diffDays(se.start,t)===1?'':'s'}: one swap available in Squad.</div>`;
   return `
   <div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Final at 4:00am</span></div>
@@ -852,7 +848,7 @@ function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max;
   let info;
-  const dvRow=se?`<div class="card row" style="margin-bottom:12px"><div class="sp"><div class="small muted">Division</div><b>${divOf(se).n}</b> <span class="small muted">· opponents average ${divOf(se).avg} · XP ×${divOf(se).xp}</span></div>${canPickDiv()?'<button class="btn" data-a="divs">Change</button>':'<span class="small muted">🔒</span>'}</div>`:'';
+  const dvRow=se?levelRow(se):'';
   if(edit)info=`<div class="banner"><b>Pre-season.</b> <span class="small">Change anything until you lock in. Your squad locks automatically after the first game of the season.</span>${squadReady()?`<div style="margin-top:8px"><button class="btn primary" data-a="lockin">Lock in squad</button></div>`:''}</div>`;
   else if(transferOpen())info=`<div class="banner"><b>🔁 Transfer window open</b> <span class="small">· ${TRANSFER_DAYS-diffDays(se.start,t)} day(s) left. One swap: tap a player, sell, and sign someone of the same difficulty or harder.</span></div>`;
   else info=`<div class="card small muted">🔒 Squad locked for ${monthName(se.key)}${se.transferUsed?' · transfer used':''}. Tap a player to rename, edit steps, or rest them on the injury list.</div>`;
@@ -896,7 +892,7 @@ function clubView(){
   <div class="tabs">${[['nba','NBA names'],['fictional','Fictional']].map(([k,n])=>`<button class="${(S.teamSet||'nba')===k?'on':''}" data-a="teamSet" data-v="${k}">${n}</button>`).join('')}</div>
   <details class="card" style="margin-top:12px"><summary>How it works</summary><div class="small muted stack" style="margin-top:8px">
   <p>Each player scores by difficulty: 8, 14, 22 or 40 points. Bench players score half. Custom players are always worth 14.</p>
-  <p>You pick a division each season: Rookie, Pro, All-Star or Hall of Fame. Opponents score around that division's average, so harder players give you a better chance to win, and higher divisions earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
+  <p>When your squad locks for a season, your level is set: opponents average 75% of your squad's max points for the whole season. Sign harder players mid-season and you get ahead of them. Levels are labelled Rookie, Pro, All-Star or Hall of Fame, and higher levels earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
   <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
   <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
   <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
@@ -979,10 +975,10 @@ const A={
   toTipoff(){if(squadReady()){setupStep=2;render();scrollTo(0,0)}},
   tipoff(d){
     const t=gameDate();S.firstStart=d.d;S.startDate=t;S.lastLocked=null;
-    const se0=ensureSeason(skey(d.d));se0.div=S.pendingDiv||recDiv().id;save();view='today';render();scrollTo(0,0);
+    const se0=ensureSeason(skey(d.d));snapPar(se0);save();view='today';render();scrollTo(0,0);
     toast(d.d===t?'Tip-off! Game 1 is live.':'Squad locked. See you at tip-off.');
   },
-  lockin(){const se=curSeason();if(!squadReady())return toast('Fill every spot first');se.locked=true;save();render();toast('Squad locked for '+monthName(se.key))},
+  lockin(){const se=curSeason();if(!squadReady())return toast('Fill every spot first');se.locked=true;snapPar(se);save();render();toast('Squad locked for '+monthName(se.key))},
   sign(d){if(!canEditSquad())return;libSheet({slot:d.slot,pos:d.pos})},
   signLib(d){
     const lib=libById(d.lib),i=+d.i;
@@ -1019,8 +1015,6 @@ const A={
   steps(d){stepsSheet(d.id)},
   closeSheet(){closeSheet()},
   teamSet(d){S.teamSet=d.v;save();render()},
-  divs(){divSheet()},
-  pickDiv(d){if(!canPickDiv())return toast('Your division is locked for this season');if(!S.firstStart)S.pendingDiv=d.v;else curSeason().div=d.v;save();closeSheet();render();toast(`${divById(d.v).n} division it is`)},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
