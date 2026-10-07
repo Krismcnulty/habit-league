@@ -256,6 +256,52 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .rwi.got{border-color:rgba(251,191,36,.7)}
 .rwi:not(.got) .rwp{opacity:.55;filter:grayscale(.4)}
 .rwi .rwp{width:44px;height:44px}.rwi .rwp svg{width:38px;height:38px}
+/* ---- scoreboard themes ---- */
+.gboard{display:flex;align-items:center;justify-content:center;gap:2px;width:100%;height:40px;border-radius:8px;font-weight:900;font-size:17px;font-variant-numeric:tabular-nums;padding:0 4px;box-sizing:border-box;position:relative;overflow:hidden}
+.gboard i{font-style:normal;opacity:.6}
+.rwp .gboard{width:52px;height:36px;font-size:13px}
+.gtile.locked .gboard{opacity:.4}
+.sb-classic.gboard{background:radial-gradient(120% 140% at 50% -20%,#2a1a0e 0%,#141b2e 60%);border:1px solid #3a2a1c;color:#fff}
+.sb-classic.gboard b:first-child{color:var(--orange)}
+/* Retro LED */
+.sb-led{background:radial-gradient(circle,rgba(255,176,0,.06) 0 1px,transparent 1.5px) 0 0/6px 6px,#0a0806!important;border:3px solid #2b2b2b!important;box-shadow:inset 0 0 0 2px #000}
+.sb-led .score,.sb-led.gboard{font-family:"Courier New",ui-monospace,monospace;color:#ffb000;text-shadow:0 0 6px rgba(255,160,0,.8),0 0 14px rgba(255,120,0,.4)}
+.sb-led .score .lead,.sb-led .score .lead2{color:#ffd166}
+.sb-led .phase,.sb-led .clock,.sb-led .status,.sb-led .tmname,.sb-led .rec{font-family:"Courier New",ui-monospace,monospace;color:#ff9d00;text-shadow:0 0 4px rgba(255,140,0,.6)}
+.sb-led:after,.sb-chalk:after,.sb-broadcast:after,.sb-gold:after,.sb-neon:after,.sb-arcade:after{display:none}
+/* Chalkboard */
+.sb-chalk{background:radial-gradient(120% 100% at 30% 0%,rgba(255,255,255,.06),transparent 60%),#20392b!important;border:7px solid #7a4e2a!important;box-shadow:inset 0 0 18px rgba(0,0,0,.45)}
+.sb-chalk .score,.sb-chalk.gboard{font-family:"Chalkboard SE","Comic Sans MS","Marker Felt",cursive;color:#f4f1e8;text-shadow:0 0 1px rgba(255,255,255,.5)}
+.sb-chalk.gboard{border-width:3px!important}
+.sb-chalk .score .lead{color:#fde68a}.sb-chalk .score .lead2{color:#fecaca}
+.sb-chalk .phase,.sb-chalk .clock,.sb-chalk .status,.sb-chalk .tmname,.sb-chalk .rec{font-family:"Chalkboard SE","Comic Sans MS","Marker Felt",cursive;color:#e7e2d4}
+/* Broadcast */
+.sb-broadcast{background:linear-gradient(90deg,#1e3a8a 0 50%,#7f1d1d 50% 100%)!important;border:0!important;padding-top:26px!important}
+.sb-broadcast .score{background:#0b1020;padding:6px 12px;border-radius:10px;border:2px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.sb-broadcast .phase{color:#fff;background:rgba(0,0,0,.35);display:inline-block;white-space:nowrap;font-size:10.5px;padding:2px 10px;border-radius:4px;margin-left:50%;transform:translateX(-50%)}
+.sb-broadcast .clock{color:#e2e8f0}.sb-broadcast .status{color:#fff}
+.sb-broadcast .score .lead{color:#fbbf24}.sb-broadcast .score .lead2{color:#fca5a5}
+.livebug{position:absolute;top:8px;left:10px;background:#dc2626;color:#fff;font-size:10px;font-weight:900;letter-spacing:.08em;padding:2px 7px;border-radius:3px}
+.sb-broadcast.gboard{border:0!important;color:#fff;padding:0 4px!important}
+.sb-broadcast.gboard b{background:#0b1020;padding:0 3px;border-radius:3px}
+/* Gold Edition */
+.sb-gold{background:radial-gradient(120% 120% at 50% 0%,#3a2a08,#0b0905 70%)!important;border:2px solid #d4a017!important;box-shadow:0 0 0 1px #6b4f0a,inset 0 0 24px rgba(212,160,23,.15)}
+.sb-gold .score,.sb-gold.gboard{background:linear-gradient(180deg,#fff3c4,#fbbf24 45%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sb-gold.gboard{background:radial-gradient(120% 120% at 50% 0%,#3a2a08,#0b0905 70%),#000!important}
+.sb-gold.gboard b,.sb-gold.gboard i{background:linear-gradient(180deg,#fff3c4,#fbbf24 45%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sb-gold .score span{color:transparent!important}
+.sb-gold .phase,.sb-gold .clock{color:#fbbf24}.sb-gold .status{color:#fde68a}
+/* Neon */
+.sb-neon{background:#120624!important;border:2px solid #d946ef!important;box-shadow:0 0 14px rgba(217,70,239,.5),inset 0 0 18px rgba(34,211,238,.15)}
+.sb-neon .score,.sb-neon.gboard{color:#f5d0fe;text-shadow:0 0 4px #e879f9,0 0 12px #d946ef,0 0 24px #a21caf}
+.sb-neon .score .lead,.sb-neon.gboard b:first-child{color:#cffafe;text-shadow:0 0 4px #67e8f9,0 0 12px #22d3ee,0 0 24px #0891b2}
+.sb-neon .phase,.sb-neon .clock{color:#67e8f9;text-shadow:0 0 6px #22d3ee}.sb-neon .status{color:#f5d0fe}
+/* Arcade */
+.sb-arcade{background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 3px),#000!important;border:4px solid #fff!important;border-radius:6px!important;image-rendering:pixelated}
+.sb-arcade .score,.sb-arcade.gboard{font-family:"Courier New",ui-monospace,monospace;color:#39ff14;text-shadow:3px 3px 0 #0a5c00;letter-spacing:.02em}
+.sb-arcade .score .lead{color:#fffb00;text-shadow:3px 3px 0 #7a6a00}.sb-arcade .score .lead2{color:#ff3b3b;text-shadow:3px 3px 0 #6b0000}
+.sb-arcade .phase,.sb-arcade .clock,.sb-arcade .status,.sb-arcade .tmname,.sb-arcade .rec{font-family:"Courier New",ui-monospace,monospace;color:#fff;text-transform:uppercase}
+.sb-arcade.gboard{border-width:2px!important;text-shadow:2px 2px 0 #0a5c00}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -650,28 +696,29 @@ function faceSvg(p){
 const JERSEYS=[['#ff7a1a','Orange'],['#dc2626','Red'],['#0d9488','Teal'],['#2563eb','Blue'],['#7c3aed','Purple'],['#d4a017','Gold'],['#ec4899','Neon pink'],['#38bdf8','Ice'],['#84cc16','Lime'],['#4338ca','Royal']];
 const COURTS=[['wood','Classic hardwood'],['dark','Dark hardwood'],['blue','Blue hardwood'],['street','Street'],['neon','Neon night'],['beach','Beach']];
 const SHOTFX=[['classic','Classic'],['fire','Fireball'],['rainbow','Rainbow swish'],['lightning','Lightning'],['confetti','Confetti']];
-const COS_LISTS={head:HEAD_LIST,logo:LOGOS,court:COURTS,shot:SHOTFX};
-const COS_NAMES={head:'player head',logo:'team logo',court:'court',shot:'shot style'};
+const BOARDS=[['classic','Classic'],['led','Retro LED'],['chalk','Chalkboard'],['broadcast','Broadcast'],['gold','Gold Edition'],['neon','Neon'],['arcade','Arcade']];
+const COS_LISTS={head:HEAD_LIST,logo:LOGOS,board:BOARDS,court:COURTS,shot:SHOTFX};
+const COS_NAMES={head:'player head',logo:'team logo',board:'scoreboard',court:'court',shot:'shot style'};
 const ACH=[
  {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame']]},
  {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand']]},
  {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro']]},
  {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold']]},
- {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire']]},
- {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt']]},
+ {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk']]},
+ {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led']]},
  {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain']]},
  {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords']]},
- {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue']]},
+ {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast']]},
  {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown']]},
  {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor']]},
- {id:'allstar',i:'⭐',n:'All-Star',d:'Reach All-Star career level',goal:9000,v:()=>S.xp,rw:[['court','street']]},
+ {id:'allstar',i:'⭐',n:'All-Star',d:'Reach All-Star career level',goal:9000,v:()=>S.xp,rw:[['court','street'],['board','gold']]},
  {id:'mvp',i:'👑',n:'MVP',d:'Reach MVP career level',goal:18000,v:()=>S.xp,rw:[['shot','rainbow']]},
  {id:'iron',i:'🛡️',n:'Iron Will',d:'Reach a 100-day streak on any player',goal:100,v:s=>s.bestStreak,rw:[['head','iron']]},
 ];
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
-const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor']];
+const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
 const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
 const DROP_EPOCH='2026-01-05';
@@ -791,7 +838,7 @@ function todayView(){
   return `
   <div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Final at 4:00am</span></div>
   ${lastHtml}${pre}
-  <div class="board">
+  <div class="board sb-${(S.cos&&S.cos.board)||'classic'}">${(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
     <div class="phase cond">${esc(phase)}</div>
     <div class="teams">
       <div class="tm">${badge('me')}<div class="tmname">${esc(S.team.name)}</div><div class="rec">${myRec}</div></div>
@@ -1024,11 +1071,13 @@ function squadInfo(k){
 const EVENTS=[{n:'Halloween Shootout',s:'2026-10-24',e:'2026-10-31',d:'A one-week knockout on a spooky court, with a pumpkin trophy'},{n:'Winter Classic',s:'2026-12-01',e:'2026-12-14',d:'Two weeks on an outdoor ice court. Win the snow globe'},{n:'New Year Cup',s:'2027-01-01',e:'2027-01-10',d:'Start the year strong: ten days, one cup'},{n:'Spring Slam',s:'2027-03-20',e:'2027-03-31',d:'A slam-dunk contest where your biggest players count double'}];
 function itemPreview(k,v){
   if(k==='logo')return `<span class="dprev" style="background:#0f1630;display:grid;place-items:center">${logoSvg(v)}</span>`;
+  if(k==='board')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
   if(k==='court')return `<span class="dprev court-${v}" style="background-size:auto"></span>`;
   if(k==='shot')return `<span class="dprev" style="display:grid;place-items:center;font-size:26px;background:#0c1226">${{lightning:'⚡',confetti:'🎉'}[v]||'🏀'}</span>`;
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
 function rewardPic(k,v){
+  if(k==='board')return `<span class="rwp" style="background:none">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
   if(k==="head")return `<span class="rwp">${faceSvg({id:"x",head:v})}</span>`;
   if(k==='logo')return `<span class="rwp">${logoSvg(v)}</span>`;
   if(k==='court')return `<span class="rwp"><span class="court court-${v} gcourt" style="width:40px;border-width:1.5px;border-radius:5px">${COURT_MINI}</span></span>`;
@@ -1059,7 +1108,7 @@ function headGrid(p){
 }
 function gearGrid(k,cur){
   return `<div class="ggrid">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
-    const pic=k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today);
@@ -1082,6 +1131,7 @@ function awardsView(){
   <div class="sect"><h3 class="cond">Your gear</h3><span class="small muted">🔒 earn in Club · ⭐ premium</span></div>
   <div class="card stack">
     <div><b>Team logo</b>${gearGrid('logo',myLogo())}</div>
+    <div><b>Scoreboard</b>${gearGrid('board',(C.board)||'classic')}</div>
     <div><b>Court</b>${gearGrid('court',C.court||'wood')}</div>
     <div><b>Shot style</b>${gearGrid('shot',C.shot||'classic')}</div>
     <div><b>Player heads</b><div class="small muted">Give unlocked heads to players in the Squad tab.</div>
