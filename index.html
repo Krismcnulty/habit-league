@@ -302,6 +302,42 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .sb-arcade .score .lead{color:#fffb00;text-shadow:3px 3px 0 #7a6a00}.sb-arcade .score .lead2{color:#ff3b3b;text-shadow:3px 3px 0 #6b0000}
 .sb-arcade .phase,.sb-arcade .clock,.sb-arcade .status,.sb-arcade .tmname,.sb-arcade .rec{font-family:"Courier New",ui-monospace,monospace;color:#fff;text-transform:uppercase}
 .sb-arcade.gboard{border-width:2px!important;text-shadow:2px 2px 0 #0a5c00}
+/* ---- win celebrations ---- */
+.gcel{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:24px;background:#0f1630;border:1px solid var(--line)}
+.gcel.c-stamp{font-weight:900;font-size:22px;color:#fff;background:#dc2626;border-radius:50%;border:3px solid #fff;font-family:system-ui}
+.gcel.c-goldrain{background:radial-gradient(#5a420a,#1a1305)}
+.gcel.c-lasers{background:linear-gradient(135deg,#3b0764,#0c4a6e)}
+.gcel.c-fireworks{background:#0b1030}
+.gtile.locked .gcel{opacity:.4;filter:grayscale(.6)}
+.rwp .gcel{width:36px;height:36px;font-size:20px}
+.celeb{position:fixed;inset:0;z-index:60;background:rgba(5,8,20,.4);pointer-events:auto;overflow:hidden;transition:opacity .45s}
+.celeb.out{opacity:0}
+.celeb i{position:absolute;display:block;font-style:normal;pointer-events:none}
+.cel-txt{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);text-align:center;z-index:3;animation:celpop .55s cubic-bezier(.2,1.6,.4,1) both}
+.cel-txt b{display:block;font-family:"Arial Narrow",system-ui,sans-serif;font-stretch:condensed;font-weight:900;font-size:58px;letter-spacing:.04em;color:#fff;text-shadow:0 4px 0 #b45309,0 0 26px rgba(255,122,26,.9)}
+.cel-txt span{display:inline-block;margin-top:6px;font-weight:800;font-size:15px;color:#fff;background:rgba(11,16,32,.75);padding:4px 12px;border-radius:99px}
+@keyframes celpop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.celeb .cf{top:-20px;border-radius:2px;animation:cffall 2.2s cubic-bezier(.3,.6,.5,1) forwards}
+@keyframes cffall{to{transform:translate(var(--x),110vh) rotate(var(--r))}}
+.celeb .stamp{left:50%;top:36%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;background:#dc2626;border:8px solid #fff;color:#fff;font:900 96px/134px system-ui;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.6);animation:stampin .45s cubic-bezier(.3,1.5,.5,1) both;z-index:2}
+.c-stamp .cel-txt{top:62%}
+@keyframes stampin{from{transform:scale(3.5) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:1}}
+.shake{animation:shake .45s}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-6px,3px)}40%{transform:translate(6px,-3px)}60%{transform:translate(-4px,2px)}80%{transform:translate(3px,-1px)}}
+.celeb .fw{width:6px;height:6px;margin:-3px;border-radius:50%;opacity:0;animation:fwb 1.3s ease-out forwards}
+@keyframes fwb{0%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 30px))}}
+.c-fireworks{background:rgba(5,8,25,.55)}
+.celeb .cr{bottom:-60px;animation:crup 2.2s ease-out forwards}
+@keyframes crup{0%{transform:translateY(0)}35%{transform:translateY(-150px)}60%{transform:translateY(-110px)}100%{transform:translateY(-170px);opacity:0}}
+.celeb .roar{left:0;right:0;bottom:0;height:40%;background:linear-gradient(0deg,rgba(255,122,26,.45),transparent)}
+.celeb .coin{top:-30px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3c4,#fbbf24 45%,#b45309);border:2px solid #92400e;animation:cffall 2s cubic-bezier(.4,.2,.6,1) forwards;--r:720deg}
+.celeb .flash{inset:0;background:radial-gradient(circle at 50% 36%,rgba(251,191,36,.55),transparent 60%);animation:fl .9s ease-out forwards}
+@keyframes fl{from{opacity:1}to{opacity:.25}}
+.c-goldrain .cel-txt b{text-shadow:0 4px 0 #92400e,0 0 30px rgba(251,191,36,1);color:#fff8dc}
+.celeb .laser{bottom:0;width:6px;height:120vh;transform-origin:50% 100%;border-radius:3px;animation:lz 2.3s ease-in-out both}
+@keyframes lz{0%{transform:rotate(var(--a0));opacity:0}15%{opacity:1}50%{transform:rotate(var(--a1))}100%{transform:rotate(var(--a0));opacity:.8}}
+.c-lasers{background:rgba(10,4,30,.6)}
+.c-lasers .cel-txt b{color:#f5d0fe;text-shadow:0 0 6px #e879f9,0 0 20px #d946ef,0 0 40px #22d3ee}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -697,20 +733,22 @@ const JERSEYS=[['#ff7a1a','Orange'],['#dc2626','Red'],['#0d9488','Teal'],['#2563
 const COURTS=[['wood','Classic hardwood'],['dark','Dark hardwood'],['blue','Blue hardwood'],['street','Street'],['neon','Neon night'],['beach','Beach']];
 const SHOTFX=[['classic','Classic'],['fire','Fireball'],['rainbow','Rainbow swish'],['lightning','Lightning'],['confetti','Confetti']];
 const BOARDS=[['classic','Classic'],['led','Retro LED'],['chalk','Chalkboard'],['broadcast','Broadcast'],['gold','Gold Edition'],['neon','Neon'],['arcade','Arcade']];
-const COS_LISTS={head:HEAD_LIST,logo:LOGOS,board:BOARDS,court:COURTS,shot:SHOTFX};
-const COS_NAMES={head:'player head',logo:'team logo',board:'scoreboard',court:'court',shot:'shot style'};
+const CELS=[['confetti','Confetti'],['stamp','W Stamp'],['fireworks','Fireworks'],['crowd','Crowd roar'],['goldrain','Gold rain'],['lasers','Laser show']];
+const CEL_ICON={confetti:'🎊',stamp:'W',fireworks:'🎆',crowd:'🙌',goldrain:'🪙',lasers:'✨'};
+const COS_LISTS={head:HEAD_LIST,logo:LOGOS,board:BOARDS,court:COURTS,shot:SHOTFX,cel:CELS};
+const COS_NAMES={head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',court:'court',shot:'shot style'};
 const ACH=[
- {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame']]},
+ {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame'],['cel','stamp']]},
  {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand']]},
  {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro']]},
  {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold']]},
  {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk']]},
  {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led']]},
  {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain']]},
- {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords']]},
+ {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords'],['cel','fireworks']]},
  {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast']]},
  {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown']]},
- {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor']]},
+ {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor'],['cel','crowd']]},
  {id:'allstar',i:'⭐',n:'All-Star',d:'Reach All-Star career level',goal:9000,v:()=>S.xp,rw:[['court','street'],['board','gold']]},
  {id:'mvp',i:'👑',n:'MVP',d:'Reach MVP career level',goal:18000,v:()=>S.xp,rw:[['shot','rainbow']]},
  {id:'iron',i:'🛡️',n:'Iron Will',d:'Reach a 100-day streak on any player',goal:100,v:s=>s.bestStreak,rw:[['head','iron']]},
@@ -718,7 +756,7 @@ const ACH=[
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
-const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade']];
+const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
 const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
 const DROP_EPOCH='2026-01-05';
@@ -772,6 +810,7 @@ function render(){
   checkAch();if(view==='club')S.achNew=0;
   nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.classList.toggle('new',b.dataset.v==='club'&&(S.achNew||0)>0)});
   app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView})[view]();
+  if(view==='today'&&S.newResult&&S.newResult===addDays(gameDate(),-1)){const L=S.days[S.newResult];if(L&&L.res==='W'&&!L.cel){L.cel=1;save();setTimeout(()=>celebrate(myCel(),'WIN',`${L.me}–${L.opp} vs ${team(L.oppId).n}`),450)}}
 }
 
 function setupView(){
@@ -1071,12 +1110,14 @@ function squadInfo(k){
 const EVENTS=[{n:'Halloween Shootout',s:'2026-10-24',e:'2026-10-31',d:'A one-week knockout on a spooky court, with a pumpkin trophy'},{n:'Winter Classic',s:'2026-12-01',e:'2026-12-14',d:'Two weeks on an outdoor ice court. Win the snow globe'},{n:'New Year Cup',s:'2027-01-01',e:'2027-01-10',d:'Start the year strong: ten days, one cup'},{n:'Spring Slam',s:'2027-03-20',e:'2027-03-31',d:'A slam-dunk contest where your biggest players count double'}];
 function itemPreview(k,v){
   if(k==='logo')return `<span class="dprev" style="background:#0f1630;display:grid;place-items:center">${logoSvg(v)}</span>`;
+  if(k==='cel')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`}</span>`;
   if(k==='board')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
   if(k==='court')return `<span class="dprev court-${v}" style="background-size:auto"></span>`;
   if(k==='shot')return `<span class="dprev" style="display:grid;place-items:center;font-size:26px;background:#0c1226">${{lightning:'⚡',confetti:'🎉'}[v]||'🏀'}</span>`;
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
 function rewardPic(k,v){
+  if(k==='cel')return `<span class="rwp" style="background:none">${`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`}</span>`;
   if(k==='board')return `<span class="rwp" style="background:none">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
   if(k==="head")return `<span class="rwp">${faceSvg({id:"x",head:v})}</span>`;
   if(k==='logo')return `<span class="rwp">${logoSvg(v)}</span>`;
@@ -1108,7 +1149,7 @@ function headGrid(p){
 }
 function gearGrid(k,cur){
   return `<div class="ggrid">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
-    const pic=k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today);
@@ -1134,6 +1175,7 @@ function awardsView(){
     <div><b>Scoreboard</b>${gearGrid('board',(C.board)||'classic')}</div>
     <div><b>Court</b>${gearGrid('court',C.court||'wood')}</div>
     <div><b>Shot style</b>${gearGrid('shot',C.shot||'classic')}</div>
+    <div><b>Win celebration</b><div class="small muted">Plays when you see a win, or score a perfect game. Tap your current one to preview it.</div>${gearGrid('cel',C.cel||'confetti')}</div>
     <div><b>Player heads</b><div class="small muted">Give unlocked heads to players in the Squad tab.</div>
       <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
         return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
@@ -1271,7 +1313,7 @@ const A={
   newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;delete p.head;save();render();playerSheet(p.id)},
   setHead(d){const p=S.squad.find(x=>x.id===d.id);if(d.v==='scouted'){delete p.head}else{if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));p.head=d.v}save();render();playerSheet(p.id)},
   look(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const p=S.squad.find(x=>x.id===d.id);p.look={...(p.look||{}),[d.k]:d.v};save();render();playerSheet(p.id)},
-  cos(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));S.cos={...(S.cos||{}),[d.k]:d.v};save();render()},
+  cos(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const same=S.cos&&S.cos[d.k]===d.v;S.cos={...(S.cos||{}),[d.k]:d.v};save();render();if(d.k==='cel')celebrate(d.v,same?'PREVIEW':'WIN','96–87')},
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
   promote(d){const p=S.squad.find(x=>x.id===d.id);const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);if(cur)cur.slot='bench';p.slot='court';save();closeSheet();render()},
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
@@ -1320,11 +1362,30 @@ function doTransfer(np){
   np.slot=sell.slot;if(sell.slot==='court')np.pos=sell.pos;
   S.squad[S.squad.indexOf(sell)]=np;se.transferUsed=true;save();closeSheet();render();toast(`${np.name} signed!`);
 }
+const myCel=()=>(S.cos&&S.cos.cel)||'confetti';
+function celebrate(type,title,sub){
+  try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return toast(`🏆 ${title}${sub?' · '+sub:''}`)}catch(e){}
+  const old=document.getElementById('celeb');if(old)old.remove();
+  const o=document.createElement('div');o.id='celeb';o.className='celeb c-'+type;
+  o.innerHTML=`<div class="cel-txt"><b>${esc(title)}</b>${sub?`<span>${esc(sub)}</span>`:''}</div>`;
+  document.body.appendChild(o);
+  const W=innerWidth,H=innerHeight,R=(a,b)=>a+Math.random()*(b-a);
+  const add=(cls,css,txt)=>{const e=document.createElement('i');e.className=cls;for(const[k,v]of Object.entries(css)){if(k.startsWith('--'))e.style.setProperty(k,v);else e.style[k]=v}if(txt)e.textContent=txt;o.appendChild(e);return e};
+  const COLS=['#ef4444','#fbbf24','#22c55e','#3b82f6','#ec4899','#a78bfa','#ff7a1a'];
+  if(type==='confetti')for(let i=0;i<70;i++)add('cf',{left:R(0,W)+'px',background:COLS[i%7],animationDelay:R(0,.5)+'s','--x':R(-60,60)+'px','--r':R(360,1080)+'deg',width:R(6,10)+'px',height:R(8,14)+'px'});
+  if(type==='stamp'){add('stamp',{},'W');document.getElementById('app').classList.add('shake');setTimeout(()=>document.getElementById('app').classList.remove('shake'),500)}
+  if(type==='fireworks')for(let b=0;b<5;b++){const cx=R(W*.15,W*.85),cy=R(H*.12,H*.45),c=COLS[b%7];for(let i=0;i<22;i++){const a=i/22*Math.PI*2,d=R(70,120);add('fw',{left:cx+'px',top:cy+'px',background:c,boxShadow:`0 0 8px ${c}`,animationDelay:(b*.28)+'s','--dx':Math.cos(a)*d+'px','--dy':Math.sin(a)*d+'px'})}}
+  if(type==='crowd'){const em=['🙌','🎉','📣','👏','🔥','🏀'];for(let i=0;i<34;i++)add('cr',{left:R(-10,W-20)+'px',animationDelay:R(0,.7)+'s',fontSize:R(26,40)+'px'},em[i%em.length]);add('roar',{},'')}
+  if(type==='goldrain'){add('flash',{});for(let i=0;i<46;i++)add('coin',{left:R(0,W)+'px',animationDelay:R(0,.8)+'s','--x':R(-30,30)+'px'})}
+  if(type==='lasers'){['#ec4899','#22d3ee','#a3e635','#a78bfa','#fbbf24','#22d3ee'].forEach((c,i)=>add('laser',{left:(i%2?W-6:0)+'px',background:`linear-gradient(0deg,${c},transparent)`,boxShadow:`0 0 12px ${c}`,'--a0':(i%2?-1:1)*R(10,25)+'deg','--a1':(i%2?-1:1)*R(45,70)+'deg',animationDelay:i*.08+'s'}))}
+  setTimeout(()=>o.classList.add('out'),2300);setTimeout(()=>o.remove(),2800);
+  o.addEventListener('click',()=>o.remove());
+}
 function afterTick(before,D){
   save();const after=score(D);render();
   const live=Math.round(after.opp*oppProgress(gameDate()));
   if(after.me<after.max&&before.me<=live&&after.me>live)toast('You\'ve taken the lead! 🏀');
-  else if(after.me===after.max&&before.me<before.max&&after.max>0)toast('Perfect game! Every player scored.');
+  else if(after.me===after.max&&before.me<before.max&&after.max>0)setTimeout(()=>celebrate(myCel(),'PERFECT GAME','Every player scored'),950);
 }
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){e.preventDefault();f(el.dataset,el)}});
 document.getElementById('restoreFile').addEventListener('change',async e=>{
