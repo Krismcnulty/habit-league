@@ -229,6 +229,10 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .schips::-webkit-scrollbar{display:none}
 .schip{flex:none;white-space:nowrap;padding:7px 10px;border-radius:99px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--text)}
 .schip.hl{border-color:rgba(255,122,26,.6);background:rgba(255,122,26,.12)}
+.trow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.trow:nth-child(2){border-top:0}
+.trow b{font-size:14px}
+.trow .tstat{margin:0;white-space:nowrap}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -881,7 +885,7 @@ function pixArt(rows,tier){
   let r='';for(let y=0;y<16;y++){let x=0;while(x<16){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<16&&out[y][x+w]===c)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
   return `<svg viewBox="-1 -1 18 18" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
 }
-const TROPHIES={'League Champions':{art:CUP,how:'Win the Finals in the last 9 days of the month'},'Regular Season Winners':{art:BANNER,how:'Finish top of the table before the playoffs'}};
+const TROPHIES={'League Champions':{art:CUP,how:'Win the Finals'},'Regular Season Winners':{art:BANNER,how:'Finish 1st before the playoffs'}};
 const trophyImg=(t,sz,tier)=>`<span class="tro" style="width:${sz}px;height:${sz}px">${pixArt(TROPHIES[t].art,tier||'allstar')}</span>`;
 const trophyTier=x=>x.div||((S.history.find(h=>h.k===x.k)||{}).div)||'allstar';
 function trophyStatus(se,t){
@@ -889,23 +893,24 @@ function trophyStatus(se,t){
   if(t==='Regular Season Winners'){
     if(today<se.start)return{s:`Season starts ${nice(se.start)}`};
     const st=standings(se,today<ps?today:ps),i=st.findIndex(x=>x.id==='me');
-    if(today>=ps)return i===0?{s:'Won ✓',won:1}:{s:`Won by the ${esc(team(st[0].id).n)}`};
-    return i===0?{s:`You're top · ${diffDays(today,ps)} days left`,good:1}:{s:`You're ${ord(i+1)} · ${st[i].gb} game${st[i].gb===1?'':'s'} back`};
+    if(today>=ps)return i===0?{s:'Won ✓',won:1}:{s:`${esc(team(st[0].id).n)} won`};
+    if(!st[i].gp)return{s:'Not started'};
+    return i===0?{s:'1st',good:1}:st[i].gb===0?{s:`${ord(i+1)} · level`,good:1}:{s:`${ord(i+1)} · ${st[i].gb} GB`};
   }
-  if(se.done)return se.done.champ==='me'?{s:'Won ✓',won:1}:{s:`Won by the ${esc(team(se.done.champ).n)}`};
-  if(!se.seeds)return{s:`Top 8 make the playoffs · starts ${nice(ps,{day:'numeric',month:'short'})}`};
-  if(!se.seeds.includes('me'))return{s:'Missed the playoffs this time'};
+  if(se.done)return se.done.champ==='me'?{s:'Won ✓',won:1}:{s:`${esc(team(se.done.champ).n)} won`};
+  if(!se.seeds)return{s:`From ${nice(ps,{day:'numeric',month:'short'})}`};
+  if(!se.seeds.includes('me'))return{s:'Missed out'};
   const b=bracket(se,today);let alive=null;b.rounds.forEach((rs,r)=>rs.forEach(x=>{if((x.a==='me'||x.b==='me')&&!x.winner)alive=r}));
-  if(alive!==null)return{s:`Still alive · ${ROUND_NAMES[alive]}`,good:1};
+  if(alive!==null)return{s:`Alive · ${ROUND_NAMES[alive].replace('Quarterfinals','QF').replace('Semifinals','SF')}`,good:1};
   let last=null,lr=-1;b.rounds.forEach((rs,r)=>rs.forEach(x=>{if(x.a==='me'||x.b==='me'){last=x;lr=r}}));
-  if(last&&last.winner==='me')return lr===2?{s:'Won ✓',won:1}:{s:`Into the ${ROUND_NAMES[lr+1]} · waiting for opponent`,good:1};
+  if(last&&last.winner==='me')return lr===2?{s:'Won ✓',won:1}:{s:`Into the ${ROUND_NAMES[lr+1]}`,good:1};
   return{s:'Knocked out'};
 }
 function trophyCard(se){
-  if(!se)return '';
-  return `<div class="card stakes"><div class="small muted cond" style="margin-bottom:8px">Trophies at stake · ${divOf(se).n} · ${monthName(se.key)}</div><div class="tgrid">${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t),tv=divOf(se);
-    return `<div class="tcard ${st.won?'won':''}">${trophyImg(t,64,tv.id)}<b>${tv.n} ${t}</b><span class="small" style="color:var(--orange2)">${TIER_METAL[tv.id]}${t==='League Champions'?` · +${Math.round(500*tv.xp)} XP`:''}</span><span class="small muted">${TROPHIES[t].how}</span><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div>
-    <div class="small muted" style="margin-top:8px">Win one and it goes in your Club trophy cabinet.</div></div>`;
+  if(!se)return '';const tv=divOf(se);
+  return `<div class="card stakes"><div class="row" style="margin-bottom:4px"><b class="cond sp" style="font-size:13px;color:var(--muted)">Trophies at stake</b><span class="small" style="color:var(--orange2)">${tv.n} · ${TIER_METAL[tv.id]}</span></div>
+  ${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t);
+    return `<div class="trow ${st.won?'won':''}">${trophyImg(t,42,tv.id)}<div class="sp"><b>${t}</b><div class="small muted">${TROPHIES[t].how}${t==='League Champions'?` · +${Math.round(500*tv.xp)} XP`:''}</div></div><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div>`;
 }
 function leagueView(){
   const se=curSeason();const t=gameDate();
