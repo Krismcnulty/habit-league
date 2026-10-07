@@ -112,6 +112,12 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .tok .stc{position:absolute;top:-4px;right:-6px;background:#0b1020;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:1px 5px;border:1px solid #fff}
 .tag{margin-top:8px;background:rgba(11,16,32,.82);border-radius:8px;padding:2px 7px;font-size:11.5px;font-weight:700;max-width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 .tag .fire{font-size:10.5px}
+.ballfx{position:absolute;left:0;top:0;width:24px;height:24px;z-index:5;pointer-events:none;filter:drop-shadow(0 6px 4px rgba(0,0,0,.35))}
+.ballfx .ball{width:24px;height:24px;margin:0;display:block}
+.swish{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:3px solid #ff7a1a;z-index:4;pointer-events:none;animation:swish .55s ease-out forwards}
+@keyframes swish{from{transform:scale(.6);opacity:1}to{transform:scale(2.6);opacity:0}}
+.plus{position:absolute;z-index:6;pointer-events:none;font-weight:900;font-size:20px;color:#fff;text-shadow:0 2px 0 #b45309,0 0 10px rgba(255,122,26,.8);transform:translate(-50%,-50%);animation:plus 1s ease-out forwards}
+@keyframes plus{0%{opacity:0;margin-top:0}15%{opacity:1}100%{opacity:0;margin-top:-46px}}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -522,6 +528,23 @@ function courtView(D){
       <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}</div></div>`}).join('');
   return `<div class="court">${lines}${spots}</div>`;
 }
+function shoot(id){
+  try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
+  const court=document.querySelector('.court'),tok=court&&court.querySelector(`.tok[data-id="${id}"]`),p=S.squad.find(x=>x.id===id);
+  if(!tok||!p)return;
+  const cr=court.getBoundingClientRect(),tr=tok.getBoundingClientRect();
+  const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(296/330);
+  const peak=Math.min(y0,y1)-cr.height*.32,cy=2*peak-(y0+y1)/2,cx=(x0+x1)/2;
+  const ball=document.createElement('div');ball.className='ballfx';ball.innerHTML=ballSvg();court.appendChild(ball);
+  const kf=[],N=18;
+  for(let i=0;i<=N;i++){const t=i/N,u=1-t;const x=u*u*x0+2*u*t*cx+t*t*x1,y=u*u*y0+2*u*t*cy+t*t*y1;
+    kf.push({transform:`translate(${x-12}px,${y-12}px) rotate(${t*600}deg) scale(${1.15-.45*t})`,opacity:1,offset:t*.86})}
+  kf.push({transform:`translate(${x1-12}px,${y1+10-12}px) rotate(640deg) scale(.55)`,opacity:0,offset:1});
+  const fx=(cls,html)=>{const el=document.createElement('div');el.className=cls;el.style.left=x1+'px';el.style.top=y1+'px';if(html)el.textContent=html;court.appendChild(el);setTimeout(()=>el.remove(),1100)};
+  const a=ball.animate(kf,{duration:850,easing:'linear'});
+  a.onfinish=()=>{ball.remove();fx('swish');fx('plus','+'+pv(p))};
+  setTimeout(()=>ball.remove(),1500);
+}
 function stepsSheet(id){
   const p=S.squad.find(x=>x.id===id),D=ensureDay(gameDate());const v=D.t[p.id]||[];
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)} · ${SHOTS[p.shot].n} ${pv(p)} pts</div></div></div>
@@ -723,8 +746,8 @@ const A={
     const changed=JSON.stringify(steps)!==JSON.stringify(p.steps||[]);p.steps=steps;
     if(changed){const D=S.days[gameDate()];if(D){const v=D.t[p.id];D.t[p.id]=steps.length?(Array.isArray(v)?v.slice(0,steps.length):steps.map(()=>v===true)):(Array.isArray(v)?false:v)}}
     save();closeSheet();render()},
-  tick(d){const t=gameDate(),D=ensureDay(t);const before=score(D);D.t[d.id]=!(D.t[d.id]===true);afterTick(before,D)},
-  step(d){const t=gameDate(),D=ensureDay(t);const p=S.squad.find(x=>x.id===d.id);const before=score(D);const v=Array.isArray(D.t[p.id])?D.t[p.id]:p.steps.map(()=>false);v[+d.i]=!v[+d.i];D.t[p.id]=v;const open=!!document.getElementById('scrim');afterTick(before,D);if(open)stepsSheet(p.id)},
+  tick(d){const t=gameDate(),D=ensureDay(t);const before=score(D);D.t[d.id]=!(D.t[d.id]===true);afterTick(before,D);if(D.t[d.id]===true)shoot(d.id)},
+  step(d){const t=gameDate(),D=ensureDay(t);const p=S.squad.find(x=>x.id===d.id);const before=score(D);const v=Array.isArray(D.t[p.id])?D.t[p.id]:p.steps.map(()=>false);v[+d.i]=!v[+d.i];D.t[p.id]=v;const open=!!document.getElementById('scrim');afterTick(before,D);if(open){if(isDone(p,D)){closeSheet();setTimeout(()=>shoot(p.id),120)}else stepsSheet(p.id)}},
   steps(d){stepsSheet(d.id)},
   closeSheet(){closeSheet()},
   teamSet(d){S.teamSet=d.v;save();render()},
