@@ -198,6 +198,8 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .dprev svg{width:46px;height:46px;image-rendering:pixelated}
 .perks{margin:12px 0 6px;padding-left:18px;font-size:14px}
 .perks li{margin:3px 0}
+.badges{display:flex;flex-wrap:wrap;gap:6px}
+.badges span{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:19px;background:linear-gradient(135deg,#fbbf24,#ff7a1a)}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -910,12 +912,19 @@ function itemPreview(k,v){
   const base=S.squad.find(p=>p.slot==='court')||{id:'demo',pos:'fitness'};
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({...base,look:{...(base.look||{}),[k]:v}})}</span>`;
 }
-function achList(){const st=stats();
-  return ACH.map(a=>{const has=S.ach&&S.ach[a.id];const v=Math.min(a.v(st),a.goal);const big=a.goal>=1000;
+function achList(only){const st=stats();
+  return (only||ACH).map(a=>{const has=S.ach&&S.ach[a.id];const v=Math.min(a.v(st),a.goal);const big=a.goal>=1000;
     return `<div class="ach ${has?'got':''}"><div class="ic">${a.i}</div><div class="sp"><div class="row"><b class="sp">${a.n}</b>${has?`<span class="small" style="color:var(--gold)">✓ ${typeof has==='string'?nice(has,{day:'numeric',month:'short'}):''}</span>`:''}</div>
       <div class="small muted">${a.d}</div>
       ${a.goal>1&&!has?`<div class="pbar"><i style="width:${v/a.goal*100}%"></i></div><div class="small muted">${big?v.toLocaleString('en-GB')+' / '+a.goal.toLocaleString('en-GB')+' XP':v+' / '+a.goal}</div>`:''}
       <div class="small" style="margin-top:4px;color:${has?'var(--gold)':'var(--orange2)'}">${has?'Unlocked':'Unlocks'}: ${a.rw.map(([k,val])=>cosName(k,val)+' '+COS_NAMES[k]).join(' + ')}</div></div></div>`}).join('');
+}
+function achSummary(){
+  const st=stats(),got=ACH.filter(a=>S.ach&&S.ach[a.id]);
+  const next=ACH.filter(a=>!(S.ach&&S.ach[a.id])).sort((a,b)=>Math.min(b.v(st),b.goal)/b.goal-Math.min(a.v(st),a.goal)/a.goal).slice(0,2);
+  return `${got.length?`<div class="badges">${got.map(a=>`<span title="${esc(a.n)}">${a.i}</span>`).join('')}</div>`:''}
+  ${next.length?`<div class="small muted cond" style="margin:10px 0 0">Next up</div>${achList(next)}`:''}
+  <button class="btn block" style="margin:6px 0 12px" data-a="allAch">View all achievements</button>`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
@@ -950,7 +959,7 @@ function clubView(){
   <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
   <div class="sect"><h3 class="cond">Trophy cabinet</h3></div><div class="card" style="padding:4px 14px">${tro||'<p class="muted">Empty for now. Win the league or top the regular season.</p>'}</div>
-  <div class="sect"><h3 class="cond">Achievements</h3><span class="small muted">${ACH.filter(a=>S.ach&&S.ach[a.id]).length}/${ACH.length} · rewards show in the Locker</span></div><div class="card" style="padding:2px 14px">${achList()}</div>
+  <div class="sect"><h3 class="cond">Achievements</h3><span class="small muted">${ACH.filter(a=>S.ach&&S.ach[a.id]).length}/${ACH.length} · rewards show in the Locker</span></div><div class="card" style="padding:12px 14px 0">${achSummary()}</div>
   <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
   <div class="sect"><h3 class="cond">Backup</h3></div>
   <div class="card stack"><p class="small muted" style="margin:0">Everything is saved on this phone only. Save a backup now and then so you can restore it if you clear Chrome or change phone.</p>
@@ -1101,6 +1110,7 @@ const A={
   },
   togglePrem(){S.premium=!S.premium;save();render();toast(S.premium?'⭐ Premium preview on (no payment in the prototype)':'Premium preview off')},
   claim(d){if(!S.premium)return toast('⭐ Turn on the Premium preview to claim drops');if(!inDrop(d.k,d.v))return;S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();render();toast(`⭐ ${cosName(d.k,d.v)} ${COS_NAMES[d.k]} claimed`)},
+  allAch(){sheet(`<h2>Achievements</h2><p class="small muted" style="margin:4px 0 0">${ACH.filter(a=>S.ach&&S.ach[a.id]).length} of ${ACH.length} unlocked. Rewards show in the Locker.</p>${achList()}`)},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
