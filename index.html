@@ -187,6 +187,11 @@ const TEAMS=[
  {id:'gal',city:'Galway',n:'Tide',ab:'GAL',c:'#0891b2'},
  {id:'edi',city:'Edinburgh',n:'Castles',ab:'EDI',c:'#4f46e5'},
 ];
+// Real NBA names for personal testing only (switch in Club). Same ids, so saved results carry over.
+const NBA={bel:{city:'Los Angeles',n:'Lakers',ab:'LAL',c:'#552583'},dub:{city:'Boston',n:'Celtics',ab:'BOS',c:'#007A33'},gla:{city:'Golden State',n:'Warriors',ab:'GSW',c:'#1D428A'},
+ man:{city:'Chicago',n:'Bulls',ab:'CHI',c:'#CE1141'},cor:{city:'New York',n:'Knicks',ab:'NYK',c:'#F58426'},der:{city:'Miami',n:'Heat',ab:'MIA',c:'#98002E'},
+ ldn:{city:'Milwaukee',n:'Bucks',ab:'MIL',c:'#00471B'},lee:{city:'Denver',n:'Nuggets',ab:'DEN',c:'#0E2240'},liv:{city:'Oklahoma City',n:'Thunder',ab:'OKC',c:'#007AC1'},
+ gal:{city:'Philadelphia',n:'76ers',ab:'PHI',c:'#006BB6'},edi:{city:'Dallas',n:'Mavericks',ab:'DAL',c:'#00538C'}};
 const CAREER=[[0,'Rookie'],[1500,'Starter'],[4000,'Sixth Man'],[9000,'All-Star'],[18000,'MVP'],[30000,'Hall of Fame']];
 const ROUND_NAMES=['Quarterfinals','Semifinals','Finals'];
 const KEY='habitLeague.v1';
@@ -232,7 +237,7 @@ function ensureSeason(key){
   const se={key,start:first?S.firstStart:key+'-01',locked:first,teams,order,tb,injLeft:INJURY_USES,transferUsed:false,seeds:null,sw:[],done:null};
   S.seasons[key]=se;return se;
 }
-const team=id=>id==='me'?{id:'me',city:S.team.city,n:S.team.name,ab:S.team.ab,c:'#ff7a1a'}:TEAMS.find(t=>t.id===id);
+const team=id=>{if(id==='me')return{id:'me',city:S.team.city,n:S.team.name,ab:S.team.ab,c:'#ff7a1a'};const t=TEAMS.find(x=>x.id===id);return S.teamSet==='fictional'?t:{...t,...NBA[id]}};
 const rating=(se,id)=>se?(se.teams.find(t=>t.id===id)||{rating:.6}).rating:.6;
 const tname=id=>{const t=team(id);return `${t.city} ${t.n}`};
 
@@ -360,7 +365,7 @@ function faceSvg(p){
   const [sk,sh]=pick(SKINS),hair=pick(HAIRS);
   const style=pick(['short','short','bald','flat','afro','mohawk','buzz','curly']);
   const beard=r()<.3,stache=!beard&&r()<.2,glasses=r()<.14,mouth=pick(['smile','flat','grin','smile']);
-  const band=(posById(p.pos)||POS[0]).c,ink='#140b06';
+  const hasBand=r()<.25,band=pick(['#ef4444','#ffffff','#2563eb','#fbbf24','#22c55e','#a78bfa']),ink='#140b06';
   const G=Array.from({length:16},()=>Array(16).fill(null));
   const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
   const inHead=(x,y)=>y>=3&&y<=14&&x>=((y===3||y===14)?4:3)&&x<=((y===3||y===14)?11:12);
@@ -374,7 +379,7 @@ function faceSvg(p){
   if(style==='mohawk')for(let y=0;y<=4;y++){set(7,y,hair);set(8,y,hair)}
   if(style==='buzz'){for(let x=4;x<=11;x++)set(x,3,hair);for(let x=3;x<=12;x++)set(x,4,hair)}
   if(style==='bald'){set(5,4,'#ffffff55')}
-  for(let x=3;x<=12;x++){set(x,5,band);set(x,6,band)}set(13,6,band);set(14,7,band);
+  if(hasBand){for(let x=3;x<=12;x++){set(x,5,band);set(x,6,band)}set(13,6,band);set(14,7,band)}
   const brow=style==='bald'?sh:hair;[5,6,9,10].forEach(x=>set(x,7,brow));
   set(5,8,'#ffffff');set(6,8,ink);set(10,8,'#ffffff');set(9,8,ink);
   if(glasses){[4,5,6,7,8,9,10,11].forEach(x=>{set(x,7,ink);set(x,9,ink)});set(4,8,ink);set(7,8,ink);set(8,8,ink);set(11,8,ink)}
@@ -556,6 +561,8 @@ function clubView(){
   <div class="sect"><h3 class="cond">Backup</h3></div>
   <div class="card stack"><p class="small muted" style="margin:0">Everything is saved on this phone only. Save a backup now and then so you can restore it if you clear Chrome or change phone.</p>
   <div class="row"><button class="btn sp" data-a="backup">Save backup</button><button class="btn sp" data-a="restore">Restore backup</button></div></div>
+  <div class="sect"><h3 class="cond">League teams</h3></div>
+  <div class="tabs">${[['nba','NBA names'],['fictional','Fictional']].map(([k,n])=>`<button class="${(S.teamSet||'nba')===k?'on':''}" data-a="teamSet" data-v="${k}">${n}</button>`).join('')}</div>
   <details class="card" style="margin-top:12px"><summary>How it works</summary><div class="small muted stack" style="margin-top:8px">
   <p>Each player scores by difficulty: Layup 8, Jumper 14, Three 22, Slam dunk 40. Bench players score half. Custom players are always a Jumper.</p>
   <p>Your opponent's score is a share of your own daily maximum, so a strong day beats anyone. A tie goes to overtime, which you win if all your starters are done.</p>
@@ -674,6 +681,7 @@ const A={
     save();closeSheet();render()},
   tick(d){const t=gameDate(),D=ensureDay(t);const before=score(D);D.t[d.id]=!(D.t[d.id]===true);afterTick(before,D)},
   step(d){const t=gameDate(),D=ensureDay(t);const p=S.squad.find(x=>x.id===d.id);const before=score(D);const v=Array.isArray(D.t[p.id])?D.t[p.id]:p.steps.map(()=>false);v[+d.i]=!v[+d.i];D.t[p.id]=v;afterTick(before,D)},
+  teamSet(d){S.teamSet=d.v;save();render()},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
