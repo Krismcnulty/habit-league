@@ -690,7 +690,7 @@ function shoot(id){
 }
 function stepsSheet(id){
   const p=S.squad.find(x=>x.id===id),D=ensureDay(gameDate());const v=D.t[p.id]||[];
-  sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)} · ${SHOTS[p.shot].n} ${pv(p)} pts</div></div></div>
+  sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)} · ${pv(p)} pts</div></div></div>
   <div class="stack" style="margin-top:14px">${p.steps.map((s,i)=>`<button class="pl ${v[i]?'done':''}" style="width:100%" data-a="step" data-id="${p.id}" data-i="${i}"><span class="sp" style="text-align:left;font-weight:650">${esc(s)}</span><span class="tick">${v[i]?'✓':''}</span></button>`).join('')}</div>
   <button class="btn block" style="margin-top:12px" data-a="closeSheet">Done</button>`);
 }
@@ -702,7 +702,7 @@ function playerSection(title,slot,D){
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}">
       ${avatar(p)}
       <div class="sp" data-a="player" data-id="${p.id}"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
-      <div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting today':''}</div></div>
+      <div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${pv(p)} pts</span>${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting today':''}</div></div>
       ${p.steps&&p.steps.length?`<button class="tick" data-a="steps" data-id="${p.id}" ${inj?'disabled':''} style="${done?'':'font-size:14px'}">${done?'✓':(D.t[p.id]||[]).filter(Boolean).length+'/'+p.steps.length}</button>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
     </div>${steps}</div>`}).join('');
 }
@@ -762,7 +762,7 @@ function statsBlock(p){
   return `<div class="stgrid"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Season</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>
   <div class="form">Last 7: ${st.form.map(x=>`<i class="${x}" title="${{y:'Scored',n:'Missed',i:'Rested',t:'Today'}[x]}"></i>`).join('')}</div>`;
 }
-function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${(()=>{const st=S.firstStart&&pStats(p);return st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''})()}</div></div><span class="muted">›</span></div>`}
+function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${pv(p)} pts</span>${(()=>{const st=S.firstStart&&pStats(p);return st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''})()}</div></div><span class="muted">›</span></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max;
@@ -809,7 +809,7 @@ function clubView(){
   <div class="sect"><h3 class="cond">League teams</h3></div>
   <div class="tabs">${[['nba','NBA names'],['fictional','Fictional']].map(([k,n])=>`<button class="${(S.teamSet||'nba')===k?'on':''}" data-a="teamSet" data-v="${k}">${n}</button>`).join('')}</div>
   <details class="card" style="margin-top:12px"><summary>How it works</summary><div class="small muted stack" style="margin-top:8px">
-  <p>Each player scores by difficulty: Layup 8, Jumper 14, Three 22, Slam dunk 40. Bench players score half. Custom players are always a Jumper.</p>
+  <p>Each player scores by difficulty: 8, 14, 22 or 40 points. Bench players score half. Custom players are always worth 14.</p>
   <p>Your opponent's score is a share of your own daily maximum, so a strong day beats anyone. A tie goes to overtime, which you win if all your starters are done.</p>
   <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
   <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
@@ -831,13 +831,13 @@ function libSheet(ctx){
     const items=LIB.filter(x=>x.pos===pos.id&&!owned.has(x.id));
     if(!items.length)return '';
     return `<div class="sect"><h3 class="cond">${pos.n}</h3></div>`+items.map(x=>`<div class="lib"><b>${esc(x.n)}</b>${x.steps?` <span class="small muted">· ${x.steps.length} steps</span>`:''}${x.starter?' <span class="chip">Starter</span>':''}
-      <div class="lvls">${x.lv.map((l,i)=>{const ok=SHOTS[l.shot].pts>=minPts&&!(sell&&sell.lib===x.id&&SHOTS[l.shot].pts<=minPts);return `<button class="lvl" data-a="signLib" data-lib="${x.id}" data-i="${i}" ${ok?'':'disabled'}>${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].n} ${SHOTS[l.shot].pts}</span></button>`}).join('')}</div></div>`).join('');
+      <div class="lvls">${x.lv.map((l,i)=>{const ok=SHOTS[l.shot].pts>=minPts&&!(sell&&sell.lib===x.id&&SHOTS[l.shot].pts<=minPts);return `<button class="lvl" data-a="signLib" data-lib="${x.id}" data-i="${i}" ${ok?'':'disabled'}>${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts} pts</span></button>`}).join('')}</div></div>`).join('');
   }).join('');
   const customs=S.squad.filter(p=>p.custom&&(!sell||p.id!==sell.id)).length;
   const canCustom=customs<MAX_CUSTOM&&SHOTS[CUSTOM_SHOT].pts>=minPts&&!(sell&&sell.custom);
   sheet(`<h2>${sell?`Transfer: replace ${esc(sell.name)}`:ctx.slot==='court'?`Sign a ${posById(ctx.pos).n} starter`:'Sign a bench player'}</h2>
   <p class="small muted" style="margin:0 0 6px">${sell?`Pick someone worth ${minPts}+ points${posFilter?` in ${posById(posFilter).n}`:''}. This uses your one transfer for the season.`:'Pick a player and the level that stretches you.'}</p>
-  ${canCustom?`<div class="card" style="margin:10px 0"><b>Custom player</b> <span class="small muted">(${customs}/${MAX_CUSTOM} used · always a Jumper, ${SHOTS[CUSTOM_SHOT].pts} pts)</span>
+  ${canCustom?`<div class="card" style="margin:10px 0"><b>Custom player</b> <span class="small muted">(${customs}/${MAX_CUSTOM} used · always ${SHOTS[CUSTOM_SHOT].pts} pts)</span>
    <div class="row" style="margin-top:8px"><input id="cName" maxlength="28" placeholder="e.g. Exam study">${posFilter?'':`<select id="cPos" style="width:auto">${POS.map(p=>`<option value="${p.id}">${p.a}</option>`).join('')}</select>`}</div>
    <button class="btn block" style="margin-top:8px" data-a="signCustom">Sign custom player</button></div>`:''}
   ${groups||'<p class="muted">No eligible players left in the library.</p>'}`);
@@ -861,7 +861,7 @@ function playerSheet(id){
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
   ${statsBlock(p)}
   ${(()=>{const fp=faceParams(p);const ex=` data-id="${p.id}"`;return `<div class="small muted" style="margin-top:14px">Hair</div>${chips('hair',fp.style,'look',ex)}<div class="small muted" style="margin-top:10px">Headband</div>${chips('band',fp.band,'look',ex)}<div class="small muted" style="margin-top:10px">Extras</div>${chips('extra',fp.extra,'look',ex)}<p class="small muted" style="margin:8px 0 0">🔒 looks unlock in Awards. 🎲 gives a whole new random face.</p>`})()}
-  <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${SHOTS[p.shot].n} ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
+  <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
   ${a}
   <div class="small muted" style="margin-top:16px">Name (always editable)</div>
   <input id="pName" maxlength="28" value="${esc(p.name)}" style="margin-top:6px">
