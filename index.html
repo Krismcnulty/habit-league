@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Your habits are your squad. Every day is a game.">
+<title>Habit League</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg:#0b1020;--panel:#141b2e;--panel2:#1a2340;--line:#26304d;--text:#eef2ff;--muted:#8d96b5;
+  --orange:#ff7a1a;--orange2:#ffb066;--green:#22c55e;--red:#f05252;--gold:#fbbf24;--blue:#60a5fa;
+  --layup:#94a3b8;--jumper:#2dd4bf;--three:#a78bfa;--dunk:#ff7a1a;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1,h2,h3{margin:0;letter-spacing:.02em}
+.cond{font-family:"Arial Narrow","Roboto Condensed",system-ui,sans-serif;font-stretch:condensed;text-transform:uppercase;font-weight:800;letter-spacing:.04em}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.stack>*+*{margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-weight:600}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#1a0d00}
+.btn.danger{color:var(--red)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.4}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
+.pos{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:#0f1630;color:var(--orange2);border:1px solid var(--line);min-width:38px;text-align:center}
+.shot-layup{color:var(--layup)}.shot-jumper{color:var(--jumper)}.shot-three{color:var(--three)}.shot-dunk{color:var(--dunk)}
+.top{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 14px}
+.top h1{font-size:24px}
+/* scoreboard */
+.board{background:radial-gradient(120% 140% at 50% -20%,#2a1a0e 0%,#141b2e 55%);border:1px solid #3a2a1c;border-radius:20px;padding:16px 14px 14px;position:relative;overflow:hidden}
+.board:after{content:"";position:absolute;inset:auto -40px -70px auto;width:180px;height:180px;border:2px solid rgba(255,122,26,.12);border-radius:50%}
+.phase{font-size:12px;text-align:center;color:var(--orange2);margin-bottom:10px}
+.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.tm{text-align:center;min-width:0}
+.badge{width:46px;height:46px;border-radius:12px;margin:0 auto 6px;display:grid;place-items:center;font-weight:900;font-size:14px;color:#fff;letter-spacing:.04em;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.tmname{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec{font-size:12px;color:var(--muted)}
+.score{display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums;font-weight:900;font-size:44px;line-height:1}
+.score .dash{font-size:22px;color:var(--muted)}
+.score .lead{color:var(--orange)}
+.bar{height:8px;border-radius:99px;background:#0c1226;margin:14px 0 8px;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--orange2));border-radius:99px;transition:width .4s}
+.bar b{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff}
+.status{text-align:center;font-weight:700}
+/* players */
+.sect{display:flex;align-items:baseline;justify-content:space-between;margin:18px 2px 8px}
+.sect h3{font-size:14px;color:var(--muted)}
+.pl{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.pl+.pl{margin-top:8px}
+.pl .nm{font-weight:650}
+.pl .meta{font-size:12px;color:var(--muted)}
+.pl.done{border-color:rgba(34,197,94,.45);background:linear-gradient(90deg,rgba(34,197,94,.10),var(--panel) 60%)}
+.pl.inj{opacity:.55}
+.tick{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:20px;font-weight:900}
+.done .tick{background:var(--green);border-color:var(--green);color:#052e12}
+.steps{margin:8px 0 0 48px;display:flex;flex-wrap:wrap;gap:6px}
+.step{padding:6px 10px;border-radius:99px;border:1px solid var(--line);font-size:13px;background:var(--panel2)}
+.step.on{background:rgba(34,197,94,.18);border-color:var(--green);color:#bbf7d0}
+.fire{font-size:12px;color:var(--orange2);font-weight:700}
+.empty{border:1.5px dashed var(--line);background:transparent;color:var(--muted);justify-content:center}
+/* table */
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:11px;color:var(--muted);text-align:right;padding:6px 4px;font-weight:700;letter-spacing:.05em}
+td{padding:9px 4px;text-align:right;border-top:1px solid var(--line);font-size:14px}
+th:nth-child(2),td:nth-child(2){text-align:left}
+th:first-child,td:first-child{text-align:center;width:24px;color:var(--muted)}
+tr.me td{background:rgba(255,122,26,.10);font-weight:700}
+tr.cut td{border-top:2px dashed var(--orange)}
+.mini{width:22px;height:22px;border-radius:6px;display:inline-grid;place-items:center;font-size:9px;font-weight:900;color:#fff;margin-right:8px;vertical-align:middle}
+.tabs{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
+.tabs button{flex:1;padding:8px;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted)}
+.tabs button.on{background:var(--panel2);color:var(--text)}
+.res{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid var(--line)}
+.wl{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-weight:900;font-size:13px}
+.W{background:rgba(34,197,94,.18);color:var(--green)}.L{background:rgba(240,82,82,.16);color:var(--red)}
+.series{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:14px}
+.series+.series{margin-top:6px}
+.series .ln{display:flex;justify-content:space-between;padding:2px 0}
+.series .win{font-weight:800}
+.series.mine{border-color:var(--orange)}
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav[hidden]{display:none}
+nav button{flex:1;max-width:140px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;font-size:11px;font-weight:700;color:var(--muted)}
+nav button.on{color:var(--orange)}
+nav svg{width:24px;height:24px}
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--panel);border-top-left-radius:22px;border-top-right-radius:22px;width:100%;max-width:560px;max-height:88vh;overflow:auto;padding:18px 16px calc(20px + env(safe-area-inset-bottom));border:1px solid var(--line)}
+.sheet h2{font-size:19px;margin-bottom:4px}
+.grab{width:40px;height:4px;background:var(--line);border-radius:4px;margin:-6px auto 12px}
+.lib{padding:10px 0;border-top:1px solid var(--line)}
+.lvls{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.lvl{padding:7px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:13px;font-weight:600}
+.lvl.on{border-color:var(--orange);color:var(--orange2)}
+.lvl:disabled{opacity:.35}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;z-index:30;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:90%;text-align:center}
+.banner{border-radius:14px;padding:12px 14px;background:rgba(255,122,26,.10);border:1px solid rgba(255,122,26,.35)}
+.xp{height:10px;background:#0c1226;border-radius:99px;overflow:hidden}
+.xp i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--orange))}
+.trophy{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.trophy:first-child,.res:first-child{border-top:0}
+.hero{text-align:center;padding:26px 8px 8px}
+.ball{width:84px;height:84px;margin:0 auto 14px}
+details summary{cursor:pointer;font-weight:700}
+.vet{font-size:10px;font-weight:800;color:var(--gold);border:1px solid var(--gold);border-radius:5px;padding:0 4px;margin-left:4px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav" hidden>
+  <button data-a="go" data-v="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18M5.6 5.6c3 3 3 9.8 0 12.8M18.4 5.6c-3 3-3 9.8 0 12.8"/></svg>Today</button>
+  <button data-a="go" data-v="league"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>League</button>
+  <button data-a="go" data-v="squad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.3 0 4 1.4 4.5 4"/></svg>Squad</button>
+  <button data-a="go" data-v="club"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg>Club</button>
+</nav>
+<input type="file" id="restoreFile" accept="application/json,.json" hidden>
+<script>
+'use strict';
+/* ===================== constants ===================== */
+const SHOTS={layup:{n:'Layup',pts:8},jumper:{n:'Jumper',pts:14},three:{n:'Three',pts:22},dunk:{n:'Slam dunk',pts:40}};
+const SHOT_ORDER=['layup','jumper','three','dunk'];
+const POS=[{id:'fitness',n:'Fitness',a:'FIT'},{id:'mind',n:'Mind',a:'MND'},{id:'routine',n:'Routine',a:'RTN'},{id:'home',n:'Home',a:'HOM'},{id:'money',n:'Money',a:'MNY'}];
+const posById=id=>POS.find(p=>p.id===id);
+const CUSTOM_SHOT='jumper', MAX_CUSTOM=2, BENCH_SIZE=5, INJURY_USES=3, TRANSFER_DAYS=7;
+const L=(l,shot)=>({l,shot});
+const LIB=[
+ {id:'gym',n:'Gym Session',pos:'fitness',lv:[L('30 minutes','three'),L('Full session','dunk')]},
+ {id:'steps',n:'Daily Steps',pos:'fitness',lv:[L('5k steps','layup'),L('8k steps','jumper'),L('12k steps','three')]},
+ {id:'run',n:'Run',pos:'fitness',lv:[L('2k','jumper'),L('5k','three'),L('10k','dunk')]},
+ {id:'homewo',n:'Home Workout',pos:'fitness',lv:[L('15 minutes','jumper'),L('30 minutes','three')]},
+ {id:'mobility',n:'Stretch & Mobility',pos:'fitness',lv:[L('5 minutes','layup'),L('15 minutes','jumper')]},
+ {id:'nutrition',n:'Nutrition',pos:'fitness',lv:[L('Track meals','jumper'),L('Hit macros','three')]},
+ {id:'protein',n:'Protein Target',pos:'fitness',lv:[L('Hit target','jumper')]},
+ {id:'read',n:'Reading',pos:'mind',lv:[L('10 minutes','layup'),L('One chapter','jumper'),L('30 minutes','three')]},
+ {id:'meditate',n:'Meditate',pos:'mind',lv:[L('5 minutes','layup'),L('15 minutes','jumper')]},
+ {id:'journal',n:'Journal',pos:'mind',lv:[L('3 lines','layup'),L('Full page','jumper')]},
+ {id:'language',n:'Learn a Language',pos:'mind',lv:[L('One lesson','layup'),L('20 minutes','jumper')]},
+ {id:'study',n:'Study / Course',pos:'mind',lv:[L('30 minutes','jumper'),L('1 hour','three'),L('2 hours','dunk')]},
+ {id:'screen',n:'Screen Time Limit',pos:'mind',lv:[L('Under 3 hours','jumper'),L('Under 2 hours','three')]},
+ {id:'podcast',n:'Podcast or Audiobook',pos:'mind',lv:[L('20 minutes','layup')]},
+ {id:'morning',n:'Morning Routine',pos:'routine',starter:1,steps:['Brush teeth','Wash face','Make bed'],lv:[L('Full routine','layup')]},
+ {id:'night',n:'Night Routine',pos:'routine',starter:1,steps:['Brush teeth','Skincare','Phone away'],lv:[L('Full routine','layup')]},
+ {id:'water',n:'Water',pos:'routine',starter:1,lv:[L('1.5 litres','layup'),L('2 litres','jumper'),L('3 litres','three')]},
+ {id:'bedtime',n:'Bedtime',pos:'routine',lv:[L('In bed by 12','jumper'),L('In bed by 11','three')]},
+ {id:'early',n:'Early Rise',pos:'routine',lv:[L('Up by 8','jumper'),L('Up by 7','three')]},
+ {id:'plan',n:'Plan Tomorrow',pos:'routine',lv:[L('5-minute plan','layup')]},
+ {id:'tidy',n:'Tidy Up',pos:'home',lv:[L('10 minutes','layup'),L('Full room reset','jumper')]},
+ {id:'dishes',n:'Dishes',pos:'home',lv:[L('Sink empty','layup')]},
+ {id:'laundry',n:'Laundry',pos:'home',lv:[L('Wash, dry, put away','jumper')]},
+ {id:'cook',n:'Cook a Meal',pos:'home',lv:[L('One meal','jumper'),L('Meal prep','three')]},
+ {id:'clean',n:'Deep Clean',pos:'home',lv:[L('One area','three')]},
+ {id:'spend',n:'Log Spending',pos:'money',lv:[L('Log today','layup')]},
+ {id:'nospend',n:'No-Spend Day',pos:'money',lv:[L('Zero extras','jumper')]},
+ {id:'lunch',n:'Packed Lunch',pos:'money',lv:[L('Bring lunch','layup')]},
+ {id:'budget',n:'Budget Check-in',pos:'money',lv:[L('Review accounts','jumper')]},
+ {id:'side',n:'Side Project',pos:'money',lv:[L('30 minutes','three'),L('1 hour','dunk')]},
+];
+const libById=id=>LIB.find(x=>x.id===id);
+const TEAMS=[
+ {id:'bel',city:'Belfast',n:'Shipbuilders',ab:'BEL',c:'#1d4ed8'},
+ {id:'dub',city:'Dublin',n:'Liffey Kings',ab:'DUB',c:'#059669'},
+ {id:'gla',city:'Glasgow',n:'Thistles',ab:'GLA',c:'#7c3aed'},
+ {id:'man',city:'Manchester',n:'Rainmakers',ab:'MAN',c:'#0e7490'},
+ {id:'cor',city:'Cork',n:'Harbour Hounds',ab:'COR',c:'#b91c1c'},
+ {id:'der',city:'Derry',n:'Walls',ab:'DER',c:'#a16207'},
+ {id:'ldn',city:'London',n:'Ravens',ab:'LDN',c:'#334155'},
+ {id:'lee',city:'Leeds',n:'Loiners',ab:'LEE',c:'#ca8a04'},
+ {id:'liv',city:'Liverpool',n:'Mersey Ferries',ab:'LIV',c:'#dc2626'},
+ {id:'gal',city:'Galway',n:'Tide',ab:'GAL',c:'#0891b2'},
+ {id:'edi',city:'Edinburgh',n:'Castles',ab:'EDI',c:'#4f46e5'},
+];
+const CAREER=[[0,'Rookie'],[1500,'Starter'],[4000,'Sixth Man'],[9000,'All-Star'],[18000,'MVP'],[30000,'Hall of Fame']];
+const ROUND_NAMES=['Quarterfinals','Semifinals','Finals'];
+const KEY='habitLeague.v1';
+
+/* ===================== dates ===================== */
+const pad=n=>String(n).padStart(2,'0');
+const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return fmt(d)};
+const diffDays=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const nowMs=()=>window.HL_NOW?+new Date(window.HL_NOW):Date.now();
+const gameDate=()=>fmt(new Date(nowMs()-4*3600e3));
+const skey=d=>d.slice(0,7);
+const dim=key=>{const[y,m]=key.split('-').map(Number);return new Date(y,m,0).getDate()};
+const poStart=key=>`${key}-${pad(dim(key)-8)}`;
+const monthEnd=key=>`${key}-${pad(dim(key))}`;
+const nextKey=key=>skey(addDays(monthEnd(key),1));
+const nice=(s,o={weekday:'short',day:'numeric',month:'short'})=>parse(s).toLocaleDateString('en-GB',o);
+const monthName=key=>parse(key+'-01').toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+/* ===================== rng ===================== */
+function hash(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19}return()=>{h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return(h^=h>>>16)>>>0}}
+function rng(seed){let a=hash(seed)();return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(arr,r){for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const pWin=(ra,rb)=>clamp(.5+(ra-rb)*2,.15,.85);
+const uid=()=>'p'+Math.random().toString(36).slice(2,9);
+
+/* ===================== state ===================== */
+let S=load();
+function blank(){return{v:1,team:null,squad:[],firstStart:null,startDate:null,seasons:{},days:{},xp:0,trophies:[],history:[]}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return s}catch(e){}return blank()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save — storage is full or blocked')}}
+
+/* ===================== season engine ===================== */
+function ensureSeason(key){
+  if(S.seasons[key])return S.seasons[key];
+  const first=key===skey(S.firstStart);
+  const r=rng('season'+key);
+  const teams=TEAMS.map(t=>({id:t.id,rating:+(0.50+r()*0.32).toFixed(3)}));
+  const order=shuffle(teams.map(t=>t.id),r);
+  const tb={me:r()};teams.forEach(t=>tb[t.id]=r());
+  const se={key,start:first?S.firstStart:key+'-01',locked:first,teams,order,tb,injLeft:INJURY_USES,transferUsed:false,seeds:null,sw:[],done:null};
+  S.seasons[key]=se;return se;
+}
+const team=id=>id==='me'?{id:'me',city:S.team.city,n:S.team.name,ab:S.team.ab,c:'#ff7a1a'}:TEAMS.find(t=>t.id===id);
+const rating=(se,id)=>se?(se.teams.find(t=>t.id===id)||{rating:.6}).rating:.6;
+const tname=id=>{const t=team(id);return `${t.city} ${t.n}`};
+
+function standings(se,upto){
+  const rec={};const mk=id=>rec[id]={id,w:0,l:0,res:[]};
+  se.teams.forEach(t=>mk(t.id));mk('me');
+  const add=(id,w)=>{const x=rec[id];w?x.w++:x.l++;x.res.push(w?'W':'L')};
+  const end=poStart(se.key);let d=se.start,i=0;
+  while(d<upto&&d<end){
+    const D=S.days[d];
+    if(D&&D.locked&&D.ph==='reg'){
+      const opp=se.order[i%se.order.length];const W=D.res==='W';add('me',W);add(opp,!W);
+      const r=rng(se.key+d+'pairs');const others=shuffle(se.teams.map(t=>t.id).filter(x=>x!==opp),r);
+      for(let j=0;j+1<others.length;j+=2){const a=others[j],b=others[j+1];const aw=r()<pWin(rating(se,a),rating(se,b));add(a,aw);add(b,!aw)}
+    }
+    d=addDays(d,1);i++;
+  }
+  const list=Object.values(rec).sort((a,b)=>(b.w-b.l)-(a.w-a.l)||b.w-a.w||se.tb[b.id]-se.tb[a.id]);
+  const top=list[0];
+  list.forEach(x=>{x.gp=x.w+x.l;x.pct=x.gp?x.w/x.gp:0;x.gb=((top.w-x.w)+(x.l-top.l))/2;
+    let k=x.res.length,s=0;const last=x.res[k-1];while(k-->0&&x.res[k]===last)s++;x.strk=last?last+s:'—'});
+  return list;
+}
+function bracket(se,upto){
+  if(!se.seeds)return null;
+  const ps=poStart(se.key),sd=se.seeds;
+  const mk=(a,b,sa,sb)=>({a,b,sa,sb,wa:0,wb:0,winner:null,games:[]});
+  const seedOf=id=>sd.indexOf(id)+1;
+  const rounds=[[mk(sd[0],sd[7],1,8),mk(sd[3],sd[4],4,5),mk(sd[1],sd[6],2,7),mk(sd[2],sd[5],3,6)],[],[]];
+  for(let r=0;r<3;r++){
+    if(r>0){const prev=rounds[r-1];if(!prev.length||!prev.every(s=>s.winner))break;
+      for(let i=0;i<prev.length;i+=2){const a=prev[i].winner,b=prev[i+1].winner;rounds[r].push(mk(a,b,seedOf(a),seedOf(b)))}}
+    for(let g=0;g<3;g++){
+      const d=addDays(ps,r*3+g);if(d>=upto)break;
+      for(const s of rounds[r]){
+        if(s.winner)continue;let aw;
+        if(s.a==='me'||s.b==='me'){const D=S.days[d];if(!D||!D.locked||D.ph!=='po')continue;aw=(s.a==='me')===(D.res==='W');s.games.push({d,me:D.me,opp:D.opp,res:D.res})}
+        else{aw=rng(se.key+d+s.a+s.b)()<pWin(rating(se,s.a),rating(se,s.b));s.games.push({d,aw})}
+        aw?s.wa++:s.wb++;if(s.wa===2)s.winner=s.a;if(s.wb===2)s.winner=s.b;
+      }
+    }
+  }
+  return{rounds};
+}
+function ensureDay(d){
+  let D=S.days[d];if(D&&D.ph)return D;
+  D=S.days[d]=D||{t:{},inj:[]};
+  const r=rng('day'+d);let se=null,bump=0;
+  const friendly=()=>{D.ph='ex';const ids=TEAMS.map(t=>t.id);D.oppId=ids[Math.floor(r()*ids.length)]};
+  if(d<S.firstStart){friendly()}
+  else{
+    se=ensureSeason(skey(d));const ps=poStart(se.key);
+    if(d<ps){D.ph='reg';D.gn=diffDays(se.start,d)+1;D.oppId=se.order[(D.gn-1)%se.order.length]}
+    else{
+      if(!se.seeds)se.seeds=standings(se,ps).slice(0,8).map(x=>x.id);
+      const off=diffDays(ps,d),rd=Math.floor(off/3);const b=bracket(se,d);
+      const s=(b.rounds[rd]||[]).find(x=>!x.winner&&(x.a==='me'||x.b==='me'));
+      if(s){D.ph='po';D.rd=rd;D.g=s.games.length+1;D.oppId=s.a==='me'?s.b:s.a;D.ser=s.a==='me'?[s.wa,s.wb]:[s.wb,s.wa];bump=.03}
+      else friendly();
+    }
+  }
+  D.f=+clamp(rating(se,D.oppId)+(r()-.5)*.12+bump,.35,.93).toFixed(3);
+  return D;
+}
+const pv=p=>Math.round(SHOTS[p.shot].pts*(p.slot==='court'?1:.5));
+function isDone(p,D){const v=D.t[p.id];return p.steps&&p.steps.length?Array.isArray(v)&&p.steps.every((_,i)=>v[i]):v===true}
+function score(D){let me=0,max=0;for(const p of S.squad){if(D.inj.includes(p.id))continue;const v=pv(p);max+=v;if(isDone(p,D))me+=v}return{me,max,opp:Math.round(D.f*max)}}
+function lockDay(d){
+  const D=ensureDay(d);const sc=score(D);
+  D.me=sc.me;D.max=sc.max;D.opp=sc.opp;
+  if(D.me===D.opp&&D.max>0){D.ot=true;D.res=S.squad.filter(p=>p.slot==='court'&&!D.inj.includes(p.id)).every(p=>isDone(p,D))?'W':'L'}
+  else D.res=D.me>D.opp?'W':'L';
+  D.locked=true;
+  const W=D.res==='W';
+  S.xp+=D.me+(W?(D.ph==='ex'?20:50):0);
+  if(d>=S.firstStart){
+    const se=ensureSeason(skey(d));
+    if(!se.locked&&d>=se.start)se.locked=true;
+    if(D.ph==='po'){const b=bracket(se,addDays(d,1));b.rounds.forEach((rs,i)=>rs.forEach(s=>{if(s.winner==='me'&&!se.sw.includes(i)){se.sw.push(i);S.xp+=100}}))}
+    if(d===monthEnd(se.key))finalize(se);
+  }
+}
+function finalize(se){
+  if(se.done)return;
+  const st=standings(se,poStart(se.key));const me=st.find(x=>x.id==='me');const seed=st.indexOf(me)+1;
+  const b=bracket(se,addDays(monthEnd(se.key),1));
+  const champ=b&&b.rounds[2][0]?b.rounds[2][0].winner:null;
+  let result='Missed playoffs';
+  if(se.seeds&&se.seeds.includes('me')){const out=se.sw.length;result=champ==='me'?'Champions':['Lost in Quarterfinals','Lost in Semifinals','Lost in Finals'][out]||'Playoffs'}
+  se.done={w:me.w,l:me.l,seed,result,champ};
+  if(seed===1)S.trophies.push({t:'Regular Season Winners',k:se.key});
+  if(champ==='me'){S.trophies.push({t:'League Champions',k:se.key});S.xp+=500}
+  S.history.unshift({k:se.key,w:me.w,l:me.l,seed,result,champ});
+  S.squad.forEach(p=>p.seasons=(p.seasons||0)+1);
+}
+function processDays(){
+  if(!S.startDate)return;
+  const today=gameDate();let d=S.lastLocked?addDays(S.lastLocked,1):S.startDate;let n=0;
+  while(d<today&&n<800){lockDay(d);S.lastLocked=d;d=addDays(d,1);n++}
+  if(n){S.newResult=S.lastLocked;save()}
+}
+/* ===================== helpers ===================== */
+const curSeason=()=>{const t=gameDate();return S.firstStart&&t>=S.firstStart?ensureSeason(skey(t)):(S.firstStart?ensureSeason(skey(S.firstStart)):null)};
+function canEditSquad(){if(!S.firstStart)return true;const se=curSeason();return se&&!se.locked}
+function transferOpen(){const se=curSeason();if(!se||!se.locked||se.transferUsed)return false;const t=gameDate();if(t<se.start)return false;return diffDays(se.start,t)<TRANSFER_DAYS}
+function streak(p){
+  const today=gameDate();let n=0;const D0=S.days[today];if(D0&&isDone(p,D0))n++;
+  let d=addDays(today,-1);
+  for(let i=0;i<400;i++){const D=S.days[d];if(!D||!D.locked)break;if(D.inj.includes(p.id)){d=addDays(d,-1);continue}if(!isDone(p,D))break;n++;d=addDays(d,-1)}
+  return n;
+}
+function career(){let i=0;while(i+1<CAREER.length&&S.xp>=CAREER[i+1][0])i++;const[lo,name]=CAREER[i];const hi=CAREER[i+1]?CAREER[i+1][0]:null;return{name,lo,hi,pct:hi?(S.xp-lo)/(hi-lo):1}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const badge=(id,sz=46)=>{const t=team(id);return `<div class="badge" style="background:${t.c};width:${sz}px;height:${sz}px">${esc(t.ab)}</div>`};
+const mini=id=>{const t=team(id);return `<span class="mini" style="background:${t.c}">${esc(t.ab)}</span>`};
+function recordOf(id){const se=curSeason();if(!se)return '';const st=standings(se,gameDate());const x=st.find(r=>r.id===id);return x?`${x.w}–${x.l}`:''}
+function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
+
+/* ===================== views ===================== */
+let view='today',leagueTab='table',setupStep=0;
+const app=document.getElementById('app');
+function render(){
+  processDays();
+  const nav=document.getElementById('nav');
+  if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
+  nav.hidden=false;
+  nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===view));
+  app.innerHTML=({today:todayView,league:leagueView,squad:squadView,club:clubView})[view]();
+}
+
+function setupView(){
+  if(!S.team||setupStep===0)return `
+  <div class="hero">
+    ${ballSvg()}
+    <h1 class="cond" style="font-size:34px">Habit League</h1>
+    <p class="muted">Your habits are your squad. Every day is a game.</p>
+  </div>
+  <div class="card stack">
+    <label class="small muted">Team city or town</label>
+    <input id="fCity" maxlength="20" placeholder="e.g. Belfast" value="${esc(S.team?S.team.city:'')}">
+    <label class="small muted">Team name</label>
+    <input id="fName" maxlength="20" placeholder="e.g. Night Owls" value="${esc(S.team?S.team.name:'')}">
+    <label class="small muted">Short code (3 letters)</label>
+    <input id="fAb" maxlength="3" placeholder="Auto" value="${esc(S.team?S.team.ab:'')}" style="text-transform:uppercase">
+    <button class="btn primary block" data-a="saveTeam">Next: sign your squad</button>
+  </div>
+  <p class="small muted" style="text-align:center;margin-top:14px">Already playing on another phone? <button class="small" style="color:var(--orange2);font-weight:700" data-a="restore">Restore a backup</button></p>`;
+  if(setupStep===1)return `
+  <div class="top"><h1 class="cond">Sign your squad</h1><button class="small muted" data-a="setupBack">Back</button></div>
+  <p class="muted small" style="margin:-6px 2px 12px">Five starters, one per position, score full points. Five bench players score half. Each player has levels: pick the one that stretches you.</p>
+  ${squadLists(true)}
+  <button class="btn primary block" style="margin-top:18px" data-a="toTipoff" ${squadReady()?'':'disabled'}>${squadReady()?'Next: tip-off':`Fill all ${5+BENCH_SIZE} spots to continue`}</button>`;
+  const t=gameDate(),ps=poStart(skey(t));const regLeft=diffDays(t,ps);
+  const short=regLeft<6;
+  return `
+  <div class="top"><h1 class="cond">Tip-off</h1><button class="small muted" data-a="setupBack1">Back</button></div>
+  <div class="card stack">
+    <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one transfer in the first ${TRANSFER_DAYS} days</b> and the <b>injury list</b> (${INJURY_USES} rest days a season). Renaming and editing steps are always allowed.</p>
+    <p class="muted small" style="margin:0">Results lock at 4am. The last 9 days of each month are the playoffs: top 8, best-of-3, quarterfinals to Finals.</p>
+    ${short?`<div class="banner small">It's too late in ${monthName(skey(t))} for a regular season, so you'll play friendlies until the new season starts on ${nice(addDays(monthEnd(skey(t)),1),{day:'numeric',month:'long'})}.</div>
+      <button class="btn primary block" data-a="tipoff" data-d="${addDays(monthEnd(skey(t)),1)}">Lock in for ${monthName(nextKey(skey(t)))}</button>`
+    :`<button class="btn primary block" data-a="tipoff" data-d="${t}">Tip off today</button>
+      <button class="btn block" data-a="tipoff" data-d="${addDays(t,1)}">Tip off tomorrow</button>
+      <p class="small muted" style="margin:0">A late-registration season: everyone starts level from your first game. Playoffs begin ${nice(ps,{weekday:'long',day:'numeric',month:'long'})}.</p>`}
+  </div>`;
+}
+function squadReady(){return POS.every(p=>S.squad.some(x=>x.slot==='court'&&x.pos===p.id))&&S.squad.filter(x=>x.slot==='bench').length===BENCH_SIZE}
+
+function todayView(){
+  const t=gameDate();const D=ensureDay(t);save();
+  const se=t>=S.firstStart?ensureSeason(skey(t)):null;
+  const sc=score(D);const lead=sc.me>sc.opp;
+  let phase;
+  if(D.ph==='reg')phase=`Game ${D.gn} · ${monthName(se.key)} regular season`;
+  else if(D.ph==='po')phase=`${ROUND_NAMES[D.rd]} · Game ${D.g} · Series ${D.ser[0]}–${D.ser[1]}`;
+  else phase=t<S.firstStart?`Pre-season friendly · season starts ${nice(S.firstStart)}`:(se&&se.seeds?(se.seeds.includes('me')?'Friendly · series won, waiting for the next round':'Friendly · playoffs are on'):'Friendly');
+  const myRec=se?recordOf('me'):'',oppRec=se&&D.ph!=='ex'?recordOf(D.oppId):'';
+  const need=sc.opp-sc.me+1;
+  const status=sc.max===0?'No players available today':lead?(sc.me===sc.max?'Perfect game! 🏀':`Leading by ${sc.me-sc.opp} · keep scoring`):sc.me===sc.opp?'Tied · finish your starters to win in overtime':`Need ${need} more to win`;
+  const pctMe=sc.max?sc.me/sc.max*100:0,pctOpp=sc.max?sc.opp/sc.max*100:0;
+  const last=S.newResult&&S.days[S.newResult];
+  let lastHtml='';
+  if(last&&S.newResult===addDays(t,-1)){
+    lastHtml=`<div class="card row" style="margin-bottom:12px"><span class="wl ${last.res}">${last.res}</span><div class="sp"><div style="font-weight:700">${last.res==='W'?'Won':'Lost'} ${last.me}–${last.opp}${last.ot?' (OT)':''} vs ${esc(tname(last.oppId))}</div><div class="small muted">Yesterday · ${last.ph==='ex'?'friendly':last.ph==='po'?ROUND_NAMES[last.rd]:'regular season'}</div></div></div>`;
+  }
+  let pre='';
+  if(se&&!se.locked)pre=`<div class="banner" style="margin-bottom:12px"><b>Pre-season for ${monthName(se.key)}.</b> <span class="small">Make squad changes now. Your squad locks when you lock in, or automatically after today's game.</span><div style="margin-top:8px"><button class="btn" data-a="go" data-v="squad">Open squad</button></div></div>`;
+  if(transferOpen())pre+=`<div class="banner small" style="margin-bottom:12px">🔁 Transfer window open for ${TRANSFER_DAYS-diffDays(se.start,t)} more day${TRANSFER_DAYS-diffDays(se.start,t)===1?'':'s'}: one swap available in Squad.</div>`;
+  return `
+  <div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Final at 4:00am</span></div>
+  ${lastHtml}${pre}
+  <div class="board">
+    <div class="phase cond">${esc(phase)}</div>
+    <div class="teams">
+      <div class="tm">${badge('me')}<div class="tmname">${esc(S.team.name)}</div><div class="rec">${myRec}</div></div>
+      <div class="score"><span class="${lead?'lead':''}" id="myScore">${sc.me}</span><span class="dash">–</span><span>${sc.opp}</span></div>
+      <div class="tm">${badge(D.oppId)}<div class="tmname">${esc(team(D.oppId).n)}</div><div class="rec">${oppRec||esc(team(D.oppId).city)}</div></div>
+    </div>
+    <div class="bar"><i style="width:${pctMe}%"></i><b style="left:${pctOpp}%"></b></div>
+    <div class="status">${status}</div>
+  </div>
+  ${playerSection('Starting five','court',D)}
+  ${playerSection('Bench · half points','bench',D)}`;
+}
+function playerSection(title,slot,D){
+  const ps=S.squad.filter(p=>p.slot===slot).sort((a,b)=>POS.findIndex(x=>x.id===a.pos)-POS.findIndex(x=>x.id===b.pos));
+  return `<div class="sect"><h3 class="cond">${title}</h3></div>`+ps.map(p=>{
+    const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
+    const steps=p.steps&&p.steps.length?`<div class="steps">${p.steps.map((s,i)=>`<button class="step ${(D.t[p.id]||[])[i]?'on':''}" data-a="step" data-id="${p.id}" data-i="${i}" ${inj?'disabled':''}>${esc(s)}</button>`).join('')}</div>`:'';
+    return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}">
+      <span class="pos">${posById(p.pos).a}</span>
+      <div class="sp" data-a="player" data-id="${p.id}"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
+      <div class="meta">${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting today':''}</div></div>
+      ${p.steps&&p.steps.length?`<div class="tick" style="${done?'':'opacity:.5'}">${done?'✓':(D.t[p.id]||[]).filter(Boolean).length+'/'+p.steps.length}</div>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
+    </div>${steps}</div>`}).join('');
+}
+
+function leagueView(){
+  const se=curSeason();const t=gameDate();
+  const tabs=`<div class="tabs">${[['table','Table'],['games','Games'],['playoffs','Playoffs']].map(([k,n])=>`<button class="${leagueTab===k?'on':''}" data-a="ltab" data-v="${k}">${n}</button>`).join('')}</div>`;
+  let body='';
+  if(!se||t<se.start){body=`<div class="card muted">The ${se?monthName(se.key):''} season tips off ${se?nice(se.start):'soon'}. Friendlies until then.</div>`}
+  else if(leagueTab==='table'){
+    const st=standings(se,t);
+    body=`<div class="card" style="padding:6px 8px"><table><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th><th>STRK</th></tr>${st.map((x,i)=>`<tr class="${x.id==='me'?'me':''} ${i===8?'cut':''}"><td>${i+1}</td><td>${mini(x.id)}${esc(team(x.id).n)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.gp?x.pct.toFixed(3).replace(/^0/,''):'—'}</td><td>${x.gb?x.gb:'—'}</td><td>${x.strk}</td></tr>`).join('')}</table></div>
+    <p class="small muted" style="margin:10px 4px">Top 8 make the playoffs (${nice(poStart(se.key))}). Teams below the orange line miss out. ${t<poStart(se.key)?`${diffDays(t,poStart(se.key))} regular-season day${diffDays(t,poStart(se.key))===1?'':'s'} left, including today.`:'Regular season complete.'}</p>`;
+  }else if(leagueTab==='games'){
+    const ps=poStart(se.key);let up='';let d=t,i=0;
+    if(t<ps){const rows=[];while(d<ps&&i<6){const gn=diffDays(se.start,d)+1;const opp=se.order[(gn-1)%se.order.length];rows.push(`<div class="res">${mini(opp)}<div class="sp">${esc(tname(opp))}<div class="small muted">${d===t?'Today':nice(d)} · Game ${gn}</div></div><span class="small muted">${recordOf(opp)}</span></div>`);d=addDays(d,1);i++}up=`<div class="sect"><h3 class="cond">Coming up</h3></div><div class="card" style="padding:2px 12px">${rows.join('')}</div>`}
+    const past=[];let p=addDays(t,-1);while(p>=se.start){const D=S.days[p];if(D&&D.locked)past.push(`<div class="res"><span class="wl ${D.res}">${D.res}</span><div class="sp">${esc(tname(D.oppId))}<div class="small muted">${nice(p)} · ${D.ph==='ex'?'Friendly':D.ph==='po'?ROUND_NAMES[D.rd]+' G'+D.g:'Game '+D.gn}</div></div><b style="font-variant-numeric:tabular-nums">${D.me}–${D.opp}${D.ot?' OT':''}</b></div>`);p=addDays(p,-1)}
+    body=up+`<div class="sect"><h3 class="cond">Results</h3></div><div class="card" style="padding:2px 12px">${past.length?past.join(''):'<p class="muted">No games played yet.</p>'}</div>`;
+  }else{
+    const ps=poStart(se.key);
+    if(!se.seeds){const st=standings(se,t).slice(0,8);
+      body=`<div class="card"><p style="margin-top:0"><b>Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'long'})}.</b> If the season ended today:</p>
+      ${[[0,7],[3,4],[1,6],[2,5]].map(([a,b])=>`<div class="series ${[st[a].id,st[b].id].includes('me')?'mine':''}"><div class="ln"><span>${a+1}. ${mini(st[a].id)}${esc(team(st[a].id).n)}</span></div><div class="ln"><span>${b+1}. ${mini(st[b].id)}${esc(team(st[b].id).n)}</span></div></div>`).join('')}</div>`;
+    }else{
+      const b=bracket(se,t);
+      body=b.rounds.map((rs,i)=>`<div class="sect"><h3 class="cond">${ROUND_NAMES[i]} · ${nice(addDays(ps,i*3))}–${nice(addDays(ps,i*3+2),{day:'numeric'})}</h3></div>`+(rs.length?rs.map(s=>`<div class="series ${s.a==='me'||s.b==='me'?'mine':''}">
+        <div class="ln ${s.winner===s.a?'win':''}"><span>${s.sa}. ${mini(s.a)}${esc(team(s.a).n)}</span><b>${s.wa}</b></div>
+        <div class="ln ${s.winner===s.b?'win':''}"><span>${s.sb}. ${mini(s.b)}${esc(team(s.b).n)}</span><b>${s.wb}</b></div></div>`).join(''):'<div class="series muted">To be decided</div>')).join('');
+      if(se.done)body=`<div class="banner" style="margin-bottom:8px">🏆 ${esc(tname(se.done.champ))} are ${monthName(se.key)} champions.</div>`+body;
+    }
+  }
+  return `<div class="top"><h1 class="cond">League</h1><span class="small muted">${se?monthName(se.key):''}</span></div>${tabs}${body}`;
+}
+
+function squadLists(edit){
+  const court=POS.map(pos=>{const p=S.squad.find(x=>x.slot==='court'&&x.pos===pos.id);
+    return p?squadRow(p):`<button class="pl empty" style="width:100%" data-a="sign" data-slot="court" data-pos="${pos.id}">+ Sign a ${pos.n} starter</button>`}).join('');
+  const bench=S.squad.filter(x=>x.slot==='bench');
+  let bh=bench.map(squadRow).join('');
+  for(let i=bench.length;i<BENCH_SIZE;i++)bh+=`<button class="pl empty" style="width:100%" ${edit?'':'disabled'} data-a="sign" data-slot="bench">+ Sign a bench player</button>`;
+  return `<div class="sect"><h3 class="cond">Starting five · full points</h3></div>${court}<div class="sect"><h3 class="cond">Bench · half points</h3></div>${bh}`;
+}
+function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}"><span class="pos">${posById(p.pos).a}</span><div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${p.steps&&p.steps.length?` · ${p.steps.length} steps`:''}</div></div><span class="muted">›</span></div>`}
+function squadView(){
+  const se=curSeason();const edit=canEditSquad();const t=gameDate();
+  const D=ensureDay(t);const max=score(D).max;
+  let info;
+  if(edit)info=`<div class="banner"><b>Pre-season.</b> <span class="small">Change anything until you lock in. Your squad locks automatically after the first game of the season.</span>${squadReady()?`<div style="margin-top:8px"><button class="btn primary" data-a="lockin">Lock in squad</button></div>`:''}</div>`;
+  else if(transferOpen())info=`<div class="banner"><b>🔁 Transfer window open</b> <span class="small">· ${TRANSFER_DAYS-diffDays(se.start,t)} day(s) left. One swap: tap a player, sell, and sign someone of the same difficulty or harder.</span></div>`;
+  else info=`<div class="card small muted">🔒 Squad locked for ${monthName(se.key)}${se.transferUsed?' · transfer used':''}. Tap a player to rename, edit steps, or rest them on the injury list.</div>`;
+  return `<div class="top"><h1 class="cond">Squad</h1><span class="small muted">Max ${max} pts/day</span></div>
+  ${info}
+  ${squadLists(edit)}
+  <p class="small muted" style="margin:14px 4px">🩹 Injury list: ${se?se.injLeft:INJURY_USES} rest day${se&&se.injLeft===1?'':'s'} left this season. A resting player scores nothing and your opponent's score drops to match.</p>`;
+}
+
+function clubView(){
+  const c=career();
+  const hist=S.history.map(h=>`<div class="trophy"><span class="wl ${h.champ==='me'?'W':''}" style="width:auto;padding:0 8px">${h.w}–${h.l}</span><div class="sp"><b>${monthName(h.k)}</b><div class="small muted">Seed ${h.seed} · ${esc(h.result)}</div></div></div>`).join('');
+  const tro=S.trophies.map(x=>`<div class="trophy"><span style="font-size:22px">${x.t==='League Champions'?'🏆':'🥇'}</span><div><b>${esc(x.t)}</b><div class="small muted">${monthName(x.k)}</div></div></div>`).join('');
+  return `<div class="top"><h1 class="cond">Club</h1></div>
+  <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
+  <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
+  <div class="sect"><h3 class="cond">Trophy cabinet</h3></div><div class="card" style="padding:4px 14px">${tro||'<p class="muted">Empty for now. Win the league or top the regular season.</p>'}</div>
+  <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
+  <div class="sect"><h3 class="cond">Backup</h3></div>
+  <div class="card stack"><p class="small muted" style="margin:0">Everything is saved on this phone only. Save a backup now and then so you can restore it if you clear Chrome or change phone.</p>
+  <div class="row"><button class="btn sp" data-a="backup">Save backup</button><button class="btn sp" data-a="restore">Restore backup</button></div></div>
+  <details class="card" style="margin-top:12px"><summary>How it works</summary><div class="small muted stack" style="margin-top:8px">
+  <p>Each player scores by difficulty: Layup 8, Jumper 14, Three 22, Slam dunk 40. Bench players score half. Custom players are always a Jumper.</p>
+  <p>Your opponent's score is a share of your own daily maximum, so a strong day beats anyone. A tie goes to overtime, which you win if all your starters are done.</p>
+  <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
+  <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
+  <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
+}
+function ballSvg(){return `<svg class="ball" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ff7a1a"/><g fill="none" stroke="#3a1600" stroke-width="4"><circle cx="50" cy="50" r="46"/><path d="M4 50h92M50 4v92M17 17c14 14 14 52 0 66M83 17c-14 14-14 52 0 66"/></g></svg>`}
+
+/* ===================== sheets ===================== */
+function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
+function closeSheet(){const s=document.getElementById('scrim');if(s)s.remove()}
+let signCtx=null;
+function libSheet(ctx){
+  signCtx=ctx;
+  const sell=ctx.transfer?S.squad.find(p=>p.id===ctx.transfer):null;
+  const minPts=sell?SHOTS[sell.shot].pts:0;
+  const posFilter=ctx.slot==='court'?ctx.pos:(sell&&sell.slot==='court'?sell.pos:null);
+  const owned=new Set(S.squad.filter(p=>!sell||p.id!==sell.id).map(p=>p.lib).filter(Boolean));
+  const groups=POS.filter(p=>!posFilter||p.id===posFilter).map(pos=>{
+    const items=LIB.filter(x=>x.pos===pos.id&&!owned.has(x.id));
+    if(!items.length)return '';
+    return `<div class="sect"><h3 class="cond">${pos.n}</h3></div>`+items.map(x=>`<div class="lib"><b>${esc(x.n)}</b>${x.steps?` <span class="small muted">· ${x.steps.length} steps</span>`:''}${x.starter?' <span class="chip">Starter</span>':''}
+      <div class="lvls">${x.lv.map((l,i)=>{const ok=SHOTS[l.shot].pts>=minPts&&!(sell&&sell.lib===x.id&&SHOTS[l.shot].pts<=minPts);return `<button class="lvl" data-a="signLib" data-lib="${x.id}" data-i="${i}" ${ok?'':'disabled'}>${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].n} ${SHOTS[l.shot].pts}</span></button>`}).join('')}</div></div>`).join('');
+  }).join('');
+  const customs=S.squad.filter(p=>p.custom&&(!sell||p.id!==sell.id)).length;
+  const canCustom=customs<MAX_CUSTOM&&SHOTS[CUSTOM_SHOT].pts>=minPts&&!(sell&&sell.custom);
+  sheet(`<h2>${sell?`Transfer: replace ${esc(sell.name)}`:ctx.slot==='court'?`Sign a ${posById(ctx.pos).n} starter`:'Sign a bench player'}</h2>
+  <p class="small muted" style="margin:0 0 6px">${sell?`Pick someone worth ${minPts}+ points${posFilter?` in ${posById(posFilter).n}`:''}. This uses your one transfer for the season.`:'Pick a player and the level that stretches you.'}</p>
+  ${canCustom?`<div class="card" style="margin:10px 0"><b>Custom player</b> <span class="small muted">(${customs}/${MAX_CUSTOM} used · always a Jumper, ${SHOTS[CUSTOM_SHOT].pts} pts)</span>
+   <div class="row" style="margin-top:8px"><input id="cName" maxlength="28" placeholder="e.g. Exam study">${posFilter?'':`<select id="cPos" style="width:auto">${POS.map(p=>`<option value="${p.id}">${p.a}</option>`).join('')}</select>`}</div>
+   <button class="btn block" style="margin-top:8px" data-a="signCustom">Sign custom player</button></div>`:''}
+  ${groups||'<p class="muted">No eligible players left in the library.</p>'}`);
+}
+function playerSheet(id){
+  const p=S.squad.find(x=>x.id===id);if(!p)return;
+  const edit=canEditSquad(),t=gameDate(),D=S.days[t],se=curSeason();
+  const lib=p.lib&&libById(p.lib);
+  const inj=D&&D.inj.includes(p.id);
+  let a='';
+  if(edit&&lib&&lib.lv.length>1)a+=`<div class="small muted" style="margin-top:12px">Level</div><div class="lvls">${lib.lv.map((l,i)=>`<button class="lvl ${l.l===p.lvl?'on':''}" data-a="setLvl" data-id="${p.id}" data-i="${i}">${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts}</span></button>`).join('')}</div>`;
+  if(edit){
+    if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="btn block" style="margin-top:12px" data-a="promote" data-id="${p.id}">Start at ${posById(p.pos).n}${cur?` (swap with ${esc(cur.name)})`:''}</button>`}
+    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="btn block" style="margin-top:12px" data-a="bench" data-id="${p.id}">Move to bench</button>`;
+    a+=`<button class="btn danger block" style="margin-top:8px" data-a="release" data-id="${p.id}">Release player</button>`;
+  }else if(transferOpen())a+=`<button class="btn primary block" style="margin-top:12px" data-a="transfer" data-id="${p.id}">Sell & sign a replacement</button>`;
+  if(S.firstStart&&se&&t>=se.start){
+    if(inj)a+=`<button class="btn block" style="margin-top:8px" data-a="uninjure" data-id="${p.id}">Bring back from injury list</button>`;
+    else if(D&&!isDone(p,D))a+=`<button class="btn block" style="margin-top:8px" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
+  }
+  sheet(`<div class="row"><span class="pos">${posById(p.pos).a}</span><h2 class="sp">${esc(p.name)}</h2></div>
+  <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${SHOTS[p.shot].n} ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
+  ${a}
+  <div class="small muted" style="margin-top:16px">Name (always editable)</div>
+  <input id="pName" maxlength="28" value="${esc(p.name)}" style="margin-top:6px">
+  <div class="small muted" style="margin-top:12px">Steps, one per line (optional: ticking every step completes the player)</div>
+  <textarea id="pSteps" rows="4" style="width:100%;margin-top:6px;font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px">${esc((p.steps||[]).join('\n'))}</textarea>
+  <button class="btn primary block" style="margin-top:10px" data-a="savePlayer" data-id="${p.id}">Save</button>`);
+}
+function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0}}
+
+/* ===================== actions ===================== */
+const A={
+  go(d){view=d.v;closeSheet();render();scrollTo(0,0)},
+  ltab(d){leagueTab=d.v;render()},
+  saveTeam(){
+    const city=document.getElementById('fCity').value.trim(),name=document.getElementById('fName').value.trim();
+    if(!city||!name)return toast('Add a city and a team name');
+    let ab=document.getElementById('fAb').value.trim().toUpperCase().replace(/[^A-Z]/g,'');
+    if(ab.length<2)ab=(city.replace(/[^A-Za-z]/g,'').slice(0,3)||'YOU').toUpperCase();
+    const first=!S.team;S.team={city,name,ab};
+    if(first&&!S.squad.length){
+      S.squad.push(newPlayer(libById('morning'),0,'court'),newPlayer(libById('night'),0,'bench'),newPlayer(libById('water'),1,'bench'));
+    }
+    if(S.firstStart){save();closeSheet();render();return}
+    setupStep=1;save();render();scrollTo(0,0);
+  },
+  editTeam(){sheet(`<h2>Edit team</h2><div class="stack" style="margin-top:10px"><input id="fCity" maxlength="20" value="${esc(S.team.city)}"><input id="fName" maxlength="20" value="${esc(S.team.name)}"><input id="fAb" maxlength="3" value="${esc(S.team.ab)}" style="text-transform:uppercase"><button class="btn primary block" data-a="saveTeam">Save</button></div>`)},
+  setupBack(){setupStep=0;render()},
+  setupBack1(){setupStep=1;render()},
+  toTipoff(){if(squadReady()){setupStep=2;render();scrollTo(0,0)}},
+  tipoff(d){
+    const t=gameDate();S.firstStart=d.d;S.startDate=t;S.lastLocked=null;
+    ensureSeason(skey(d.d));save();view='today';render();scrollTo(0,0);
+    toast(d.d===t?'Tip-off! Game 1 is live.':'Squad locked. See you at tip-off.');
+  },
+  lockin(){const se=curSeason();if(!squadReady())return toast('Fill every spot first');se.locked=true;save();render();toast('Squad locked for '+monthName(se.key))},
+  sign(d){if(!canEditSquad())return;libSheet({slot:d.slot,pos:d.pos})},
+  signLib(d){
+    const lib=libById(d.lib),i=+d.i;
+    if(signCtx.transfer)return doTransfer(newPlayer(lib,i,'x'));
+    S.squad.push(newPlayer(lib,i,signCtx.slot));save();closeSheet();render();
+  },
+  signCustom(){
+    const name=document.getElementById('cName').value.trim();if(!name)return toast('Give your custom player a name');
+    const sel=document.getElementById('cPos');
+    const sell=signCtx.transfer&&S.squad.find(p=>p.id===signCtx.transfer);
+    const pos=signCtx.slot==='court'?signCtx.pos:(sell&&sell.slot==='court'?sell.pos:(sel?sel.value:'mind'));
+    const p={id:uid(),lib:null,name,pos,lvl:'Custom',shot:CUSTOM_SHOT,steps:[],slot:signCtx.slot||'bench',custom:true,seasons:0};
+    if(signCtx.transfer)return doTransfer(p);
+    S.squad.push(p);save();closeSheet();render();
+  },
+  player(d){playerSheet(d.id)},
+  setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
+  promote(d){const p=S.squad.find(x=>x.id===d.id);const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);if(cur)cur.slot='bench';p.slot='court';save();closeSheet();render()},
+  bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
+  release(d){if(!confirm('Release this player?'))return;S.squad=S.squad.filter(x=>x.id!==d.id);save();closeSheet();render()},
+  transfer(d){libSheet({transfer:d.id})},
+  injure(d){const se=curSeason(),D=ensureDay(gameDate());if(se.injLeft<1)return;D.inj.push(d.id);se.injLeft--;save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
+  uninjure(d){const se=curSeason(),D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);se.injLeft++;save();closeSheet();render()},
+  savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
+    const steps=document.getElementById('pSteps').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,8);
+    const changed=JSON.stringify(steps)!==JSON.stringify(p.steps||[]);p.steps=steps;
+    if(changed){const D=S.days[gameDate()];if(D){const v=D.t[p.id];D.t[p.id]=steps.length?(Array.isArray(v)?v.slice(0,steps.length):steps.map(()=>v===true)):(Array.isArray(v)?false:v)}}
+    save();closeSheet();render()},
+  tick(d){const t=gameDate(),D=ensureDay(t);const before=score(D);D.t[d.id]=!(D.t[d.id]===true);afterTick(before,D)},
+  step(d){const t=gameDate(),D=ensureDay(t);const p=S.squad.find(x=>x.id===d.id);const before=score(D);const v=Array.isArray(D.t[p.id])?D.t[p.id]:p.steps.map(()=>false);v[+d.i]=!v[+d.i];D.t[p.id]=v;afterTick(before,D)},
+  backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
+  restore(){document.getElementById('restoreFile').click()},
+  reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
+};
+function doTransfer(np){
+  const se=curSeason();const sell=S.squad.find(p=>p.id===signCtx.transfer);
+  if(!transferOpen()||!sell)return;
+  if(!confirm(`Sell ${sell.name} and sign ${np.name}? This is your only transfer this season.`))return;
+  np.slot=sell.slot;if(sell.slot==='court')np.pos=sell.pos;
+  S.squad[S.squad.indexOf(sell)]=np;se.transferUsed=true;save();closeSheet();render();toast(`${np.name} signed!`);
+}
+function afterTick(before,D){
+  save();const after=score(D);render();
+  if(before.me<=before.opp&&after.me>after.opp)toast('You\'ve taken the lead! 🏀');
+  else if(after.me===after.max&&before.me<before.max&&after.max>0)toast('Perfect game! Every player scored.');
+}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){e.preventDefault();f(el.dataset,el)}});
+document.getElementById('restoreFile').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const s=JSON.parse(await f.text());if(!s||s.v!==1||!Array.isArray(s.squad)||typeof s.days!=='object')throw 0;
+    if(!confirm('Replace everything on this phone with this backup?'))return;S=s;save();setupStep=0;view='today';render();toast('Backup restored')}
+  catch(_){toast('That file is not a Habit League backup')}
+});
+let lastDay=gameDate();
+setInterval(()=>{if(gameDate()!==lastDay){lastDay=gameDate();render()}},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&gameDate()!==lastDay){lastDay=gameDate();render()}});
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();
+</script>
+</body>
+</html>
