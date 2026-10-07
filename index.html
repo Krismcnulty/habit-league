@@ -218,6 +218,7 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .faces{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .face{width:46px;height:46px;border-radius:12px;border:2px solid;background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center;padding:0}
 .face svg{width:38px;height:38px;image-rendering:pixelated}
+.tabs.big button{padding:10px;font-size:15px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -252,7 +253,7 @@ details summary{cursor:pointer;font-weight:700}
 <nav id="nav" hidden>
   <button data-a="go" data-v="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18M5.6 5.6c3 3 3 9.8 0 12.8M18.4 5.6c-3 3-3 9.8 0 12.8"/></svg>Gameday</button>
   <button data-a="go" data-v="squad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.3 0 4 1.4 4.5 4"/></svg>Squad</button>
-  <button data-a="go" data-v="league"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>League</button>
+  <button data-a="go" data-v="league"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Standings</button>
   <button data-a="go" data-v="awards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 3h2a2 2 0 0 0 4 0h2l4 3-2 4-2-1v12H8V9L6 10 4 6z"/></svg>Locker</button>
   <button data-a="go" data-v="club"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg>Club</button>
 </nav>
@@ -631,7 +632,7 @@ const pts=p=>`<span class="ptsb shot-${p.shot}">${pv(p)}<small> pts</small></spa
 const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
 
 /* ===================== views ===================== */
-let view='today',leagueTab='table',setupStep=0;
+let view='today',leagueTab='table',standTab='league',setupStep=0;
 const app=document.getElementById('app');
 function render(){
   processDays();
@@ -878,7 +879,10 @@ function leagueView(){
       if(se.done)body=`<div class="banner" style="margin-bottom:8px">🏆 ${esc(tname(se.done.champ))} are ${monthName(se.key)} champions.</div>`+body;
     }
   }
-  return `<div class="top"><h1 class="cond">League</h1><span class="small muted">${se?divOf(se).n+' · '+monthName(se.key):''}</span></div>${trophyCard(se)}${tabs}${body}`;
+  const top=`<div class="top"><h1 class="cond">Standings</h1><span class="small muted">${standTab==='league'&&se?divOf(se).n+' · '+monthName(se.key):'Special events'}</span></div>
+  <div class="tabs big">${[['league','🏀 League'],['events','🏆 Tournaments']].map(([k,n])=>`<button class="${standTab===k?'on':''}" data-a="stab" data-v="${k}">${n}</button>`).join('')}</div>`;
+  if(standTab==='events')return top+`<p class="small muted" style="margin:0 4px 10px">Short competitions that run alongside your league. Your squad plays both at once: no extra habits needed.</p>${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
+  return top+`${trophyCard(se)}${tabs}${body}`;
 }
 
 function squadLists(edit){
@@ -950,11 +954,13 @@ function gearGrid(k,cur){
     const pic=k==='jersey'?`<span class="gsw" style="background:${v}"></span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
+function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today);
+  return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s;return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div><div class="small" style="margin-top:4px;color:var(--orange2)">Coming soon in the prototype</div></div></div>`}).join('')}</div>`;
+}
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
   const drop=weeklyDrop(),days=diffDays(gameDate(),nextDrop());
 
-  const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today).slice(0,3);
   return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">Gear, drops and events</span></div>
   <div class="card prem ${P?'on':''}">
     <div class="row"><div class="sp"><b class="cond" style="font-size:18px">⭐ Premium</b><div class="small muted">${P?'Preview on · no payments in the prototype':'Preview what subscribers get · no payment needed'}</div></div>
@@ -964,8 +970,7 @@ function awardsView(){
       <button class="btn ${own?'':'primary'}" style="padding:6px 10px;font-size:13px" data-a="claim" data-k="${k}" data-v="${v}" ${own?'disabled':''}>${own?'Owned':P?'Claim':'⭐ Premium'}</button></div>`}).join('')}</div>
     ${P?'':`<ul class="perks"><li><b>Special tournaments</b> alongside the league</li><li><b>Weekly drops</b> of kits, courts, looks and shot effects</li><li><b>Friend leagues</b>: host as many as you like</li><li><b>Deeper stats</b>: full history, heatmaps, trends</li><li><b>Cloud sync</b> and automatic backups</li></ul><div class="small muted">Never more scoring power: premium only changes looks and adds ways to play.</div>`}
   </div>
-  <div class="sect"><h3 class="cond">Special tournaments</h3><span class="small" style="color:var(--gold)">⭐ Premium</span></div>
-  <div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s;return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div><div class="small" style="margin-top:4px;color:var(--orange2)">Coming soon in the prototype</div></div></div>`}).join('')}</div>
+
   <div class="sect"><h3 class="cond">Your gear</h3><span class="small muted">🔒 earn in Club · ⭐ premium</span></div>
   <div class="card stack">
     <div><b>Team colour</b>${gearGrid('jersey',C.jersey||'#ff7a1a')}</div>
@@ -1061,6 +1066,7 @@ function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name
 const A={
   go(d){view=d.v;closeSheet();render();scrollTo(0,0)},
   ltab(d){leagueTab=d.v;render()},
+  stab(d){standTab=d.v;render();scrollTo(0,0)},
   saveTeam(){
     const city=document.getElementById('fCity').value.trim(),name=document.getElementById('fName').value.trim();
     if(!city||!name)return toast('Add a city and a team name');
