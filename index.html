@@ -216,8 +216,8 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .gshot.rainbow .ball{animation:hue 1.2s linear infinite}
 .gshot em{position:absolute;right:-4px;top:-4px;font-style:normal;font-size:14px}
 .faces{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.face{width:46px;height:46px;border-radius:12px;border:2px solid;background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center;padding:0}
-.face svg{width:38px;height:38px;image-rendering:pixelated}
+.faces .face{width:46px;height:46px;border-radius:12px;border:2px solid;background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center;padding:0}
+.faces .face svg{width:38px;height:38px;image-rendering:pixelated}
 .tabs.big button{padding:10px;font-size:15px}
 .badge.logo{background:#0f1630;border:1px solid var(--line);box-shadow:none;padding:2px}
 .badge.logo svg,.mini.logo svg{width:100%;height:100%;image-rendering:pixelated}
@@ -233,6 +233,17 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .trow:nth-child(2){border-top:0}
 .trow b{font-size:14px}
 .trow .tstat{margin:0;white-space:nowrap}
+.rwrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rw{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
+.rw.got{border-color:rgba(251,191,36,.55)}
+.rw:not(.got) .rwp{opacity:.55;filter:grayscale(.4)}
+.rw b{display:block;font-size:12.5px;line-height:1.15}
+.rw span{font-size:10.5px;color:var(--muted);text-transform:capitalize}
+.rwp{width:36px;height:36px;flex:none;border-radius:9px;background:#0f1630;display:grid;place-items:center;overflow:hidden;position:relative}
+.rwp svg{width:32px;height:32px;image-rendering:pixelated}
+.rwp.court{display:block;aspect-ratio:auto;width:44px;height:36px}
+.rwp.court svg{position:absolute;inset:0;width:100%;height:100%}
+.rwp.gshot .ball{width:24px;height:24px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1005,12 +1016,18 @@ function itemPreview(k,v){
   if(k==='shot')return `<span class="dprev" style="display:grid;place-items:center;font-size:26px;background:#0c1226">${{lightning:'⚡',confetti:'🎉'}[v]||'🏀'}</span>`;
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
+function rewardPic(k,v){
+  if(k==="head")return `<span class="rwp">${faceSvg({id:"x",head:v})}</span>`;
+  if(k==='logo')return `<span class="rwp">${logoSvg(v)}</span>`;
+  if(k==='court')return `<span class="rwp court court-${v}" style="margin:0;border-width:1.5px">${COURT_MINI}</span>`;
+  return `<span class="rwp gshot ${v}">${ballSvg()}</span>`;
+}
 function achList(only){const st=stats();
   return (only||ACH).map(a=>{const has=S.ach&&S.ach[a.id];const v=Math.min(a.v(st),a.goal);const big=a.goal>=1000;
     return `<div class="ach ${has?'got':''}"><div class="ic">${a.i}</div><div class="sp"><div class="row"><b class="sp">${a.n}</b>${has?`<span class="small" style="color:var(--gold)">✓ ${typeof has==='string'?nice(has,{day:'numeric',month:'short'}):''}</span>`:''}</div>
       <div class="small muted">${a.d}</div>
       ${a.goal>1&&!has?`<div class="pbar"><i style="width:${v/a.goal*100}%"></i></div><div class="small muted">${big?v.toLocaleString('en-GB')+' / '+a.goal.toLocaleString('en-GB')+' XP':v+' / '+a.goal}</div>`:''}
-      <div class="small" style="margin-top:4px;color:${has?'var(--gold)':'var(--orange2)'}">${has?'Unlocked':'Unlocks'}: ${a.rw.map(([k,val])=>cosName(k,val)+' '+COS_NAMES[k]).join(' + ')}</div></div></div>`}).join('');
+      <div class="rwrow">${a.rw.map(([k,val])=>`<div class="rw ${has?'got':''}">${rewardPic(k,val)}<div><b>${cosName(k,val)}</b><span>${COS_NAMES[k]}</span></div></div>`).join('')}</div></div></div>`}).join('');
 }
 function achSummary(){
   const st=stats(),got=ACH.filter(a=>S.ach&&S.ach[a.id]);
