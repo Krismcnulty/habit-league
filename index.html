@@ -1001,7 +1001,7 @@ function courtView(D){
     return `<div class="spot" style="left:${x}%;top:${y}%">
       <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
-      <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
+      <div class="tag" data-a="pact" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn">${inj?'😴 Resting':`<b class="shot-${p.shot}">${pv(p)} pts</b>`}</span></div></div>`}).join('');
   return `<div class="court court-${(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
 }
 function shoot(id){
@@ -1036,10 +1036,10 @@ function playerSection(title,slot,D){
     const steps='';
     const act=inj?'':`data-a="${p.steps&&p.steps.length?'steps':'tick'}" data-id="${p.id}"`;
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}" ${act} style="cursor:pointer">
-      ${avatar(p)}
+      <span data-a="pact" data-id="${p.id}" style="display:flex">${avatar(p)}</span>
       <span class="mjs" title="${esc(ident(p).name)}">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
       <div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
-      <div class="meta">${esc(p.lvl)}${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting':''}</div></div>
+      <div class="meta">${esc(p.lvl)}${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 😴 resting':''}</div></div>
       ${pts(p)}
       ${p.steps&&p.steps.length?`<button class="tick" data-a="steps" data-id="${p.id}" ${inj?'disabled':''} style="${done?'':'font-size:14px'}">${done?'✓':(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length+'/'+p.steps.length}</button>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
     </div>${steps}</div>`}).join('');
@@ -1153,7 +1153,7 @@ function squadView(){
   if(edit)chips.push(`<button class="schip hl" data-a="sinfo" data-v="pre">📝 Pre-season</button>`);
   else if(transferOpen())chips.push(`<button class="schip hl" data-a="sinfo" data-v="transfer">🔁 Transfer · ${left}d left</button>`);
   else chips.push(`<button class="schip" data-a="sinfo" data-v="locked">🔒 Locked${se&&se.transferUsed?' · swap used':''}</button>`);
-  chips.push(`<button class="schip" data-a="sinfo" data-v="injury">🩹 ${inj} rest${inj===1?'':'s'}</button>`);
+  chips.push(`<button class="schip" data-a="sinfo" data-v="injury">😴 ${RESTS_PER_WEEK} rests/wk</button>`);
   return `<div class="top"><h1 class="cond">Squad</h1><span class="small muted">Max ${max} pts/day</span></div>
   <div class="schips">${chips.join('')}</div>
   ${edit&&squadReady()?`<button class="btn primary block" style="margin-bottom:4px" data-a="lockin">Lock in squad</button>`:''}
@@ -1169,6 +1169,19 @@ function jerseyBlock(p){
   return `<div class="jrow"><div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div><div class="sp"><div class="small muted">Jersey number</div>
     <input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" style="margin-top:6px;width:90px" ${R?'disabled':''}>${status}</div></div>`;
 }
+const RESTS_PER_WEEK=2;
+function weekStart(d){const dt=parse(d);const off=(dt.getDay()+6)%7;return addDays(d,-off)}
+function restsUsed(p){const t=gameDate(),ws=weekStart(t);let n=0;for(let d=ws;d<=t;d=addDays(d,1)){const D=S.days[d];if(D&&D.inj.includes(p.id))n++}return n}
+const restsLeft=p=>RESTS_PER_WEEK-restsUsed(p);
+function actSheet(id){
+  const p=S.squad.find(x=>x.id===id),D=ensureDay(gameDate()),resting=D.inj.includes(p.id),done=isDone(p,D),left=restsLeft(p);
+  sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${esc(ident(p).name)} · ${posTag(p)} · ${pv(p)} pts</div></div></div>
+  <div class="stack" style="margin-top:14px">
+  ${resting?`<button class="btn primary block" data-a="uninjure" data-id="${p.id}">↩️ Bring back for today</button>`
+   :done?`<div class="small muted">Already scored today, so no rest needed.</div>`
+   :`<button class="btn primary block" data-a="injure" data-id="${p.id}" ${left>0?'':'disabled'}>😴 Rest today</button><div class="small muted" style="text-align:center">${left>0?`${left} of ${RESTS_PER_WEEK} rests left for this player this week. They score nothing, your opponent's score drops to match, and their streak is safe.`:`No rests left for this player this week. Resets on Monday.`}</div>`}
+  <button class="btn block" data-a="player" data-id="${p.id}">Open player</button></div>`);
+}
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(se.start,t):0;
   const body={
@@ -1176,7 +1189,7 @@ function squadInfo(k){
     pre:`<h2>Pre-season</h2><p>Change anything until you lock in. Your squad and level lock automatically after the first game of the season.</p>`,
     transfer:`<h2>Transfer window</h2><p>Open for <b>${left} more day${left===1?'':'s'}</b>. You get one swap: tap a player, sell, and sign someone of the same difficulty or harder.</p><p>Your opponents' level stays the same, so a harder signing helps you win.</p>`,
     locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&se.transferUsed?' and your transfer is used':''}. You can still rename players, edit their steps, change their look, or rest them on the injury list.</p>`,
-    injury:`<h2>Injury list</h2><p><b>${se?se.injLeft:INJURY_USES} rest day${se&&se.injLeft===1?'':'s'}</b> left this season. Tap a player and choose Rest today: they score nothing for or against you, and your opponent's score drops to match.</p>`,
+    injury:`<h2>Rest days</h2><p>Each player can rest <b>${RESTS_PER_WEEK} days a week</b> (Monday to Sunday), for things like gym rest days or being ill.</p><p>On Gameday, tap a starter's name tag or a bench player's face and choose <b>Rest today</b>. They score nothing for or against you, your opponent's score drops to match, and their streak isn't broken.</p>`,
   }[k];
   sheet(`<div class="small" style="line-height:1.5">${body}</div><button class="btn block" style="margin-top:8px" data-a="closeSheet">Got it</button>`);
 }
@@ -1349,8 +1362,8 @@ function playerSheet(id){
     a+=`<button class="btn danger block" style="margin-top:8px" data-a="release" data-id="${p.id}">Release player</button>`;
   }else if(transferOpen())a+=`<button class="btn primary block" style="margin-top:12px" data-a="transfer" data-id="${p.id}">Sell & sign a replacement</button>`;
   if(S.firstStart&&se&&t>=se.start){
-    if(inj)a+=`<button class="btn block" style="margin-top:8px" data-a="uninjure" data-id="${p.id}">Bring back from injury list</button>`;
-    else if(D&&!isDone(p,D))a+=`<button class="btn block" style="margin-top:8px" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
+    if(inj)a+=`<button class="btn block" style="margin-top:8px" data-a="uninjure" data-id="${p.id}">↩️ Bring back for today</button>`;
+    else if(D&&!isDone(p,D))a+=`<button class="btn block" style="margin-top:8px" data-a="injure" data-id="${p.id}" ${restsLeft(p)>0?'':'disabled'}>😴 Rest today (${restsLeft(p)} of ${RESTS_PER_WEEK} left this week)</button>`;
   }
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small"><b>${ident(p).name}</b> · ${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
   ${statsBlock(p)}
@@ -1420,8 +1433,9 @@ const A={
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
   release(d){if(!confirm('Release this player?'))return;S.squad=S.squad.filter(x=>x.id!==d.id);save();closeSheet();render()},
   transfer(d){libSheet({transfer:d.id})},
-  injure(d){const se=curSeason(),D=ensureDay(gameDate());if(se.injLeft<1)return;D.inj.push(d.id);se.injLeft--;save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
-  uninjure(d){const se=curSeason(),D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);se.injLeft++;save();closeSheet();render()},
+  injure(d){const p=S.squad.find(x=>x.id===d.id),D=ensureDay(gameDate());if(!p||restsLeft(p)<1||D.inj.includes(p.id))return;D.inj.push(p.id);save();closeSheet();render();toast(`😴 ${p.name} is resting today. Your opponent adjusts.`)},
+  pact(d){actSheet(d.id)},
+  uninjure(d){const D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);save();closeSheet();render()},
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
     const ne=document.getElementById('pNum');if(ne&&!ne.disabled&&ne.value!==''){const v=Math.max(0,Math.min(99,parseInt(ne.value,10)||0));if(retiredNums(p.id).includes(v))toast(`#${v} is retired, so pick another number`);else if(v!==ident(p).num)p.num=v}
     const pn=document.getElementById('pPlayer').value.trim();if(pn&&pn!==ident({id:p.id}).name)p.pname=pn;else if(!pn)delete p.pname;
