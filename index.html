@@ -618,8 +618,8 @@ function render(){
   const nav=document.getElementById('nav');
   if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
   nav.hidden=false;
-  checkAch();if(view==='awards')S.achNew=0;
-  nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.classList.toggle('new',b.dataset.v==='awards'&&(S.achNew||0)>0)});
+  checkAch();if(view==='club')S.achNew=0;
+  nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.classList.toggle('new',b.dataset.v==='club'&&(S.achNew||0)>0)});
   app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView})[view]();
 }
 
@@ -910,16 +910,19 @@ function itemPreview(k,v){
   const base=S.squad.find(p=>p.slot==='court')||{id:'demo',pos:'fitness'};
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({...base,look:{...(base.look||{}),[k]:v}})}</span>`;
 }
-function awardsView(){
-  const st=stats();const got=ACH.filter(a=>S.ach&&S.ach[a.id]).length;const C=S.cos||{};const P=!!S.premium;
-  const drop=weeklyDrop(),days=diffDays(gameDate(),nextDrop());
-  const list=ACH.map(a=>{const has=S.ach&&S.ach[a.id];const v=Math.min(a.v(st),a.goal);const big=a.goal>=1000;
+function achList(){const st=stats();
+  return ACH.map(a=>{const has=S.ach&&S.ach[a.id];const v=Math.min(a.v(st),a.goal);const big=a.goal>=1000;
     return `<div class="ach ${has?'got':''}"><div class="ic">${a.i}</div><div class="sp"><div class="row"><b class="sp">${a.n}</b>${has?`<span class="small" style="color:var(--gold)">✓ ${typeof has==='string'?nice(has,{day:'numeric',month:'short'}):''}</span>`:''}</div>
       <div class="small muted">${a.d}</div>
       ${a.goal>1&&!has?`<div class="pbar"><i style="width:${v/a.goal*100}%"></i></div><div class="small muted">${big?v.toLocaleString('en-GB')+' / '+a.goal.toLocaleString('en-GB')+' XP':v+' / '+a.goal}</div>`:''}
       <div class="small" style="margin-top:4px;color:${has?'var(--gold)':'var(--orange2)'}">${has?'Unlocked':'Unlocks'}: ${a.rw.map(([k,val])=>cosName(k,val)+' '+COS_NAMES[k]).join(' + ')}</div></div></div>`}).join('');
+}
+function awardsView(){
+  const C=S.cos||{};const P=!!S.premium;
+  const drop=weeklyDrop(),days=diffDays(gameDate(),nextDrop());
+
   const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today).slice(0,3);
-  return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">${got}/${ACH.length} achievements</span></div>
+  return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">Gear, drops and events</span></div>
   <div class="card prem ${P?'on':''}">
     <div class="row"><div class="sp"><b class="cond" style="font-size:18px">⭐ Premium</b><div class="small muted">${P?'Preview on · no payments in the prototype':'Preview what subscribers get · no payment needed'}</div></div>
       <button class="switch ${P?'on':''}" data-a="togglePrem" aria-label="Premium preview"><i></i></button></div>
@@ -937,8 +940,7 @@ function awardsView(){
     <div><b>Shot style</b>${chips('shot',C.shot||'classic','cos')}</div>
     <p class="small muted" style="margin:0">Player looks: tap any player to change their hair, headband and extras.</p>
   </div>
-  <div class="sect"><h3 class="cond">Achievements</h3></div>
-  <div class="card" style="padding:2px 14px">${list}</div>`;
+`;
 }
 function clubView(){
   const c=career();
@@ -948,6 +950,7 @@ function clubView(){
   <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
   <div class="sect"><h3 class="cond">Trophy cabinet</h3></div><div class="card" style="padding:4px 14px">${tro||'<p class="muted">Empty for now. Win the league or top the regular season.</p>'}</div>
+  <div class="sect"><h3 class="cond">Achievements</h3><span class="small muted">${ACH.filter(a=>S.ach&&S.ach[a.id]).length}/${ACH.length} · rewards show in the Locker</span></div><div class="card" style="padding:2px 14px">${achList()}</div>
   <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
   <div class="sect"><h3 class="cond">Backup</h3></div>
   <div class="card stack"><p class="small muted" style="margin:0">Everything is saved on this phone only. Save a backup now and then so you can restore it if you clear Chrome or change phone.</p>
