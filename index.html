@@ -373,6 +373,8 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .gbench.bench-classic .pl{background:var(--panel);border:1px solid var(--line)}
 .gtile.locked .gbench{opacity:.4;filter:grayscale(.5)}
 .rwp .gbench{width:34px}
+.mrow{display:flex;align-items:center;gap:8px;margin-top:3px}
+.mjs{width:34px;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1034,7 +1036,7 @@ function playerSection(title,slot,D){
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}" ${act} style="cursor:pointer">
       ${avatar(p)}
       <div class="sp"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
-      <div class="meta">${ident(p).name} · ${esc(p.lvl)}${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting':''}</div></div>
+      <div class="meta mrow"><span class="mjs" title="${esc(ident(p).name)}">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><span>${esc(p.lvl)}${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting':''}</span></div></div>
       ${pts(p)}
       ${p.steps&&p.steps.length?`<button class="tick" data-a="steps" data-id="${p.id}" ${inj?'disabled':''} style="${done?'':'font-size:14px'}">${done?'✓':(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length+'/'+p.steps.length}</button>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
     </div>${steps}</div>`}).join('');
