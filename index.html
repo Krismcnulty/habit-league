@@ -1039,7 +1039,7 @@ function achList(only){const st=stats();
     const pics=a.rw.map(([k,val])=>`<span class="rwi ${has?'got':''}" title="${esc(cosName(k,val)+' '+COS_NAMES[k])}">${rewardPic(k,val)}</span>`).join('');
     const names=a.rw.map(([k,val])=>`${cosName(k,val)} ${COS_NAMES[k]}`).join(' + ');
     return `<div class="ach2 ${has?'got':''}"><div class="row" style="align-items:flex-start;gap:12px"><div class="ic">${a.i}</div>
-      <div class="sp" style="min-width:0"><b>${a.n}</b>${has?` <span class="small" style="color:var(--gold)">✓ ${typeof has==='string'?nice(has,{day:'numeric',month:'short'}):''}</span>`:''}<div class="small muted">${a.d}</div><div class="small" style="margin-top:2px;color:${has?'var(--gold)':'var(--orange2)'}">${names}</div></div>
+      <div class="sp" style="min-width:0"><b>${a.n}</b>${has?` <span class="small" style="color:var(--gold)">✓ ${typeof has==='string'?nice(has,{day:'numeric',month:'short'}):''}</span>`:''}<div class="small muted">${a.d}</div></div>
       <div class="rwis">${pics}</div></div>
       ${a.goal>1&&!has?`<div class="row" style="gap:10px;margin-top:8px"><div class="pbar sp" style="margin:0"><i style="width:${v/a.goal*100}%"></i></div><span class="small muted" style="white-space:nowrap">${big?v.toLocaleString('en-GB')+' / '+a.goal.toLocaleString('en-GB'):v+' / '+a.goal}</span></div>`:''}</div>`}).join('');
 }
