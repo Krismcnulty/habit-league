@@ -377,6 +377,16 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .mjs{width:38px;flex:none;margin-left:-2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
 .tok .tjs svg{width:100%!important;height:auto!important}
 .tok .tjs{position:absolute;left:-10px;bottom:-8px;width:26px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55));pointer-events:none}
+.ecard{margin-top:12px;padding:12px;border-radius:14px;background:var(--panel2);border:1px solid var(--line)}
+.ehead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.ehead span{text-align:right}
+.flab{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.ecard input{background:var(--panel);padding:10px 12px}
+.ta{width:100%;font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;resize:vertical}
+.lnk{font-size:12px;font-weight:700;color:var(--orange2);text-transform:none;letter-spacing:0}
+.ecard .ggrid{margin-top:0}
+.ecard .btn+.btn,.ecard .lvls+.btn{margin-top:8px}
+.ecard .jbig{width:84px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1163,11 +1173,14 @@ function playerBest(p){let best=0,c=0;for(const d of Object.keys(S.days).sort())
 const retiredNums=except=>(S.retired||[]).filter(r=>r.id!==except).map(r=>r.num);
 function jerseyBlock(p){
   const id=ident(p),best=playerBest(p),seasons=p.seasons||0,ok=seasons>=3||best>=100,R=(S.retired||[]).find(r=>r.id===p.id);
-  const status=R?`<div class="small" style="color:var(--gold);margin-top:8px">🏅 Jersey retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`
-    :ok?`<button class="btn primary block" style="margin-top:8px" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`
-    :`<div class="small muted" style="margin-top:8px">Retire this jersey after 3 seasons (${seasons}/3) or a 100-day streak (best ${best}).</div>`;
-  return `<div class="jrow"><div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div><div class="sp"><div class="small muted">Jersey number</div>
-    <input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" style="margin-top:6px;width:90px" ${R?'disabled':''}>${status}</div></div>`;
+  const status=R?`<div class="small" style="color:var(--gold)">🏅 Retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`
+    :ok?`<button class="btn primary block" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`
+    :`<div class="small muted">Retire after 3 seasons (${seasons}/3) or a 100-day streak (best ${best})</div>`;
+  return `<div class="ecard"><div class="ehead">Jersey</div>
+    <div class="row" style="gap:14px;align-items:center"><div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div>
+    <div class="sp" style="min-width:0"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}">
+    <label class="flab" style="margin-top:10px">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" style="width:84px" ${R?'disabled':''}></div></div>
+    <div style="margin-top:10px">${status}</div></div>`;
 }
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(se.start,t):0;
@@ -1342,29 +1355,27 @@ function playerSheet(id){
   const lib=p.lib&&libById(p.lib);
   const inj=D&&D.inj.includes(p.id);
   let a='';
-  if(edit&&lib&&lib.lv.length>1)a+=`<div class="small muted" style="margin-top:12px">Level</div><div class="lvls">${lib.lv.map((l,i)=>`<button class="lvl ${l.l===p.lvl?'on':''}" data-a="setLvl" data-id="${p.id}" data-i="${i}">${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts}</span></button>`).join('')}</div>`;
+  if(edit&&lib&&lib.lv.length>1)a+=`<label class="flab">Level</label><div class="lvls">${lib.lv.map((l,i)=>`<button class="lvl ${l.l===p.lvl?'on':''}" data-a="setLvl" data-id="${p.id}" data-i="${i}">${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts}</span></button>`).join('')}</div>`;
   if(edit){
-    if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="btn block" style="margin-top:12px" data-a="promote" data-id="${p.id}">Start at ${posById(p.pos).n}${cur?` (swap with ${esc(cur.name)})`:''}</button>`}
-    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="btn block" style="margin-top:12px" data-a="bench" data-id="${p.id}">Move to bench</button>`;
-    a+=`<button class="btn danger block" style="margin-top:8px" data-a="release" data-id="${p.id}">Release player</button>`;
-  }else if(transferOpen())a+=`<button class="btn primary block" style="margin-top:12px" data-a="transfer" data-id="${p.id}">Sell & sign a replacement</button>`;
+    if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="btn block" data-a="promote" data-id="${p.id}">Start at ${posById(p.pos).n}${cur?` (swap with ${esc(cur.name)})`:''}</button>`}
+    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="btn block" data-a="bench" data-id="${p.id}">Move to bench</button>`;
+    a+=`<button class="btn danger block" data-a="release" data-id="${p.id}">Release player</button>`;
+  }else if(transferOpen())a+=`<button class="btn block" data-a="transfer" data-id="${p.id}">Sell & sign a replacement</button>`;
   if(S.firstStart&&se&&t>=se.start){
-    if(inj)a+=`<button class="btn block" style="margin-top:8px" data-a="uninjure" data-id="${p.id}">Bring back from injury list</button>`;
-    else if(D&&!isDone(p,D))a+=`<button class="btn block" style="margin-top:8px" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
+    if(inj)a+=`<button class="btn block" data-a="uninjure" data-id="${p.id}">Bring back from injury list</button>`;
+    else if(D&&!isDone(p,D))a+=`<button class="btn block" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
   }
-  sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small"><b>${ident(p).name}</b> · ${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
+  const info=`${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''}${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}`;
+  sheet(`<div class="row">${avatar(p)}<div class="sp" style="min-width:0"><h2>${esc(p.name)}</h2><div class="small"><b>${esc(ident(p).name)}</b> · ${posTag(p)}</div></div></div>
   ${statsBlock(p)}
   ${jerseyBlock(p)}
-  <div class="small muted" style="margin-top:14px">Head <span style="float:right">More in the Locker</span></div>${headGrid(p)}
-  <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
-  ${a}
-  <div class="small muted" style="margin-top:16px">Player name</div>
-  <input id="pPlayer" maxlength="20" value="${esc(ident(p).name)}" style="margin-top:6px">
-  <div class="small muted" style="margin-top:12px">Habit name</div>
-  <input id="pName" maxlength="28" value="${esc(p.name)}" style="margin-top:6px">
-  <div class="small muted" style="margin-top:12px">Steps, one per line (optional: ticking every step completes the player)</div>
-  <textarea id="pSteps" rows="4" style="width:100%;margin-top:6px;font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px">${esc((p.steps||[]).join('\n'))}</textarea>
-  <button class="btn primary block" style="margin-top:10px" data-a="savePlayer" data-id="${p.id}">Save</button>`);
+  <div class="ecard"><div class="ehead">Head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}</div>
+  <div class="ecard"><div class="ehead">Habit<span class="small muted" style="font-weight:600;text-transform:none;letter-spacing:0">${info}</span></div>
+    <label class="flab">Name</label><input id="pName" maxlength="28" value="${esc(p.name)}">
+    <label class="flab" style="margin-top:10px">Steps <span class="muted">· optional, one per line</span></label>
+    <textarea id="pSteps" rows="3" placeholder="e.g. Brush teeth" class="ta">${esc((p.steps||[]).join('\n'))}</textarea></div>
+  <button class="btn primary block" style="margin-top:12px" data-a="savePlayer" data-id="${p.id}">Save changes</button>
+  ${a?`<div class="ecard"><div class="ehead">Squad moves</div>${a}</div>`:''}`);
 }
 function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0,signedAt:gameDate()}}
 
