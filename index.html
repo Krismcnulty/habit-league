@@ -223,7 +223,7 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .badge.logo svg,.mini.logo svg{width:100%;height:100%;image-rendering:pixelated}
 .mini.logo{background:none;padding:0}
 .glogo{width:42px;height:42px;display:grid;place-items:center}.glogo svg{width:40px;height:40px;image-rendering:pixelated}
-.gtile.locked .glogo{opacity:.35}
+.gtile.locked .glogo{opacity:.35;filter:grayscale(.6)}
 .dprev svg{width:46px;height:46px}
 .schips{display:flex;gap:6px;margin-bottom:6px;overflow-x:auto;scrollbar-width:none}
 .schips::-webkit-scrollbar{display:none}
@@ -1084,8 +1084,9 @@ function awardsView(){
     <div><b>Team logo</b>${gearGrid('logo',myLogo())}</div>
     <div><b>Court</b>${gearGrid('court',C.court||'wood')}</div>
     <div><b>Shot style</b>${gearGrid('shot',C.shot||'classic')}</div>
-    <div><b>Player heads</b><div class="small muted">Heads you've unlocked. Give them to players in the Squad tab.</div>
-      ${(()=>{const hs=HEADS.filter(h=>cosUnlocked('head',h.id));return hs.length?`<div class="ggrid">${hs.map(h=>`<div class="gtile">${isPrem('head',h.id)?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></div>`).join('')}</div>`:'<p class="small muted" style="margin:8px 0 0">None yet. Earn them through achievements in Club, or claim them from weekly drops.</p>'})()}</div>
+    <div><b>Player heads</b><div class="small muted">Give unlocked heads to players in the Squad tab.</div>
+      <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
+        return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
   </div>`;
 }
 function clubView(){
@@ -1254,6 +1255,7 @@ const A={
   claim(d){if(!S.premium)return toast('⭐ Turn on the Premium preview to claim drops');if(!inDrop(d.k,d.v))return;S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();render();toast(`⭐ ${cosName(d.k,d.v)} ${COS_NAMES[d.k]} claimed`)},
   allAch(){sheet(`<h2>Achievements</h2><p class="small muted" style="margin:4px 0 0">${ACH.filter(a=>S.ach&&S.ach[a.id]).length} of ${ACH.length} unlocked. Rewards show in the Locker.</p>${achList()}`)},
   sinfo(d){squadInfo(d.v)},
+  headInfo(d){toast(cosUnlocked('head',d.v)?'Unlocked: tap a player in Squad to give them this head':lockMsg('head',d.v))},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
