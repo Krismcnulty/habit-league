@@ -99,18 +99,21 @@ tr.cut td{border-top:2px dashed var(--orange)}
 /* half court */
 .court{position:relative;margin-top:8px;border-radius:18px;overflow:hidden;border:3px solid #3b5bdb;
   background:repeating-linear-gradient(90deg,#c98a4b 0 22px,#bd7e40 22px 23px,#d39556 23px 47px,#b77838 47px 48px,#cc8d4e 48px 70px,#c08143 70px 71px);
-  aspect-ratio:400/330}
+  aspect-ratio:400/420}
 .court:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 61px,rgba(80,40,10,.18) 61px 62px),linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.12))}
 .court svg.lines{position:absolute;inset:0;width:100%;height:100%}
 .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:120px}
-.tok{position:relative;width:62px;height:62px;border-radius:50%;background:#9cc9ff;border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
+.tok{position:relative;width:62px;height:62px;border-radius:50%;background:linear-gradient(180deg,#1f2a4a,#121a33);border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
 .tok svg{width:46px;height:46px;image-rendering:pixelated}
-.tok.done{background:#86efac;border-color:#16a34a}
+.tok.done{background:linear-gradient(180deg,#14532d,#0f3d22);border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.35),0 4px 10px rgba(0,0,0,.35)}
 .tok.inj{filter:grayscale(1);opacity:.6}
 .tok .ck{position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#052e12;font-weight:900;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
-.tok .sc{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:#0b1020;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:1px 6px;white-space:nowrap}
+.tok .sc{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:#0b1020;font-size:12px;font-weight:900;border-radius:8px;padding:1px 7px;white-space:nowrap;border:1px solid var(--line)}
+.tok .sc small{font-size:9px;color:var(--muted);font-weight:700}
+.tok .sc.shot-layup{color:#cbd5e1}
 .tok .stc{position:absolute;top:-4px;right:-6px;background:#0b1020;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:1px 5px;border:1px solid #fff}
-.tag{margin-top:8px;background:rgba(11,16,32,.82);border-radius:8px;padding:2px 7px;font-size:11.5px;font-weight:700;max-width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.tag{margin-top:10px;background:rgba(11,16,32,.85);border-radius:9px;padding:3px 8px;font-size:12px;font-weight:800;max-width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;text-align:center;line-height:1.25}
+.tag .pn{display:block;font-size:10px;font-weight:600;color:#aab3cf;overflow:hidden;text-overflow:ellipsis}
 .tag .fire{font-size:10.5px}
 .ballfx{position:absolute;left:0;top:0;width:24px;height:24px;z-index:5;pointer-events:none;filter:drop-shadow(0 6px 4px rgba(0,0,0,.35))}
 .ballfx .ball{width:24px;height:24px;margin:0;display:block}
@@ -630,7 +633,7 @@ function todayView(){
   ${playerSection('Bench · half points','bench',D)}`;
 }
 
-const SPOTS=[[50,28],[17,46],[83,46],[27,77],[73,77]];
+const SPOTS=[[50,20],[17,45],[83,45],[28,77],[72,77]];
 
 /* ===================== live opponent & coach ===================== */
 // The opponent scores between 7am and 11pm in four quarters, in seeded bursts, reaching their final score by 11pm.
@@ -662,21 +665,21 @@ function coachNote(D,sc,oppLive){
 }
 function courtView(D){
   const starters=POS.map(pos=>S.squad.find(x=>x.slot==='court'&&x.pos===pos.id)).filter(Boolean);
-  const lines=`<svg class="lines" viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".9">
-    <rect x="10" y="8" width="380" height="314"/>
+  const lines=`<svg class="lines" viewBox="0 0 400 420" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".9">
+    <rect x="10" y="8" width="380" height="404"/>
     <path d="M155 8a45 45 0 0 0 90 0"/>
-    <rect x="148" y="196" width="104" height="126"/>
-    <circle cx="200" cy="196" r="44"/><path d="M156 196h88"/>
-    <path d="M38 322V262A170 170 0 0 1 362 262V322"/>
-    <path d="M178 304h44" stroke-width="4"/><circle cx="200" cy="296" r="9" stroke="#ff7a1a" stroke-opacity="1"/>
-    <path d="M148 240h-8M148 266h-8M252 240h8M252 266h8"/></svg>`;
+    <rect x="148" y="286" width="104" height="126"/>
+    <circle cx="200" cy="286" r="44"/><path d="M156 286h88"/>
+    <path d="M38 412V352A170 170 0 0 1 362 352V412"/>
+    <path d="M178 394h44" stroke-width="4"/><circle cx="200" cy="386" r="9" stroke="#ff7a1a" stroke-opacity="1"/>
+    <path d="M148 330h-8M148 356h-8M252 330h8M252 356h8"/></svg>`;
   const spots=starters.map((p,i)=>{
     const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length:0;
     return `<div class="spot" style="left:${x}%;top:${y}%">
-      <button class="tok ${done?'done':''} ${inj?'inj':''}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}
-        ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}<span class="sc">${pv(p)} pts</span></button>
-      <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}</div></div>`}).join('');
+      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}
+        ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}<span class="sc shot-${p.shot}">${pv(p)}<small> pts</small></span></button>
+      <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn">${ident(p).name}</span></div></div>`}).join('');
   return `<div class="court court-${(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
 }
 function shoot(id){
@@ -684,7 +687,7 @@ function shoot(id){
   const court=document.querySelector('.court'),tok=court&&court.querySelector(`.tok[data-id="${id}"]`),p=S.squad.find(x=>x.id===id);
   if(!tok||!p)return;
   const cr=court.getBoundingClientRect(),tr=tok.getBoundingClientRect();
-  const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(296/330);
+  const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(386/420);
   const peak=Math.min(y0,y1)-cr.height*.32,cy=2*peak-(y0+y1)/2,cx=(x0+x1)/2;
   const shotFx=(S.cos&&S.cos.shot)||'classic';const ball=document.createElement('div');ball.className='ballfx '+shotFx;ball.innerHTML=ballSvg();court.appendChild(ball);
   const kf=[],N=18;
