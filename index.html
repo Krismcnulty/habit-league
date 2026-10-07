@@ -1084,8 +1084,8 @@ function awardsView(){
     <div><b>Team logo</b>${gearGrid('logo',myLogo())}</div>
     <div><b>Court</b>${gearGrid('court',C.court||'wood')}</div>
     <div><b>Shot style</b>${gearGrid('shot',C.shot||'classic')}</div>
-    <div><b>Player heads</b><div class="small muted">Tap a player to give them a head you've unlocked, or rename them.</div>
-      <div class="faces">${S.squad.slice().sort((a,b)=>(a.slot==='court'?0:1)-(b.slot==='court'?0:1)).map(p=>`<button class="face" data-a="player" data-id="${p.id}" style="border-color:${posById(p.pos).c}">${faceSvg(p)}</button>`).join('')}</div></div>
+    <div><b>Player heads</b><div class="small muted">Heads you've unlocked. Give them to players in the Squad tab.</div>
+      ${(()=>{const hs=HEADS.filter(h=>cosUnlocked('head',h.id));return hs.length?`<div class="ggrid">${hs.map(h=>`<div class="gtile">${isPrem('head',h.id)?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></div>`).join('')}</div>`:'<p class="small muted" style="margin:8px 0 0">None yet. Earn them through achievements in Club, or claim them from weekly drops.</p>'})()}</div>
   </div>`;
 }
 function clubView(){
