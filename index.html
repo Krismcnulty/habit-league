@@ -744,7 +744,6 @@ function todayView(){
   }
   let pre='';
   if(se&&!se.locked)pre=`<div class="banner" style="margin-bottom:12px"><b>Pre-season for ${monthName(se.key)}.</b> <span class="small">Make squad changes now. Your squad locks when you lock in, or automatically after today's game.</span><div style="margin-top:8px"><button class="btn" data-a="go" data-v="squad">Open squad</button></div></div>`;
-  if(transferOpen())pre+=`<div class="banner small" style="margin-bottom:12px">🔁 Transfer window open for ${TRANSFER_DAYS-diffDays(se.start,t)} more day${TRANSFER_DAYS-diffDays(se.start,t)===1?'':'s'}: one swap available in Squad.</div>`;
   return `
   <div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Final at 4:00am</span></div>
   ${lastHtml}${pre}
