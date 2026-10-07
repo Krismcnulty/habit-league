@@ -225,6 +225,10 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .glogo{width:42px;height:42px;display:grid;place-items:center}.glogo svg{width:40px;height:40px;image-rendering:pixelated}
 .gtile.locked .glogo{opacity:.35}
 .dprev svg{width:46px;height:46px}
+.schips{display:flex;gap:6px;margin-bottom:6px;overflow-x:auto;scrollbar-width:none}
+.schips::-webkit-scrollbar{display:none}
+.schip{flex:none;white-space:nowrap;padding:7px 10px;border-radius:99px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--text)}
+.schip.hl{border-color:rgba(255,122,26,.6);background:rgba(255,122,26,.12)}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -948,16 +952,28 @@ function statsBlock(p){
 function squadRow(p){const st=S.firstStart&&pStats(p);return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${ident(p).name} · ${posTag(p)} · ${esc(p.lvl)}${st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''}</div></div>${pts(p)}</div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
-  const D=ensureDay(t);const max=score(D).max;
-  let info;
-  const dvRow=se?levelRow(se):'';
-  if(edit)info=`<div class="banner"><b>Pre-season.</b> <span class="small">Change anything until you lock in. Your squad locks automatically after the first game of the season.</span>${squadReady()?`<div style="margin-top:8px"><button class="btn primary" data-a="lockin">Lock in squad</button></div>`:''}</div>`;
-  else if(transferOpen())info=`<div class="banner"><b>🔁 Transfer window open</b> <span class="small">· ${TRANSFER_DAYS-diffDays(se.start,t)} day(s) left. One swap: tap a player, sell, and sign someone of the same difficulty or harder.</span></div>`;
-  else info=`<div class="card small muted">🔒 Squad locked for ${monthName(se.key)}${se.transferUsed?' · transfer used':''}. Tap a player to rename, edit steps, or rest them on the injury list.</div>`;
+  const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
+  const left=se?TRANSFER_DAYS-diffDays(se.start,t):0,inj=se?se.injLeft:INJURY_USES;
+  const chips=[`<button class="schip" data-a="sinfo" data-v="level"><b>${dv.n}</b> · ~${dv.avg} pts</button>`];
+  if(edit)chips.push(`<button class="schip hl" data-a="sinfo" data-v="pre">📝 Pre-season</button>`);
+  else if(transferOpen())chips.push(`<button class="schip hl" data-a="sinfo" data-v="transfer">🔁 Transfer · ${left}d left</button>`);
+  else chips.push(`<button class="schip" data-a="sinfo" data-v="locked">🔒 Locked${se&&se.transferUsed?' · swap used':''}</button>`);
+  chips.push(`<button class="schip" data-a="sinfo" data-v="injury">🩹 ${inj} rest${inj===1?'':'s'}</button>`);
   return `<div class="top"><h1 class="cond">Squad</h1><span class="small muted">Max ${max} pts/day</span></div>
-  ${dvRow}${info}
-  ${squadLists(edit)}
-  <p class="small muted" style="margin:14px 4px">🩹 Injury list: ${se?se.injLeft:INJURY_USES} rest day${se&&se.injLeft===1?'':'s'} left this season. A resting player scores nothing and your opponent's score drops to match.</p>`;
+  <div class="schips">${chips.join('')}</div>
+  ${edit&&squadReady()?`<button class="btn primary block" style="margin-bottom:4px" data-a="lockin">Lock in squad</button>`:''}
+  ${squadLists(edit)}`;
+}
+function squadInfo(k){
+  const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(se.start,t):0;
+  const body={
+    level:`<h2>${dv.n} level</h2><p>Opponents average <b>${dv.avg} pts</b> a day, which is ${Math.round(PAR_SHARE*100)}% of your squad's ${dv.provisional?'':'starting '}max (${dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE)} pts).${dv.provisional?' It gets set when your squad locks.':' It stays fixed all season.'}</p><p>Sign harder players and you get ahead of it. Higher levels earn more XP (×${dv.xp} at ${dv.n}).</p>`,
+    pre:`<h2>Pre-season</h2><p>Change anything until you lock in. Your squad and level lock automatically after the first game of the season.</p>`,
+    transfer:`<h2>Transfer window</h2><p>Open for <b>${left} more day${left===1?'':'s'}</b>. You get one swap: tap a player, sell, and sign someone of the same difficulty or harder.</p><p>Your opponents' level stays the same, so a harder signing helps you win.</p>`,
+    locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&se.transferUsed?' and your transfer is used':''}. You can still rename players, edit their steps, change their look, or rest them on the injury list.</p>`,
+    injury:`<h2>Injury list</h2><p><b>${se?se.injLeft:INJURY_USES} rest day${se&&se.injLeft===1?'':'s'}</b> left this season. Tap a player and choose Rest today: they score nothing for or against you, and your opponent's score drops to match.</p>`,
+  }[k];
+  sheet(`<div class="small" style="line-height:1.5">${body}</div><button class="btn block" style="margin-top:8px" data-a="closeSheet">Got it</button>`);
 }
 
 
@@ -1176,6 +1192,7 @@ const A={
   togglePrem(){S.premium=!S.premium;save();render();toast(S.premium?'⭐ Premium preview on (no payment in the prototype)':'Premium preview off')},
   claim(d){if(!S.premium)return toast('⭐ Turn on the Premium preview to claim drops');if(!inDrop(d.k,d.v))return;S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();render();toast(`⭐ ${cosName(d.k,d.v)} ${COS_NAMES[d.k]} claimed`)},
   allAch(){sheet(`<h2>Achievements</h2><p class="small muted" style="margin:4px 0 0">${ACH.filter(a=>S.ach&&S.ach[a.id]).length} of ${ACH.length} unlocked. Rewards show in the Locker.</p>${achList()}`)},
+  sinfo(d){squadInfo(d.v)},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
