@@ -375,6 +375,8 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .rwp .gbench{width:34px}
 .mrow{display:flex;align-items:center;gap:8px;margin-top:3px}
 .mjs{width:38px;flex:none;margin-left:-2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.tok .tjs svg{width:100%!important;height:auto!important}
+.tok .tjs{position:absolute;left:-10px;bottom:-8px;width:26px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55));pointer-events:none}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -997,9 +999,9 @@ function courtView(D){
     const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length:0;
     return `<div class="spot" style="left:${x}%;top:${y}%">
-      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}
+      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
-      <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn">${ident(p).name} · <b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
+      <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
   return `<div class="court court-${(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
 }
 function shoot(id){
