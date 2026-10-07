@@ -338,6 +338,18 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 @keyframes lz{0%{transform:rotate(var(--a0));opacity:0}15%{opacity:1}50%{transform:rotate(var(--a1))}100%{transform:rotate(var(--a0));opacity:.8}}
 .c-lasers{background:rgba(10,4,30,.6)}
 .c-lasers .cel-txt b{color:#f5d0fe;text-shadow:0 0 6px #e879f9,0 0 20px #d946ef,0 0 40px #22d3ee}
+.jsy{display:block;width:100%;height:auto}
+.gjersey{width:42px;height:46px;display:block}
+.gtile.locked .gjersey{opacity:.4;filter:grayscale(.5)}
+.rwp .jsy{width:30px}
+.dprev .gjersey{width:44px;height:48px}
+.jrow{display:flex;gap:14px;align-items:center;margin-top:14px;padding:12px;border-radius:14px;background:radial-gradient(120% 120% at 0% 0%,rgba(255,255,255,.05),transparent 60%),var(--panel2);border:1px solid var(--line)}
+.jbig{width:96px;flex:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.rafters{background:linear-gradient(180deg,#0a0f1f,#141b2e);padding:14px 12px}
+.banners{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.banner2{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 6px 20px;background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-top:4px solid var(--gold);clip-path:polygon(0 0,100% 0,100% 92%,50% 100%,0 92%)}
+.banner2 .jsy{width:64px;margin-bottom:6px}
+.banner2 b{font-size:12px}.banner2 span{font-size:10.5px;color:var(--muted);line-height:1.3}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -736,28 +748,51 @@ const BOARDS=[['classic','Classic'],['led','Retro LED'],['chalk','Chalkboard'],[
 const CELS=[['confetti','Confetti'],['stamp','W Stamp'],['fireworks','Fireworks'],['crowd','Crowd roar'],['goldrain','Gold rain'],['lasers','Laser show']];
 const CEL_ICON={confetti:'🎊',stamp:'W',fireworks:'🎆',crowd:'🙌',goldrain:'🪙',lasers:'✨'};
 const BALLS=[['classic','Classic'],['street','Street'],['aba','ABA'],['gold','Gold'],['glow','Glow'],['pumpkin','Pumpkin'],['galaxy','Galaxy']];
-const COS_LISTS={head:HEAD_LIST,logo:LOGOS,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
-const COS_NAMES={head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',court:'court',shot:'shot style'};
+// Kits: a player's jersey (shown on player cards and retired jerseys, never on the court).
+const KITDEF={home:{n:'Home',b:'#ff7a1a',t:'#ffffff',num:'#ffffff',pat:'plain'},away:{n:'Away',b:'#f1f5f9',t:'#ff7a1a',num:'#ff7a1a',pat:'plain'},
+ retro:{n:'Retro',b:'#facc15',t:'#7c2d12',num:'#7c2d12',pat:'retro'},pinstripe:{n:'Pinstripe',b:'#1e3a8a',t:'#e2e8f0',num:'#ffffff',pat:'pin'},
+ legend:{n:'Legend',b:'#0b0b0b',t:'#d4a017',num:'#d4a017',pat:'panels'},neon:{n:'Neon',b:'#140726',t:'#22d3ee',num:'#f0abfc',pat:'panels'},
+ sunset:{n:'Sunset',b:'#f97316',t:'#db2777',num:'#ffffff',pat:'grad'},galaxy:{n:'Galaxy',b:'#312e81',t:'#c4b5fd',num:'#ffffff',pat:'galaxy'}};
+const KITS=Object.entries(KITDEF).map(([k,v])=>[k,v.n]);
+const myKit=()=>(S.cos&&S.cos.kit)||'home';
+function jerseySvg(kit,name,num){
+  const K=KITDEF[kit]||KITDEF.home,id='jk'+kit,shirt='M30 6Q50 15 70 6L78 8Q80 28 92 34L92 104Q50 110 8 104L8 34Q20 28 22 8Z';
+  let fill=K.b,defs='',deco='';
+  if(K.pat==='grad'){defs=`<linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${K.b}"/><stop offset="1" stop-color="${K.t}"/></linearGradient>`;fill=`url(#${id}g)`}
+  if(K.pat==='galaxy'){defs=`<radialGradient id="${id}g" cx=".4" cy=".35" r=".9"><stop offset="0" stop-color="#7c3aed"/><stop offset=".6" stop-color="${K.b}"/><stop offset="1" stop-color="#0b0b2a"/></radialGradient>`;fill=`url(#${id}g)`;deco=[[24,44],[70,30],[80,70],[30,90],[60,96],[18,70]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.3" fill="#fff"/>`).join('')}
+  if(K.pat==='pin')for(let x=12;x<92;x+=7)deco+=`<path d="M${x} 0V110" stroke="${K.t}" stroke-opacity=".35" stroke-width="1.2"/>`;
+  if(K.pat==='panels')deco=`<path d="M8 34Q14 33 18 30L18 108 8 104Z M92 34Q86 33 82 30L82 108 92 104Z" fill="${K.t}"/>`;
+  if(K.pat==='retro')deco=`<path d="M0 90h100v4H0zM0 97h100v3H0z" fill="${K.t}"/>`;
+  const label=(name||'').replace(/^[A-Z]\.\s*/,'').toUpperCase().slice(0,11);
+  return `<svg viewBox="0 0 100 110" class="jsy"><defs>${defs}<clipPath id="${id}c"><path d="${shirt}"/></clipPath></defs>
+   <path d="${shirt}" fill="${fill}"/><g clip-path="url(#${id}c)">${deco}</g>
+   <path d="M30 6Q50 15 70 6M22 8Q20 28 8 34M78 8Q80 28 92 34" fill="none" stroke="${K.t}" stroke-width="4" stroke-linecap="round"/>
+   <path d="${shirt}" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1.5"/>
+   <text x="50" y="36" text-anchor="middle" font-family="Arial Narrow,system-ui,sans-serif" font-weight="800" font-size="${label.length>8?7.5:9}" letter-spacing=".5" fill="${K.num}">${esc(label)}</text>
+   <text x="50" y="82" text-anchor="middle" font-family="Arial Narrow,system-ui,sans-serif" font-weight="900" font-size="40" fill="${K.num}" stroke="${K.pat==='plain'&&kit==='away'?'#0b1020':K.t}" stroke-width="${kit==='home'?0:1.2}" paint-order="stroke">${num}</text></svg>`;
+}
+const COS_LISTS={head:HEAD_LIST,logo:LOGOS,kit:KITS,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
+const COS_NAMES={head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',court:'court',shot:'shot style'};
 const ACH=[
  {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame'],['cel','stamp']]},
  {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand'],['ball','street']]},
  {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro'],['ball','aba']]},
- {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold']]},
+ {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold'],['kit','retro']]},
  {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk']]},
  {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led']]},
- {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain']]},
+ {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain'],['kit','pinstripe']]},
  {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords'],['cel','fireworks']]},
  {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast']]},
  {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown']]},
  {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor'],['cel','crowd']]},
  {id:'allstar',i:'⭐',n:'All-Star',d:'Reach All-Star career level',goal:9000,v:()=>S.xp,rw:[['court','street'],['board','gold']]},
  {id:'mvp',i:'👑',n:'MVP',d:'Reach MVP career level',goal:18000,v:()=>S.xp,rw:[['shot','rainbow'],['ball','gold']]},
- {id:'iron',i:'🛡️',n:'Iron Will',d:'Reach a 100-day streak on any player',goal:100,v:s=>s.bestStreak,rw:[['head','iron']]},
+ {id:'iron',i:'🛡️',n:'Iron Will',d:'Reach a 100-day streak on any player',goal:100,v:s=>s.bestStreak,rw:[['head','iron'],['kit','legend']]},
 ];
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
-const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy']];
+const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy'],['kit','neon'],['kit','sunset'],['kit','galaxy']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
 const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
 const DROP_EPOCH='2026-01-05';
@@ -795,7 +830,7 @@ function chips(k,cur,act,extra=''){
     return `<button class="lvl ${cur===v?'on':''} ${ok?'':'locked'}" data-a="${act}" data-k="${k}" data-v="${v}"${extra}>${sw}${pr?'⭐ ':ok?'':'🔒 '}${n}</button>`}).join('')}</div>`;
 }
 const SURNAMES=['Mercer','Okafor','Reyes','Dlamini','Kowalski','Brennan','Achebe','Lindqvist','Moreau','Tanaka','Haddad','Novak','Quinn','Osei','Varga','Castillo','Fitzgerald','Mensah','Petrov','Sato','Abara','Delaney','Kruger','Ruiz','Nakamura','Boateng','Ivers','Morrow','Calloway','Duarte','Keane','Adeyemi','Larsen','Romero','Whitlock','Okoro','Bianchi','Thorne','Vance','Holloway','McAteer','Gallagher','Doherty','Sheridan'];
-function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.floor(r()*19)];const gen=`${ini}. ${SURNAMES[Math.floor(r()*SURNAMES.length)]}`;return{name:p.pname||gen,num:Math.floor(r()*100)}}
+function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.floor(r()*19)];const gen=`${ini}. ${SURNAMES[Math.floor(r()*SURNAMES.length)]}`;const n0=Math.floor(r()*100);return{name:p.pname||gen,num:p.num!=null?p.num:n0}}
 const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p)}</span>`};
 const pts=p=>`<span class="ptsb shot-${p.shot}">${pv(p)}<small> pts</small></span>`;
 const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
@@ -1095,6 +1130,16 @@ function squadView(){
   ${edit&&squadReady()?`<button class="btn primary block" style="margin-bottom:4px" data-a="lockin">Lock in squad</button>`:''}
   ${squadLists(edit)}`;
 }
+function playerBest(p){let best=0,c=0;for(const d of Object.keys(S.days).sort()){const D=S.days[d];if(D.inj.includes(p.id))continue;if(isDone(p,D)){c++;if(c>best)best=c}else if(D.locked)c=0}return best}
+const retiredNums=except=>(S.retired||[]).filter(r=>r.id!==except).map(r=>r.num);
+function jerseyBlock(p){
+  const id=ident(p),best=playerBest(p),seasons=p.seasons||0,ok=seasons>=3||best>=100,R=(S.retired||[]).find(r=>r.id===p.id);
+  const status=R?`<div class="small" style="color:var(--gold);margin-top:8px">🏅 Jersey retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`
+    :ok?`<button class="btn primary block" style="margin-top:8px" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`
+    :`<div class="small muted" style="margin-top:8px">Retire this jersey after 3 seasons (${seasons}/3) or a 100-day streak (best ${best}).</div>`;
+  return `<div class="jrow"><div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div><div class="sp"><div class="small muted">Jersey number</div>
+    <input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" style="margin-top:6px;width:90px" ${R?'disabled':''}>${status}</div></div>`;
+}
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(se.start,t):0;
   const body={
@@ -1111,6 +1156,7 @@ function squadInfo(k){
 const EVENTS=[{n:'Halloween Shootout',s:'2026-10-24',e:'2026-10-31',d:'A one-week knockout on a spooky court, with a pumpkin trophy'},{n:'Winter Classic',s:'2026-12-01',e:'2026-12-14',d:'Two weeks on an outdoor ice court. Win the snow globe'},{n:'New Year Cup',s:'2027-01-01',e:'2027-01-10',d:'Start the year strong: ten days, one cup'},{n:'Spring Slam',s:'2027-03-20',e:'2027-03-31',d:'A slam-dunk contest where your biggest players count double'}];
 function itemPreview(k,v){
   if(k==='logo')return `<span class="dprev" style="background:#0f1630;display:grid;place-items:center">${logoSvg(v)}</span>`;
+  if(k==='kit')return `<span class="dprev" style="display:grid;place-items:center;background:#0c1226">${`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`}</span>`;
   if(k==='ball')return `<span class="dprev" style="display:grid;place-items:center;background:#0c1226"><span class="gshot">${ballSvg(v)}</span></span>`;
   if(k==='cel')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`}</span>`;
   if(k==='board')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
@@ -1119,6 +1165,7 @@ function itemPreview(k,v){
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
 function rewardPic(k,v){
+  if(k==='kit')return `<span class="rwp">${jerseySvg(v,'',23)}</span>`;
   if(k==='ball')return `<span class="rwp gshot">${ballSvg(v)}</span>`;
   if(k==='cel')return `<span class="rwp" style="background:none">${`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`}</span>`;
   if(k==='board')return `<span class="rwp" style="background:none">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
@@ -1152,7 +1199,7 @@ function headGrid(p){
 }
 function gearGrid(k,cur){
   return `<div class="ggrid">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
-    const pic=k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today);
@@ -1177,6 +1224,7 @@ function awardsView(){
     <div><b>Team logo</b>${gearGrid('logo',myLogo())}</div>
     <div><b>Scoreboard</b>${gearGrid('board',(C.board)||'classic')}</div>
     <div><b>Court</b>${gearGrid('court',C.court||'wood')}</div>
+    <div><b>Kit</b><div class="small muted">Shows on player cards and retired jerseys.</div>${gearGrid('kit',myKit())}</div>
     <div><b>Ball</b>${gearGrid('ball',C.ball||'classic')}</div>
     <div><b>Shot style</b>${gearGrid('shot',C.shot||'classic')}</div>
     <div><b>Win celebration</b><div class="small muted">Plays when you see a win, or score a perfect game. Tap your current one to preview it.</div>${gearGrid('cel',C.cel||'confetti')}</div>
@@ -1193,6 +1241,8 @@ function clubView(){
   <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
   <div class="sect"><h3 class="cond">Trophy cabinet</h3></div><div class="card" style="padding:4px 14px">${tro||'<p class="muted">Empty for now. Win the league or top the regular season.</p>'}</div>
+  <div class="sect"><h3 class="cond">Rafters</h3><span class="small muted">Retired jerseys</span></div>
+  <div class="card rafters">${(S.retired||[]).length?`<div class="banners">${S.retired.map(r=>`<div class="banner2">${jerseySvg(r.kit,r.name,r.num)}<b>${esc(r.name)}</b><span>${esc(r.habit)}</span><span>${esc(r.why)}</span></div>`).join('')}</div>`:'<p class="muted small" style="margin:0">Keep a player for 3 seasons or hit a 100-day streak to retire their jersey here.</p>'}</div>
   <div class="sect"><h3 class="cond">Achievements</h3><span class="small muted">${ACH.filter(a=>S.ach&&S.ach[a.id]).length}/${ACH.length} · rewards show in the Locker</span></div><div class="card" style="padding:12px 14px 0">${achSummary()}</div>
   <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
   <div class="sect"><h3 class="cond">Backup</h3></div>
@@ -1209,6 +1259,7 @@ function clubView(){
     <p class="small muted" style="margin:0">Adds a made-up Pro season for September 2026 (17–4, top seed, champions) to your cabinet and history, marked as simulated. It doesn't change your XP or this season.</p>
     <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
     <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button>
+    <button class="btn block" data-a="fastVet">Make a starter a 3-season veteran</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
   <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
@@ -1271,6 +1322,7 @@ function playerSheet(id){
   }
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small"><b>${ident(p).name}</b> · ${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
   ${statsBlock(p)}
+  ${jerseyBlock(p)}
   <div class="small muted" style="margin-top:14px">Head <span style="float:right">More in the Locker</span></div>${headGrid(p)}
   <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
   ${a}
@@ -1339,6 +1391,7 @@ const A={
   injure(d){const se=curSeason(),D=ensureDay(gameDate());if(se.injLeft<1)return;D.inj.push(d.id);se.injLeft--;save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
   uninjure(d){const se=curSeason(),D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);se.injLeft++;save();closeSheet();render()},
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
+    const ne=document.getElementById('pNum');if(ne&&!ne.disabled&&ne.value!==''){const v=Math.max(0,Math.min(99,parseInt(ne.value,10)||0));if(retiredNums(p.id).includes(v))toast(`#${v} is retired, so pick another number`);else if(v!==ident(p).num)p.num=v}
     const pn=document.getElementById('pPlayer').value.trim();if(pn&&pn!==ident({id:p.id}).name)p.pname=pn;else if(!pn)delete p.pname;
     const steps=document.getElementById('pSteps').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,8);
     const changed=JSON.stringify(steps)!==JSON.stringify(p.steps||[]);p.steps=steps;
@@ -1368,6 +1421,11 @@ const A={
   sinfo(d){squadInfo(d.v)},
   headInfo(d){toast(cosUnlocked('head',d.v)?'Unlocked: tap a player in Squad to give them this head':lockMsg('head',d.v))},
   unlockAll(){S.unlockAll=!S.unlockAll;save();render();toast(S.unlockAll?'All cosmetics unlocked for testing':'Cosmetics re-locked')},
+  retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;const id=ident(p),best=playerBest(p);
+    if(!confirm(`Retire #${id.num} ${id.name}? Their jersey goes up in the Club rafters for good. They keep playing, and #${id.num} can't be used by anyone else.`))return;
+    S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:(p.seasons||0)>=3?`${p.seasons} seasons`:`${best}-day streak`});
+    p.num=id.num;save();closeSheet();render();celebrate('stamp','RETIRED',`#${id.num} ${id.name}`)},
+  fastVet(){const p=S.squad.find(x=>x.slot==='court');p.seasons=Math.max(3,p.seasons||0);save();render();toast(`${p.name} is now a 3-season veteran`)},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
