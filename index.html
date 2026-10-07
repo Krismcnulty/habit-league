@@ -555,12 +555,12 @@ function playerSection(title,slot,D){
   const ps=S.squad.filter(p=>p.slot===slot).sort((a,b)=>POS.findIndex(x=>x.id===a.pos)-POS.findIndex(x=>x.id===b.pos));
   return `<div class="sect"><h3 class="cond">${title}</h3></div>`+ps.map(p=>{
     const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
-    const steps=p.steps&&p.steps.length?`<div class="steps">${p.steps.map((s,i)=>`<button class="step ${(D.t[p.id]||[])[i]?'on':''}" data-a="step" data-id="${p.id}" data-i="${i}" ${inj?'disabled':''}>${esc(s)}</button>`).join('')}</div>`:'';
+    const steps='';
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}">
       ${avatar(p)}
       <div class="sp" data-a="player" data-id="${p.id}"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
       <div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting today':''}</div></div>
-      ${p.steps&&p.steps.length?`<div class="tick" style="${done?'':'opacity:.5'}">${done?'✓':(D.t[p.id]||[]).filter(Boolean).length+'/'+p.steps.length}</div>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
+      ${p.steps&&p.steps.length?`<button class="tick" data-a="steps" data-id="${p.id}" ${inj?'disabled':''} style="${done?'':'font-size:14px'}">${done?'✓':(D.t[p.id]||[]).filter(Boolean).length+'/'+p.steps.length}</button>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
     </div>${steps}</div>`}).join('');
 }
 
