@@ -726,7 +726,7 @@ function weekIdx(){return Math.floor(diffDays(DROP_EPOCH,gameDate())/7)}
 function weeklyDrop(){const w=weekIdx();return[0,1,2].map(i=>PREM_POOL[(w*3+i)%PREM_POOL.length])}
 const nextDrop=()=>addDays(DROP_EPOCH,(weekIdx()+1)*7);
 const inDrop=(k,v)=>weeklyDrop().some(([a,b])=>a===k&&b===v);
-function cosUnlocked(k,v){if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
+function cosUnlocked(k,v){if(S.unlockAll)return true;if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
 function lockMsg(k,v){if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
   const today=gameDate(),days=Object.keys(S.days).sort();
@@ -1162,7 +1162,9 @@ function clubView(){
   <details class="card" style="margin-top:12px"><summary>Testing</summary><div class="stack" style="margin-top:10px">
     <p class="small muted" style="margin:0">Adds a made-up Pro season for September 2026 (17–4, top seed, champions) to your cabinet and history, marked as simulated. It doesn't change your XP or this season.</p>
     <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
-    <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button></div></details>
+    <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button>
+    <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
+    <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
   <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
 }
 function ballSvg(){return `<svg class="ball" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ff7a1a"/><g fill="none" stroke="#3a1600" stroke-width="4"><circle cx="50" cy="50" r="46"/><path d="M4 50h92M50 4v92M17 17c14 14 14 52 0 66M83 17c-14 14-14 52 0 66"/></g></svg>`}
@@ -1306,6 +1308,7 @@ const A={
   allAch(){sheet(`<h2>Achievements</h2><p class="small muted" style="margin:4px 0 0">${ACH.filter(a=>S.ach&&S.ach[a.id]).length} of ${ACH.length} unlocked. Rewards show in the Locker.</p>${achList()}`)},
   sinfo(d){squadInfo(d.v)},
   headInfo(d){toast(cosUnlocked('head',d.v)?'Unlocked: tap a player in Squad to give them this head':lockMsg('head',d.v))},
+  unlockAll(){S.unlockAll=!S.unlockAll;save();render();toast(S.unlockAll?'All cosmetics unlocked for testing':'Cosmetics re-locked')},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
