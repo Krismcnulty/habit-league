@@ -488,7 +488,8 @@ function finalize(se){
   S.history.unshift({k:se.key,w:me.w,l:me.l,seed,result,champ,div:dvid});
   S.squad.forEach(p=>p.seasons=(p.seasons||0)+1);
 }
-function migrateCos(){const M={'#ec4899':'owl','#38bdf8':'rocket','#84cc16':'star','#4338ca':'anchor'};if(S.owned)for(const k of Object.keys(S.owned))if(k.startsWith('jersey:')){const c=k.slice(7);if(M[c])S.owned['logo:'+M[c]]=true;delete S.owned[k]}if(S.cos&&S.cos.jersey){if(M[S.cos.jersey]&&S.owned&&S.owned['logo:'+M[S.cos.jersey]])S.cos.logo=M[S.cos.jersey];delete S.cos.jersey}}
+function migrateHeads(){const M={'hair:spiky':'neon','band:#22d3ee':'neon','hair:topknot':'warrior','extra:warpaint':'warrior','extra:goggles':'bigfella','band:#ec4899':'flash'};if(S.owned)for(const k of Object.keys(S.owned)){if(M[k])S.owned['head:'+M[k]]=true;if(/^(hair|band|extra):/.test(k))delete S.owned[k]}}
+function migrateCos(){migrateHeads();const M={'#ec4899':'owl','#38bdf8':'rocket','#84cc16':'star','#4338ca':'anchor'};if(S.owned)for(const k of Object.keys(S.owned))if(k.startsWith('jersey:')){const c=k.slice(7);if(M[c])S.owned['logo:'+M[c]]=true;delete S.owned[k]}if(S.cos&&S.cos.jersey){if(M[S.cos.jersey]&&S.owned&&S.owned['logo:'+M[S.cos.jersey]])S.cos.logo=M[S.cos.jersey];delete S.cos.jersey}}
 function migratePar(){migrateCos();for(const se of Object.values(S.seasons))if(se.locked&&!se.par)snapPar(se)}
 function processDays(){
   migratePar();
@@ -549,7 +550,23 @@ const HAIRS=['#1b120c','#3b2416','#6b3e1f','#c98b2e','#e8c36a','#b4441b','#8e8e8
 const HAIR_STYLES=[['short','Short'],['buzz','Buzz'],['flat','Flat top'],['bald','Bald'],['curly','Curly'],['mohawk','Mohawk'],['afro','Afro'],['spiky','Spiky'],['topknot','Top knot']];
 const BANDS=[['none','None'],['#ef4444','Red'],['#ffffff','White'],['#2563eb','Blue'],['#22c55e','Green'],['#a78bfa','Purple'],['#fbbf24','Gold'],['#22d3ee','Neon'],['#ec4899','Pink']];
 const EXTRAS=[['none','None'],['glasses','Glasses'],['beard','Beard'],['stache','Moustache'],['shades','Shades'],['crown','Crown'],['goggles','Goggles'],['warpaint','Face paint']];
+// Collectible heads: original legend-style looks (not based on real people). A head overrides a player's scouted face.
+const HEADS=[
+ {id:'hothand',n:'Hot Hand',sk:2,hair:'#1b120c',style:'flat',band:'#ef4444',fx:[],mouth:'grin'},
+ {id:'retro',n:'Retro Ace',sk:3,hair:'#4a2c17',style:'afro',band:'#ffffff',fx:['stache'],mouth:'smile'},
+ {id:'icecold',n:'Ice Cold',sk:1,hair:'#3b2416',style:'buzz',band:'none',fx:['shades'],mouth:'flat'},
+ {id:'professor',n:'The Professor',sk:0,hair:'#8e8e8e',style:'short',band:'none',fx:['glasses','beard'],mouth:'smile'},
+ {id:'iron',n:'Iron Will',sk:4,hair:'#1b120c',style:'bald',band:'#fbbf24',fx:['beard'],mouth:'flat'},
+ {id:'king',n:'The King',sk:3,hair:'#1b120c',style:'buzz',band:'none',fx:['crown','beard'],mouth:'grin'},
+ {id:'neon',n:'Neon Kid',sk:2,hair:'#e8c36a',style:'spiky',band:'#22d3ee',fx:[],mouth:'grin'},
+ {id:'warrior',n:'Warrior',sk:1,hair:'#1b120c',style:'topknot',band:'none',fx:['warpaint'],mouth:'flat'},
+ {id:'bigfella',n:'Big Fella',sk:5,hair:'#1b120c',style:'bald',band:'none',fx:['goggles'],mouth:'smile'},
+ {id:'flash',n:'Flash',sk:0,hair:'#b4441b',style:'mohawk',band:'#ec4899',fx:['stache'],mouth:'grin'},
+];
+const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
 function faceParams(p){
+  const H=p.head&&HEADS.find(h=>h.id===p.head);
+  if(H){const[sk,sh]=SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx}}
   const r=rng('face'+(p.face||p.id));const pick=a=>a[Math.floor(r()*a.length)];
   const [sk,sh]=pick(SKINS),hair=pick(HAIRS);
   let style=pick(['short','short','bald','flat','afro','mohawk','buzz','curly']);
@@ -606,28 +623,28 @@ function faceSvg(p){
 const JERSEYS=[['#ff7a1a','Orange'],['#dc2626','Red'],['#0d9488','Teal'],['#2563eb','Blue'],['#7c3aed','Purple'],['#d4a017','Gold'],['#ec4899','Neon pink'],['#38bdf8','Ice'],['#84cc16','Lime'],['#4338ca','Royal']];
 const COURTS=[['wood','Classic hardwood'],['dark','Dark hardwood'],['blue','Blue hardwood'],['street','Street'],['neon','Neon night'],['beach','Beach']];
 const SHOTFX=[['classic','Classic'],['fire','Fireball'],['rainbow','Rainbow swish'],['lightning','Lightning'],['confetti','Confetti']];
-const COS_LISTS={hair:HAIR_STYLES,band:BANDS,extra:EXTRAS,logo:LOGOS,court:COURTS,shot:SHOTFX};
-const COS_NAMES={hair:'hairstyle',band:'headband',extra:'accessory',logo:'team logo',court:'court',shot:'shot style'};
+const COS_LISTS={head:HEAD_LIST,logo:LOGOS,court:COURTS,shot:SHOTFX};
+const COS_NAMES={head:'player head',logo:'team logo',court:'court',shot:'shot style'};
 const ACH=[
  {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame']]},
- {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['hair','mohawk']]},
- {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['hair','curly']]},
- {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['extra','shades']]},
+ {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand']]},
+ {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro']]},
+ {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold']]},
  {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire']]},
  {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt']]},
  {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain']]},
  {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords']]},
  {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue']]},
- {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['extra','crown'],['logo','crown']]},
- {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['hair','afro']]},
+ {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown']]},
+ {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor']]},
  {id:'allstar',i:'⭐',n:'All-Star',d:'Reach All-Star career level',goal:9000,v:()=>S.xp,rw:[['court','street']]},
  {id:'mvp',i:'👑',n:'MVP',d:'Reach MVP career level',goal:18000,v:()=>S.xp,rw:[['shot','rainbow']]},
- {id:'iron',i:'🛡️',n:'Iron Will',d:'Reach a 100-day streak on any player',goal:100,v:s=>s.bestStreak,rw:[['band','#fbbf24']]},
+ {id:'iron',i:'🛡️',n:'Iron Will',d:'Reach a 100-day streak on any player',goal:100,v:s=>s.bestStreak,rw:[['head','iron']]},
 ];
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
-const PREM_POOL=[['hair','spiky'],['logo','owl'],['court','neon'],['shot','lightning'],['extra','goggles'],['band','#22d3ee'],['logo','rocket'],['hair','topknot'],['court','beach'],['shot','confetti'],['extra','warpaint'],['logo','star'],['band','#ec4899'],['logo','anchor']];
+const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
 const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
 const DROP_EPOCH='2026-01-05';
@@ -665,7 +682,7 @@ function chips(k,cur,act,extra=''){
     return `<button class="lvl ${cur===v?'on':''} ${ok?'':'locked'}" data-a="${act}" data-k="${k}" data-v="${v}"${extra}>${sw}${pr?'⭐ ':ok?'':'🔒 '}${n}</button>`}).join('')}</div>`;
 }
 const SURNAMES=['Mercer','Okafor','Reyes','Dlamini','Kowalski','Brennan','Achebe','Lindqvist','Moreau','Tanaka','Haddad','Novak','Quinn','Osei','Varga','Castillo','Fitzgerald','Mensah','Petrov','Sato','Abara','Delaney','Kruger','Ruiz','Nakamura','Boateng','Ivers','Morrow','Calloway','Duarte','Keane','Adeyemi','Larsen','Romero','Whitlock','Okoro','Bianchi','Thorne','Vance','Holloway','McAteer','Gallagher','Doherty','Sheridan'];
-function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.floor(r()*19)];return{name:`${ini}. ${SURNAMES[Math.floor(r()*SURNAMES.length)]}`,num:Math.floor(r()*100)}}
+function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.floor(r()*19)];const gen=`${ini}. ${SURNAMES[Math.floor(r()*SURNAMES.length)]}`;return{name:p.pname||gen,num:Math.floor(r()*100)}}
 const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p)}</span>`};
 const pts=p=>`<span class="ptsb shot-${p.shot}">${pv(p)}<small> pts</small></span>`;
 const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
@@ -980,8 +997,7 @@ function itemPreview(k,v){
   if(k==='logo')return `<span class="dprev" style="background:#0f1630;display:grid;place-items:center">${logoSvg(v)}</span>`;
   if(k==='court')return `<span class="dprev court-${v}" style="background-size:auto"></span>`;
   if(k==='shot')return `<span class="dprev" style="display:grid;place-items:center;font-size:26px;background:#0c1226">${{lightning:'⚡',confetti:'🎉'}[v]||'🏀'}</span>`;
-  const base=S.squad.find(p=>p.slot==='court')||{id:'demo',pos:'fitness'};
-  return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({...base,look:{...(base.look||{}),[k]:v}})}</span>`;
+  return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
 function achList(only){const st=stats();
   return (only||ACH).map(a=>{const has=S.ach&&S.ach[a.id];const v=Math.min(a.v(st),a.goal);const big=a.goal>=1000;
@@ -998,6 +1014,12 @@ function achSummary(){
   <button class="btn block" style="margin:6px 0 12px" data-a="allAch">View all achievements</button>`;
 }
 const COURT_MINI=`<svg viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="10" stroke-opacity=".85"><rect x="10" y="8" width="380" height="314"/><path d="M155 8a45 45 0 0 0 90 0"/><rect x="148" y="196" width="104" height="126"/><circle cx="200" cy="196" r="44"/><path d="M38 322V262A170 170 0 0 1 362 262V322"/></svg>`;
+function headGrid(p){
+  const tiles=[`<button class="gtile ${!p.head?'on':''}" data-a="setHead" data-id="${p.id}" data-v="scouted"><span class="glogo">${faceSvg({...p,head:null})}</span><span class="gn">Scouted</span></button>`];
+  for(const h of HEADS){const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))continue;
+    tiles.push(`<button class="gtile ${p.head===h.id?'on':''} ${ok?'':'locked'}" data-a="setHead" data-id="${p.id}" data-v="${h.id}"><span class="glogo">${faceSvg({id:'x',head:h.id})}</span>${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${h.n}</span></button>`)}
+  return `<div class="ggrid">${tiles.join('')}</div>`;
+}
 function gearGrid(k,cur){
   return `<div class="ggrid">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
     const pic=k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
@@ -1025,7 +1047,7 @@ function awardsView(){
     <div><b>Team logo</b>${gearGrid('logo',myLogo())}</div>
     <div><b>Court</b>${gearGrid('court',C.court||'wood')}</div>
     <div><b>Shot style</b>${gearGrid('shot',C.shot||'classic')}</div>
-    <div><b>Player looks</b><div class="small muted">Tap a player to change their hair, headband and extras.</div>
+    <div><b>Player heads</b><div class="small muted">Tap a player to give them a head you've unlocked, or rename them.</div>
       <div class="faces">${S.squad.slice().sort((a,b)=>(a.slot==='court'?0:1)-(b.slot==='court'?0:1)).map(p=>`<button class="face" data-a="player" data-id="${p.id}" style="border-color:${posById(p.pos).c}">${faceSvg(p)}</button>`).join('')}</div></div>
   </div>`;
 }
@@ -1100,10 +1122,12 @@ function playerSheet(id){
   }
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small"><b>${ident(p).name}</b> · ${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
   ${statsBlock(p)}
-  ${(()=>{const fp=faceParams(p);const ex=` data-id="${p.id}"`;return `<div class="small muted" style="margin-top:14px">Hair</div>${chips('hair',fp.style,'look',ex)}<div class="small muted" style="margin-top:10px">Headband</div>${chips('band',fp.band,'look',ex)}<div class="small muted" style="margin-top:10px">Extras</div>${chips('extra',fp.extra,'look',ex)}<p class="small muted" style="margin:8px 0 0">🔒 looks unlock in Awards. 🎲 gives a whole new random face.</p>`})()}
+  <div class="small muted" style="margin-top:14px">Head <span style="float:right">🔒 earn in Club · ⭐ premium</span></div>${headGrid(p)}
   <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
   ${a}
-  <div class="small muted" style="margin-top:16px">Name (always editable)</div>
+  <div class="small muted" style="margin-top:16px">Player name</div>
+  <input id="pPlayer" maxlength="20" value="${esc(ident(p).name)}" style="margin-top:6px">
+  <div class="small muted" style="margin-top:12px">Habit name</div>
   <input id="pName" maxlength="28" value="${esc(p.name)}" style="margin-top:6px">
   <div class="small muted" style="margin-top:12px">Steps, one per line (optional: ticking every step completes the player)</div>
   <textarea id="pSteps" rows="4" style="width:100%;margin-top:6px;font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px">${esc((p.steps||[]).join('\n'))}</textarea>
@@ -1154,7 +1178,8 @@ const A={
     S.squad.push(p);save();closeSheet();render();
   },
   player(d){playerSheet(d.id)},
-  newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;save();render();playerSheet(p.id)},
+  newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;delete p.head;save();render();playerSheet(p.id)},
+  setHead(d){const p=S.squad.find(x=>x.id===d.id);if(d.v==='scouted'){delete p.head}else{if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));p.head=d.v}save();render();playerSheet(p.id)},
   look(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const p=S.squad.find(x=>x.id===d.id);p.look={...(p.look||{}),[d.k]:d.v};save();render();playerSheet(p.id)},
   cos(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));S.cos={...(S.cos||{}),[d.k]:d.v};save();render()},
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
@@ -1165,6 +1190,7 @@ const A={
   injure(d){const se=curSeason(),D=ensureDay(gameDate());if(se.injLeft<1)return;D.inj.push(d.id);se.injLeft--;save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
   uninjure(d){const se=curSeason(),D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);se.injLeft++;save();closeSheet();render()},
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
+    const pn=document.getElementById('pPlayer').value.trim();if(pn&&pn!==ident({id:p.id}).name)p.pname=pn;else if(!pn)delete p.pname;
     const steps=document.getElementById('pSteps').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,8);
     const changed=JSON.stringify(steps)!==JSON.stringify(p.steps||[]);p.steps=steps;
     if(changed){const D=S.days[gameDate()];if(D){const v=D.t[p.id];D.t[p.id]=steps.length?(Array.isArray(v)?v.slice(0,steps.length):steps.map(()=>v===true)):(Array.isArray(v)?false:v)}}
