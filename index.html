@@ -1053,7 +1053,7 @@ function achSummary(){
 const COURT_MINI=`<svg viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="10" stroke-opacity=".85"><rect x="10" y="8" width="380" height="314"/><path d="M155 8a45 45 0 0 0 90 0"/><rect x="148" y="196" width="104" height="126"/><circle cx="200" cy="196" r="44"/><path d="M38 322V262A170 170 0 0 1 362 262V322"/></svg>`;
 function headGrid(p){
   const tiles=[`<button class="gtile ${!p.head?'on':''}" data-a="setHead" data-id="${p.id}" data-v="scouted"><span class="glogo">${faceSvg({...p,head:null})}</span><span class="gn">Scouted</span></button>`];
-  for(const h of HEADS){const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))continue;
+  for(const h of HEADS){const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(!ok)continue;
     tiles.push(`<button class="gtile ${p.head===h.id?'on':''} ${ok?'':'locked'}" data-a="setHead" data-id="${p.id}" data-v="${h.id}"><span class="glogo">${faceSvg({id:'x',head:h.id})}</span>${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${h.n}</span></button>`)}
   return `<div class="ggrid">${tiles.join('')}</div>`;
 }
@@ -1160,7 +1160,7 @@ function playerSheet(id){
   }
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small"><b>${ident(p).name}</b> · ${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
   ${statsBlock(p)}
-  <div class="small muted" style="margin-top:14px">Head <span style="float:right">🔒 earn in Club · ⭐ premium</span></div>${headGrid(p)}
+  <div class="small muted" style="margin-top:14px">Head <span style="float:right">More in the Locker</span></div>${headGrid(p)}
   <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
   ${a}
   <div class="small muted" style="margin-top:16px">Player name</div>
