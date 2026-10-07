@@ -429,8 +429,9 @@ function finalize(se){
   let result='Missed playoffs';
   if(se.seeds&&se.seeds.includes('me')){const out=se.sw.length;result=champ==='me'?'Champions':['Lost in Quarterfinals','Lost in Semifinals','Lost in Finals'][out]||'Playoffs'}
   se.done={w:me.w,l:me.l,seed,result,champ};const dvid=divOf(se).id;
-  if(seed===1)S.trophies.push({t:'Regular Season Winners',k:se.key});
-  if(champ==='me'){S.trophies.push({t:'League Champions',k:se.key});S.xp+=500}
+  const tier=divOf(se);
+  if(seed===1)S.trophies.push({t:'Regular Season Winners',k:se.key,div:tier.id});
+  if(champ==='me'){S.trophies.push({t:'League Champions',k:se.key,div:tier.id});S.xp+=Math.round(500*tier.xp)}
   S.history.unshift({k:se.key,w:me.w,l:me.l,seed,result,champ,div:dvid});
   S.squad.forEach(p=>p.seasons=(p.seasons||0)+1);
 }
@@ -757,14 +758,18 @@ function playerSection(title,slot,D){
 const CUP=["......bkkb......",".....bbkbbb.....",".....bkkkkb.....","......bbkb......","..dggggggggggd..","gg.ghgggggggg.gg","g..ghgggggggd..g","g..ghgggggggd..g",".g.ghgggggggd.g.","...ghgggggggd...","....dggggggd....","......dggd......","......dggd......",".....gggggg.....","....wwwwwwww....","....wwwwwwww...."];
 const BANNER=["..rrrrrrrrrrrr..","...tttttttttt...","...tnnnnnnnnt...","...tnnnyynnnt...","...tnyyyyyynt...","...tnnyyyynnt...","...tnnyyyynnt...","...tnynnnnynt...","...tnnnnnnnnt...","...tyyyyyyyyt...","...tnnnnnnnnt...","...tnnnnnnnnt...","...tnnnnnnnnt...","...tnnt..tnnt...","...tt......tt...","................"];
 const TPAL={g:'#fbbf24',h:'#fef3c7',d:'#b45309',b:'#ff7a1a',k:'#3a1600',w:'#6b4226',r:'#8b5a2b',t:'#e5e7eb',n:'#1e3a8a',y:'#fbbf24'};
-function pixArt(rows){
-  const ink='#140b06',G=rows.map(r=>[...r].map(c=>c==='.'?null:TPAL[c]));const out=G.map(r=>r.slice());
+const TIER_PAL={rookie:{g:'#cd7f32',h:'#f6d1a8',d:'#7a4a1f',y:'#cd7f32',n:'#4a2c14',t:'#e7c9a9'},pro:{g:'#cbd5e1',h:'#ffffff',d:'#64748b',y:'#e2e8f0',n:'#334155',t:'#f1f5f9'},allstar:{},hof:{g:'#67e8f9',h:'#ecfeff',d:'#0e7490',y:'#a5f3fc',n:'#4c1d95',t:'#e9d5ff'}};
+const TIER_METAL={rookie:'Bronze',pro:'Silver',allstar:'Gold',hof:'Diamond'};
+function pixArt(rows,tier){
+  const P={...TPAL,...(TIER_PAL[tier]||{})};
+  const ink='#140b06',G=rows.map(r=>[...r].map(c=>c==='.'?null:P[c]));const out=G.map(r=>r.slice());
   for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
   let r='';for(let y=0;y<16;y++){let x=0;while(x<16){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<16&&out[y][x+w]===c)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
   return `<svg viewBox="-1 -1 18 18" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
 }
 const TROPHIES={'League Champions':{art:CUP,how:'Win the Finals in the last 9 days of the month'},'Regular Season Winners':{art:BANNER,how:'Finish top of the table before the playoffs'}};
-const trophyImg=(t,sz)=>`<span class="tro" style="width:${sz}px;height:${sz}px">${pixArt(TROPHIES[t].art)}</span>`;
+const trophyImg=(t,sz,tier)=>`<span class="tro" style="width:${sz}px;height:${sz}px">${pixArt(TROPHIES[t].art,tier||'allstar')}</span>`;
+const trophyTier=x=>x.div||((S.history.find(h=>h.k===x.k)||{}).div)||'allstar';
 function trophyStatus(se,t){
   const today=gameDate(),ps=poStart(se.key),ord=n=>n+(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%100]||'th');
   if(t==='Regular Season Winners'){
@@ -784,8 +789,8 @@ function trophyStatus(se,t){
 }
 function trophyCard(se){
   if(!se)return '';
-  return `<div class="card stakes"><div class="small muted cond" style="margin-bottom:8px">Trophies at stake · ${monthName(se.key)}</div><div class="tgrid">${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t);
-    return `<div class="tcard ${st.won?'won':''}">${trophyImg(t,64)}<b>${t}</b><span class="small muted">${TROPHIES[t].how}</span><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div>
+  return `<div class="card stakes"><div class="small muted cond" style="margin-bottom:8px">Trophies at stake · ${divOf(se).n} · ${monthName(se.key)}</div><div class="tgrid">${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t),tv=divOf(se);
+    return `<div class="tcard ${st.won?'won':''}">${trophyImg(t,64,tv.id)}<b>${tv.n} ${t}</b><span class="small" style="color:var(--orange2)">${TIER_METAL[tv.id]}${t==='League Champions'?` · +${Math.round(500*tv.xp)} XP`:''}</span><span class="small muted">${TROPHIES[t].how}</span><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div>
     <div class="small muted" style="margin-top:8px">Win one and it goes in your Club trophy cabinet.</div></div>`;
 }
 function leagueView(){
@@ -879,7 +884,7 @@ function awardsView(){
 function clubView(){
   const c=career();
   const hist=S.history.map(h=>`<div class="trophy"><span class="wl ${h.champ==='me'?'W':''}" style="width:auto;padding:0 8px">${h.w}–${h.l}</span><div class="sp"><b>${monthName(h.k)}</b><div class="small muted">Seed ${h.seed} · ${esc(h.result)}</div></div></div>`).join('');
-  const tro=S.trophies.map(x=>`<div class="trophy">${trophyImg(x.t,44)}<div><b>${esc(x.t)}</b><div class="small muted">${monthName(x.k)}</div></div></div>`).join('');
+  const tro=S.trophies.map(x=>{const tr=trophyTier(x);return `<div class="trophy">${trophyImg(x.t,44,tr)}<div><b>${divById(tr).n} ${esc(x.t)}</b><div class="small muted">${monthName(x.k)}</div></div></div>`}).join("");
   return `<div class="top"><h1 class="cond">Club</h1></div>
   <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
