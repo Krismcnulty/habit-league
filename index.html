@@ -36,6 +36,9 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .btn.block{width:100%}
 .btn:disabled{opacity:.4}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
+.av{width:46px;height:46px;flex:none;border-radius:12px;background:linear-gradient(180deg,#1f2a4a,#121a33);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.av svg{width:40px;height:40px;image-rendering:pixelated;display:block}
+.posn{font-weight:700}
 .pos{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:#0f1630;color:var(--orange2);border:1px solid var(--line);min-width:38px;text-align:center}
 .shot-layup{color:var(--layup)}.shot-jumper{color:var(--jumper)}.shot-three{color:var(--three)}.shot-dunk{color:var(--dunk)}
 .top{display:flex;align-items:baseline;justify-content:space-between;margin:4px 2px 14px}
@@ -67,7 +70,7 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .pl.inj{opacity:.55}
 .tick{width:42px;height:42px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:20px;font-weight:900}
 .done .tick{background:var(--green);border-color:var(--green);color:#052e12}
-.steps{margin:8px 0 0 48px;display:flex;flex-wrap:wrap;gap:6px}
+.steps{margin:8px 0 0 58px;display:flex;flex-wrap:wrap;gap:6px}
 .step{padding:6px 10px;border-radius:99px;border:1px solid var(--line);font-size:13px;background:var(--panel2)}
 .step.on{background:rgba(34,197,94,.18);border-color:var(--green);color:#bbf7d0}
 .fire{font-size:12px;color:var(--orange2);font-weight:700}
@@ -134,7 +137,7 @@ details summary{cursor:pointer;font-weight:700}
 /* ===================== constants ===================== */
 const SHOTS={layup:{n:'Layup',pts:8},jumper:{n:'Jumper',pts:14},three:{n:'Three',pts:22},dunk:{n:'Slam dunk',pts:40}};
 const SHOT_ORDER=['layup','jumper','three','dunk'];
-const POS=[{id:'fitness',n:'Fitness',a:'FIT'},{id:'mind',n:'Mind',a:'MND'},{id:'routine',n:'Routine',a:'RTN'},{id:'home',n:'Home',a:'HOM'},{id:'money',n:'Money',a:'MNY'}];
+const POS=[{id:'fitness',n:'Fitness',a:'FIT',c:'#ef4444'},{id:'mind',n:'Mind',a:'MND',c:'#a78bfa'},{id:'routine',n:'Routine',a:'RTN',c:'#2dd4bf'},{id:'home',n:'Home',a:'HOM',c:'#fbbf24'},{id:'money',n:'Money',a:'MNY',c:'#22c55e'}];
 const posById=id=>POS.find(p=>p.id===id);
 const CUSTOM_SHOT='jumper', MAX_CUSTOM=2, BENCH_SIZE=5, INJURY_USES=3, TRANSFER_DAYS=7;
 const L=(l,shot)=>({l,shot});
@@ -348,6 +351,48 @@ const mini=id=>{const t=team(id);return `<span class="mini" style="background:${
 function recordOf(id){const se=curSeason();if(!se)return '';const st=standings(se,gameDate());const x=st.find(r=>r.id===id);return x?`${x.w}–${x.l}`:''}
 function toast(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
 
+
+/* ===================== pixel heads ===================== */
+const SKINS=[['#f6d2b4','#dcae8c'],['#eebd94','#d09a70'],['#d39a6a','#b07a4e'],['#a8703f','#8a5730'],['#7a4b2a','#603a20'],['#5a3519','#452712']];
+const HAIRS=['#1b120c','#3b2416','#6b3e1f','#c98b2e','#e8c36a','#b4441b','#8e8e8e','#2a2a3a'];
+function faceSvg(p){
+  const r=rng('face'+(p.face||p.id));const pick=a=>a[Math.floor(r()*a.length)];
+  const [sk,sh]=pick(SKINS),hair=pick(HAIRS);
+  const style=pick(['short','short','bald','flat','afro','mohawk','buzz','curly']);
+  const beard=r()<.3,stache=!beard&&r()<.2,glasses=r()<.14,mouth=pick(['smile','flat','grin','smile']);
+  const band=(posById(p.pos)||POS[0]).c,ink='#140b06';
+  const G=Array.from({length:16},()=>Array(16).fill(null));
+  const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
+  const inHead=(x,y)=>y>=3&&y<=14&&x>=((y===3||y===14)?4:3)&&x<=((y===3||y===14)?11:12);
+  for(let y=3;y<=14;y++)for(let x=3;x<=12;x++)if(inHead(x,y))set(x,y,sk);
+  [[2,8],[2,9],[13,8],[13,9]].forEach(([x,y])=>set(x,y,sk));
+  for(let y=6;y<=13;y++)set(12,y,sh);for(let x=4;x<=11;x++)set(x,14,sh);
+  if(style==='short'||style==='curly'){for(let x=4;x<=11;x++)set(x,3,hair);for(let x=3;x<=12;x++)set(x,4,hair);set(3,5,hair);set(12,5,hair);set(3,6,hair);set(12,6,hair);
+    if(style==='curly'){for(let x=3;x<=12;x+=2)set(x,2,hair);set(2,4,hair);set(13,4,hair)}}
+  if(style==='flat')for(let y=0;y<=4;y++)for(let x=3;x<=12;x++)set(x,y,hair);
+  if(style==='afro')for(let y=0;y<=8;y++)for(let x=1;x<=14;x++){const d=((x-7.5)**2)/44+((y-4.5)**2)/22;if(d<=1&&(!inHead(x,y)||y<=4))set(x,y,hair)}
+  if(style==='mohawk')for(let y=0;y<=4;y++){set(7,y,hair);set(8,y,hair)}
+  if(style==='buzz'){for(let x=4;x<=11;x++)set(x,3,hair);for(let x=3;x<=12;x++)set(x,4,hair)}
+  if(style==='bald'){set(5,4,'#ffffff55')}
+  for(let x=3;x<=12;x++){set(x,5,band);set(x,6,band)}set(13,6,band);set(14,7,band);
+  const brow=style==='bald'?sh:hair;[5,6,9,10].forEach(x=>set(x,7,brow));
+  set(5,8,'#ffffff');set(6,8,ink);set(10,8,'#ffffff');set(9,8,ink);
+  if(glasses){[4,5,6,7,8,9,10,11].forEach(x=>{set(x,7,ink);set(x,9,ink)});set(4,8,ink);set(7,8,ink);set(8,8,ink);set(11,8,ink)}
+  set(7,9,sh);set(7,10,sh);set(8,10,sh);
+  if(beard){for(let y=10;y<=14;y++)for(let x=3;x<=12;x++)if(inHead(x,y)&&(y>=12||x<=4||x>=11))set(x,y,hair);for(let x=5;x<=10;x++)set(x,11,hair)}
+  if(stache)for(let x=5;x<=10;x++)set(x,11,hair);
+  if(mouth==='flat')for(let x=6;x<=9;x++)set(x,12,ink);
+  if(mouth==='smile'){for(let x=6;x<=9;x++)set(x,12,ink);if(!stache&&!beard){set(5,11,ink);set(10,11,ink)}}
+  if(mouth==='grin'){for(let x=6;x<=9;x++)set(x,12,'#ffffff');set(5,12,ink);set(10,12,ink)}
+  const out=G.map(r=>r.slice());
+  for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
+  let rects='';
+  for(let y=0;y<16;y++){let x=0;while(x<16){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<16&&out[y][x+w]===c)w++;rects+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
+  return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}
+const avatar=p=>`<span class="av">${faceSvg(p)}</span>`;
+const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
+
 /* ===================== views ===================== */
 let view='today',leagueTab='table',setupStep=0;
 const app=document.getElementById('app');
@@ -440,9 +485,9 @@ function playerSection(title,slot,D){
     const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const steps=p.steps&&p.steps.length?`<div class="steps">${p.steps.map((s,i)=>`<button class="step ${(D.t[p.id]||[])[i]?'on':''}" data-a="step" data-id="${p.id}" data-i="${i}" ${inj?'disabled':''}>${esc(s)}</button>`).join('')}</div>`:'';
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}">
-      <span class="pos">${posById(p.pos).a}</span>
+      ${avatar(p)}
       <div class="sp" data-a="player" data-id="${p.id}"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
-      <div class="meta">${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting today':''}</div></div>
+      <div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting today':''}</div></div>
       ${p.steps&&p.steps.length?`<div class="tick" style="${done?'':'opacity:.5'}">${done?'✓':(D.t[p.id]||[]).filter(Boolean).length+'/'+p.steps.length}</div>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
     </div>${steps}</div>`}).join('');
 }
@@ -485,7 +530,7 @@ function squadLists(edit){
   for(let i=bench.length;i<BENCH_SIZE;i++)bh+=`<button class="pl empty" style="width:100%" ${edit?'':'disabled'} data-a="sign" data-slot="bench">+ Sign a bench player</button>`;
   return `<div class="sect"><h3 class="cond">Starting five · full points</h3></div>${court}<div class="sect"><h3 class="cond">Bench · half points</h3></div>${bh}`;
 }
-function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}"><span class="pos">${posById(p.pos).a}</span><div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${p.steps&&p.steps.length?` · ${p.steps.length} steps`:''}</div></div><span class="muted">›</span></div>`}
+function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${p.steps&&p.steps.length?` · ${p.steps.length} steps`:''}</div></div><span class="muted">›</span></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max;
@@ -561,7 +606,7 @@ function playerSheet(id){
     if(inj)a+=`<button class="btn block" style="margin-top:8px" data-a="uninjure" data-id="${p.id}">Bring back from injury list</button>`;
     else if(D&&!isDone(p,D))a+=`<button class="btn block" style="margin-top:8px" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
   }
-  sheet(`<div class="row"><span class="pos">${posById(p.pos).a}</span><h2 class="sp">${esc(p.name)}</h2></div>
+  sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲 New look</button></div>
   <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${SHOTS[p.shot].n} ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
   ${a}
   <div class="small muted" style="margin-top:16px">Name (always editable)</div>
@@ -614,6 +659,7 @@ const A={
     S.squad.push(p);save();closeSheet();render();
   },
   player(d){playerSheet(d.id)},
+  newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);save();render();playerSheet(p.id)},
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
   promote(d){const p=S.squad.find(x=>x.id===d.id);const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);if(cur)cur.slot='bench';p.slot='court';save();closeSheet();render()},
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
