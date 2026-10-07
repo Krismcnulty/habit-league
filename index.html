@@ -857,9 +857,10 @@ function playerSection(title,slot,D){
   return `<div class="sect"><h3 class="cond">${title}</h3></div>`+ps.map(p=>{
     const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const steps='';
-    return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}">
+    const act=inj?'':`data-a="${p.steps&&p.steps.length?'steps':'tick'}" data-id="${p.id}"`;
+    return `<div><div class="pl ${done?'done':''} ${inj?'inj':''}" ${act} style="cursor:pointer">
       ${avatar(p)}
-      <div class="sp" data-a="player" data-id="${p.id}"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
+      <div class="sp"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
       <div class="meta">${ident(p).name} · ${esc(p.lvl)}${st>=2?` · <span class="fire">🔥 ${st}</span>`:''}${inj?' · 🩹 resting':''}</div></div>
       ${pts(p)}
       ${p.steps&&p.steps.length?`<button class="tick" data-a="steps" data-id="${p.id}" ${inj?'disabled':''} style="${done?'':'font-size:14px'}">${done?'✓':(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length+'/'+p.steps.length}</button>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
