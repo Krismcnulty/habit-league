@@ -141,6 +141,21 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .ach.got .pbar i{background:var(--gold)}
 nav button{position:relative}
 nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid var(--bg)}
+.score .lead2{color:#fca5a5}
+.clock{text-align:center;font-size:11px;color:var(--muted);margin-top:10px}
+.clock b{color:var(--text)}
+.bar.opp{height:5px;margin:0 0 10px;opacity:.9}
+.bar.opp i{background:#cbd5e1}
+.bar+.bar{margin-top:-2px}
+.coach{display:flex;gap:10px;align-items:center;margin-top:12px;padding:10px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:14px}
+.coach>span{font-size:20px}
+.stgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.stgrid div{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center}
+.stgrid b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.stgrid span{font-size:11px;color:var(--muted)}
+.form{display:flex;gap:4px;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)}
+.form i{width:14px;height:14px;border-radius:4px;background:var(--panel2);border:1px solid var(--line)}
+.form i.y{background:var(--green);border-color:var(--green)}.form i.n{background:rgba(240,82,82,.35);border-color:rgba(240,82,82,.5)}.form i.i{background:#475569}.form i.t{border-style:dashed}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -577,6 +592,8 @@ function todayView(){
   const need=sc.opp-sc.me+1;
   const status=sc.max===0?'No players available today':lead?(sc.me===sc.max?'Perfect game! 🏀':`Leading by ${sc.me-sc.opp} · keep scoring`):sc.me===sc.opp?'Tied · finish your starters to win in overtime':`Need ${need} more to win`;
   const pctMe=sc.max?sc.me/sc.max*100:0,pctOpp=sc.max?sc.opp/sc.max*100:0;
+  const oppLive=Math.round(sc.opp*oppProgress(t)),q=quarter(t),pctLive=sc.max?oppLive/sc.max*100:0,note=coachNote(D,sc,oppLive);
+  const ahead=sc.me>oppLive;
   const last=S.newResult&&S.days[S.newResult];
   let lastHtml='';
   if(last&&S.newResult===addDays(t,-1)){
@@ -592,17 +609,46 @@ function todayView(){
     <div class="phase cond">${esc(phase)}</div>
     <div class="teams">
       <div class="tm">${badge('me')}<div class="tmname">${esc(S.team.name)}</div><div class="rec">${myRec}</div></div>
-      <div class="score"><span class="${lead?'lead':''}" id="myScore">${sc.me}</span><span class="dash">–</span><span>${sc.opp}</span></div>
+      <div class="score"><span class="${ahead?'lead':''}" id="myScore">${sc.me}</span><span class="dash">–</span><span class="${!ahead&&oppLive>sc.me?'lead2':''}">${oppLive}</span></div>
       <div class="tm">${badge(D.oppId)}<div class="tmname">${esc(team(D.oppId).n)}</div><div class="rec">${oppRec||esc(team(D.oppId).city)}</div></div>
     </div>
+    <div class="clock cond">${q===5?`${esc(team(D.oppId).n)} finished on <b>${sc.opp}</b>`:QLABEL[q]+(q?' · live':` · tip-off ${TIPOFF_H}am`)+` · they finish on <b>${sc.opp}</b>`}</div>
     <div class="bar"><i style="width:${pctMe}%"></i><b style="left:${pctOpp}%"></b></div>
+    <div class="bar opp"><i style="width:${pctLive}%"></i><b style="left:${pctOpp}%"></b></div>
     <div class="status">${status}</div>
   </div>
+  ${note?`<div class="coach"><span>${note.i}</span><div>${esc(note.m)}</div></div>`:''}
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
   ${playerSection('Bench · half points','bench',D)}`;
 }
 
 const SPOTS=[[50,28],[17,46],[83,46],[27,77],[73,77]];
+
+/* ===================== live opponent & coach ===================== */
+// The opponent scores between 7am and 11pm in four quarters, in seeded bursts, reaching their final score by 11pm.
+const TIPOFF_H=7,GAME_HRS=16;
+function gameHours(d){const b=parse(d);b.setHours(TIPOFF_H,0,0,0);return(nowMs()-b)/36e5}
+function oppProgress(d){
+  const hrs=gameHours(d);if(hrs<=0)return 0;if(hrs>=GAME_HRS)return 1;
+  const r=rng('pace'+d),w=[];for(let h=0;h<GAME_HRS;h++)w.push(.25+r()*1.5);const tot=w.reduce((a,b)=>a+b,0);
+  const H=Math.floor(hrs);let acc=0;for(let i=0;i<H;i++)acc+=w[i];acc+=w[H]*(hrs-H);return acc/tot;
+}
+function quarter(d){const h=gameHours(d);return h<0?0:h>=GAME_HRS?5:Math.floor(h/4)+1}
+const QLABEL=['Pre-game','Q1','Q2','Q3','Q4','Opponent finished'];
+// coachNote: one gentle line about where you stand. Written so the same text can become a phone notification later.
+function coachNote(D,sc,oppLive){
+  const t=gameDate(),q=quarter(t),opp=team(D.oppId).n;
+  if(sc.max===0)return null;
+  if(sc.me>sc.opp)return sc.me===sc.max?{i:'🏆',m:'Perfect game. Every player scored.'}:{i:'✅',m:`Game won: you're past ${opp}'s final score. Anything more is bonus XP.`};
+  const left=S.squad.filter(p=>!D.inj.includes(p.id)&&!isDone(p,D)).sort((a,b)=>pv(b)-pv(a)||(a.slot==='court'?-1:1));
+  const top=left[0];const need=sc.opp-sc.me+1;
+  const one=left.filter(p=>pv(p)>=need).sort((a,b)=>pv(a)-pv(b))[0];
+  if(q===0)return{i:'🌅',m:`Tip-off at ${TIPOFF_H}am. Get a head start${top?` with ${top.name}`:''}.`};
+  if(one)return{i:'🎯',m:`${one.name} (${pv(one)} pts) wins this on its own.`};
+  if(q<=2)return sc.me>=oppLive?{i:'👍',m:`Ahead of ${opp} so far. Keep the pace up.`}:{i:'⏱️',m:`${opp} are up ${oppLive-sc.me}. ${top?`${top.name} (${pv(top)} pts) is your best shot.`:''}`};
+  if(q<=4)return{i:'📣',m:`${QLABEL[q]}: you need ${need} more. ${top?`Start with ${top.name} (${pv(top)} pts).`:''}`};
+  return{i:'🌙',m:`${opp} are done on ${sc.opp}. You need ${need} more before 4am.`};
+}
 function courtView(D){
   const starters=POS.map(pos=>S.squad.find(x=>x.slot==='court'&&x.pos===pos.id)).filter(Boolean);
   const lines=`<svg class="lines" viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".9">
@@ -697,7 +743,24 @@ function squadLists(edit){
   for(let i=bench.length;i<BENCH_SIZE;i++)bh+=`<button class="pl empty" style="width:100%" ${edit?'':'disabled'} data-a="sign" data-slot="bench">+ Sign a bench player</button>`;
   return `<div class="sect"><h3 class="cond">Starting five · full points</h3></div>${court}<div class="sect"><h3 class="cond">Bench · half points</h3></div>${bh}`;
 }
-function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${p.steps&&p.steps.length?` · ${p.steps.length} steps`:''}</div></div><span class="muted">›</span></div>`}
+
+function pStats(p){
+  const se=curSeason(),today=gameDate();if(!se||today<se.start)return null;
+  let from=se.start;if(p.signedAt&&p.signedAt>from)from=p.signedAt;
+  let att=0,made=0,run=0,best=0;const form=[];
+  for(let d=from;d<=today;d=addDays(d,1)){const D=S.days[d];if(!D)continue;
+    if(D.inj.includes(p.id)){form.push('i');continue}
+    const done=isDone(p,D);
+    if(D.locked||done){att++;if(done){made++;run++;if(run>best)best=run}else run=0}
+    form.push(done?'y':D.locked?'n':'t');}
+  return{att,made,pct:att?Math.round(made/att*100):null,best,pts:made*pv(p),form:form.slice(-7)};
+}
+function statsBlock(p){
+  const st=pStats(p);if(!st)return '';
+  return `<div class="stgrid"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Season</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>
+  <div class="form">Last 7: ${st.form.map(x=>`<i class="${x}" title="${{y:'Scored',n:'Missed',i:'Rested',t:'Today'}[x]}"></i>`).join('')}</div>`;
+}
+function squadRow(p){return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${posTag(p)} · ${esc(p.lvl)} · <span class="shot-${p.shot}">${SHOTS[p.shot].n} ${pv(p)}</span>${(()=>{const st=S.firstStart&&pStats(p);return st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''})()}</div></div><span class="muted">›</span></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max;
@@ -794,6 +857,7 @@ function playerSheet(id){
     else if(D&&!isDone(p,D))a+=`<button class="btn block" style="margin-top:8px" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
   }
   sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)}</div></div><button class="btn" data-a="newLook" data-id="${p.id}">🎲</button></div>
+  ${statsBlock(p)}
   ${(()=>{const fp=faceParams(p);const ex=` data-id="${p.id}"`;return `<div class="small muted" style="margin-top:14px">Hair</div>${chips('hair',fp.style,'look',ex)}<div class="small muted" style="margin-top:10px">Headband</div>${chips('band',fp.band,'look',ex)}<div class="small muted" style="margin-top:10px">Extras</div>${chips('extra',fp.extra,'look',ex)}<p class="small muted" style="margin:8px 0 0">🔒 looks unlock in Awards. 🎲 gives a whole new random face.</p>`})()}
   <p class="small muted" style="margin:6px 0 0">${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${SHOTS[p.shot].n} ${pv(p)} pts${p.custom?' · custom':''} · 🔥 ${streak(p)}-day streak${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}</p>
   ${a}
@@ -803,7 +867,7 @@ function playerSheet(id){
   <textarea id="pSteps" rows="4" style="width:100%;margin-top:6px;font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px">${esc((p.steps||[]).join('\n'))}</textarea>
   <button class="btn primary block" style="margin-top:10px" data-a="savePlayer" data-id="${p.id}">Save</button>`);
 }
-function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0}}
+function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0,signedAt:gameDate()}}
 
 /* ===================== actions ===================== */
 const A={
@@ -842,7 +906,7 @@ const A={
     const sel=document.getElementById('cPos');
     const sell=signCtx.transfer&&S.squad.find(p=>p.id===signCtx.transfer);
     const pos=signCtx.slot==='court'?signCtx.pos:(sell&&sell.slot==='court'?sell.pos:(sel?sel.value:'mind'));
-    const p={id:uid(),lib:null,name,pos,lvl:'Custom',shot:CUSTOM_SHOT,steps:[],slot:signCtx.slot||'bench',custom:true,seasons:0};
+    const p={id:uid(),lib:null,name,pos,lvl:'Custom',shot:CUSTOM_SHOT,steps:[],slot:signCtx.slot||'bench',custom:true,seasons:0,signedAt:gameDate()};
     if(signCtx.transfer)return doTransfer(p);
     S.squad.push(p);save();closeSheet();render();
   },
@@ -891,7 +955,7 @@ document.getElementById('restoreFile').addEventListener('change',async e=>{
   catch(_){toast('That file is not a Habit League backup')}
 });
 let lastDay=gameDate();
-setInterval(()=>{if(gameDate()!==lastDay){lastDay=gameDate();render()}},60000);
+setInterval(()=>{if(gameDate()!==lastDay){lastDay=gameDate();render()}else if(view==='today'&&!document.getElementById('scrim')&&!document.querySelector('.ballfx'))render()},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&gameDate()!==lastDay){lastDay=gameDate();render()}});
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
