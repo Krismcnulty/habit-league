@@ -757,7 +757,6 @@ function todayView(){
     <div class="clock cond">${q===5?`${esc(team(D.oppId).n)} are done · final buzzer 4am`:q===0?`Tip-off ${TIPOFF_H}am`:`${QLABEL[q]} · live`}</div>
     <div class="status" style="margin-top:6px">${status2}</div>
   </div>
-  ${note?`<div class="coach"><span>${note.i}</span><div>${esc(note.m)}</div></div>`:''}
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
   ${playerSection('Bench · half points','bench',D)}`;
 }
@@ -775,7 +774,7 @@ function oppProgress(d){
 }
 function quarter(d){const h=gameHours(d);return h<0?0:h>=GAME_HRS?5:Math.floor(h/4)+1}
 const QLABEL=['Pre-game','Q1','Q2','Q3','Q4','Opponent finished'];
-// coachNote: one gentle line about where you stand. Written so the same text can become a phone notification later.
+// coachNote: one gentle line about where you stand. Not shown in the app; kept as the text source for future phone notifications.
 function coachNote(D,sc,oppLive){
   const t=gameDate(),q=quarter(t),opp=team(D.oppId).n;
   if(sc.max===0)return null;
