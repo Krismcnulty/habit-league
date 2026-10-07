@@ -95,6 +95,23 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .series .ln{display:flex;justify-content:space-between;padding:2px 0}
 .series .win{font-weight:800}
 .series.mine{border-color:var(--orange)}
+
+/* half court */
+.court{position:relative;margin-top:8px;border-radius:18px;overflow:hidden;border:3px solid #3b5bdb;
+  background:repeating-linear-gradient(90deg,#c98a4b 0 22px,#bd7e40 22px 23px,#d39556 23px 47px,#b77838 47px 48px,#cc8d4e 48px 70px,#c08143 70px 71px);
+  aspect-ratio:400/330}
+.court:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 61px,rgba(80,40,10,.18) 61px 62px),linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.12))}
+.court svg.lines{position:absolute;inset:0;width:100%;height:100%}
+.spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:120px}
+.tok{position:relative;width:62px;height:62px;border-radius:50%;background:#9cc9ff;border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
+.tok svg{width:46px;height:46px;image-rendering:pixelated}
+.tok.done{background:#86efac;border-color:#16a34a}
+.tok.inj{filter:grayscale(1);opacity:.6}
+.tok .ck{position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#052e12;font-weight:900;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
+.tok .sc{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:#0b1020;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:1px 6px;white-space:nowrap}
+.tok .stc{position:absolute;top:-4px;right:-6px;background:#0b1020;color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:1px 5px;border:1px solid #fff}
+.tag{margin-top:8px;background:rgba(11,16,32,.82);border-radius:8px;padding:2px 7px;font-size:11.5px;font-weight:700;max-width:118px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.tag .fire{font-size:10.5px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -481,8 +498,35 @@ function todayView(){
     <div class="bar"><i style="width:${pctMe}%"></i><b style="left:${pctOpp}%"></b></div>
     <div class="status">${status}</div>
   </div>
-  ${playerSection('Starting five','court',D)}
+  <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
   ${playerSection('Bench · half points','bench',D)}`;
+}
+
+const SPOTS=[[50,28],[17,46],[83,46],[27,77],[73,77]];
+function courtView(D){
+  const starters=POS.map(pos=>S.squad.find(x=>x.slot==='court'&&x.pos===pos.id)).filter(Boolean);
+  const lines=`<svg class="lines" viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".9">
+    <rect x="10" y="8" width="380" height="314"/>
+    <path d="M155 8a45 45 0 0 0 90 0"/>
+    <rect x="148" y="196" width="104" height="126"/>
+    <circle cx="200" cy="196" r="44"/><path d="M156 196h88"/>
+    <path d="M38 322V262A170 170 0 0 1 362 262V322"/>
+    <path d="M178 304h44" stroke-width="4"/><circle cx="200" cy="296" r="9" stroke="#ff7a1a" stroke-opacity="1"/>
+    <path d="M148 240h-8M148 266h-8M252 240h8M252 266h8"/></svg>`;
+  const spots=starters.map((p,i)=>{
+    const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
+    const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(D.t[p.id]||[]).filter(Boolean).length:0;
+    return `<div class="spot" style="left:${x}%;top:${y}%">
+      <button class="tok ${done?'done':''} ${inj?'inj':''}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}
+        ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}<span class="sc">${pv(p)} pts</span></button>
+      <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}</div></div>`}).join('');
+  return `<div class="court">${lines}${spots}</div>`;
+}
+function stepsSheet(id){
+  const p=S.squad.find(x=>x.id===id),D=ensureDay(gameDate());const v=D.t[p.id]||[];
+  sheet(`<div class="row">${avatar(p)}<div class="sp"><h2>${esc(p.name)}</h2><div class="small">${posTag(p)} · ${SHOTS[p.shot].n} ${pv(p)} pts</div></div></div>
+  <div class="stack" style="margin-top:14px">${p.steps.map((s,i)=>`<button class="pl ${v[i]?'done':''}" style="width:100%" data-a="step" data-id="${p.id}" data-i="${i}"><span class="sp" style="text-align:left;font-weight:650">${esc(s)}</span><span class="tick">${v[i]?'✓':''}</span></button>`).join('')}</div>
+  <button class="btn block" style="margin-top:12px" data-a="closeSheet">Done</button>`);
 }
 function playerSection(title,slot,D){
   const ps=S.squad.filter(p=>p.slot===slot).sort((a,b)=>POS.findIndex(x=>x.id===a.pos)-POS.findIndex(x=>x.id===b.pos));
@@ -680,7 +724,9 @@ const A={
     if(changed){const D=S.days[gameDate()];if(D){const v=D.t[p.id];D.t[p.id]=steps.length?(Array.isArray(v)?v.slice(0,steps.length):steps.map(()=>v===true)):(Array.isArray(v)?false:v)}}
     save();closeSheet();render()},
   tick(d){const t=gameDate(),D=ensureDay(t);const before=score(D);D.t[d.id]=!(D.t[d.id]===true);afterTick(before,D)},
-  step(d){const t=gameDate(),D=ensureDay(t);const p=S.squad.find(x=>x.id===d.id);const before=score(D);const v=Array.isArray(D.t[p.id])?D.t[p.id]:p.steps.map(()=>false);v[+d.i]=!v[+d.i];D.t[p.id]=v;afterTick(before,D)},
+  step(d){const t=gameDate(),D=ensureDay(t);const p=S.squad.find(x=>x.id===d.id);const before=score(D);const v=Array.isArray(D.t[p.id])?D.t[p.id]:p.steps.map(()=>false);v[+d.i]=!v[+d.i];D.t[p.id]=v;const open=!!document.getElementById('scrim');afterTick(before,D);if(open)stepsSheet(p.id)},
+  steps(d){stepsSheet(d.id)},
+  closeSheet(){closeSheet()},
   teamSet(d){S.teamSet=d.v;save();render()},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
