@@ -590,10 +590,11 @@ function todayView(){
   else phase=t<S.firstStart?`Pre-season friendly · season starts ${nice(S.firstStart)}`:(se&&se.seeds?(se.seeds.includes('me')?'Friendly · series won, waiting for the next round':'Friendly · playoffs are on'):'Friendly');
   const myRec=se?recordOf('me'):'',oppRec=se&&D.ph!=='ex'?recordOf(D.oppId):'';
   const need=sc.opp-sc.me+1;
-  const status=sc.max===0?'No players available today':lead?(sc.me===sc.max?'Perfect game! 🏀':`Leading by ${sc.me-sc.opp} · keep scoring`):sc.me===sc.opp?'Tied · finish your starters to win in overtime':`Need ${need} more to win`;
+  const status='';
   const pctMe=sc.max?sc.me/sc.max*100:0,pctOpp=sc.max?sc.opp/sc.max*100:0;
   const oppLive=Math.round(sc.opp*oppProgress(t)),q=quarter(t),pctLive=sc.max?oppLive/sc.max*100:0,note=coachNote(D,sc,oppLive);
   const ahead=sc.me>oppLive;
+  const status2=sc.max===0?'No players available today':sc.me===sc.max?'Perfect game! 🏀':q===5?(sc.me>sc.opp?'Ahead · wins at the 4am buzzer':sc.me===sc.opp?'Tied · finish your starters to win in overtime':`Need ${need} more before 4am`):q===0?'Game starts at tip-off':ahead?`Up by ${sc.me-oppLive}`:sc.me===oppLive?'All square':`Down by ${oppLive-sc.me}`;
   const last=S.newResult&&S.days[S.newResult];
   let lastHtml='';
   if(last&&S.newResult===addDays(t,-1)){
@@ -612,10 +613,10 @@ function todayView(){
       <div class="score"><span class="${ahead?'lead':''}" id="myScore">${sc.me}</span><span class="dash">–</span><span class="${!ahead&&oppLive>sc.me?'lead2':''}">${oppLive}</span></div>
       <div class="tm">${badge(D.oppId)}<div class="tmname">${esc(team(D.oppId).n)}</div><div class="rec">${oppRec||esc(team(D.oppId).city)}</div></div>
     </div>
-    <div class="clock cond">${q===5?`${esc(team(D.oppId).n)} finished on <b>${sc.opp}</b>`:QLABEL[q]+(q?' · live':` · tip-off ${TIPOFF_H}am`)+` · they finish on <b>${sc.opp}</b>`}</div>
-    <div class="bar"><i style="width:${pctMe}%"></i><b style="left:${pctOpp}%"></b></div>
-    <div class="bar opp"><i style="width:${pctLive}%"></i><b style="left:${pctOpp}%"></b></div>
-    <div class="status">${status}</div>
+    <div class="clock cond">${q===5?`${esc(team(D.oppId).n)} are done · final buzzer 4am`:q===0?`Tip-off ${TIPOFF_H}am`:`${QLABEL[q]} · live`}</div>
+    <div class="bar"><i style="width:${pctMe}%"></i></div>
+    <div class="bar opp"><i style="width:${pctLive}%"></i></div>
+    <div class="status">${status2}</div>
   </div>
   ${note?`<div class="coach"><span>${note.i}</span><div>${esc(note.m)}</div></div>`:''}
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
@@ -639,15 +640,18 @@ const QLABEL=['Pre-game','Q1','Q2','Q3','Q4','Opponent finished'];
 function coachNote(D,sc,oppLive){
   const t=gameDate(),q=quarter(t),opp=team(D.oppId).n;
   if(sc.max===0)return null;
-  if(sc.me>sc.opp)return sc.me===sc.max?{i:'🏆',m:'Perfect game. Every player scored.'}:{i:'✅',m:`Game won: you're past ${opp}'s final score. Anything more is bonus XP.`};
+  if(sc.me===sc.max)return{i:'🏆',m:'Perfect game. Every player scored.'};
   const left=S.squad.filter(p=>!D.inj.includes(p.id)&&!isDone(p,D)).sort((a,b)=>pv(b)-pv(a)||(a.slot==='court'?-1:1));
-  const top=left[0];const need=sc.opp-sc.me+1;
-  const one=left.filter(p=>pv(p)>=need).sort((a,b)=>pv(a)-pv(b))[0];
+  const top=left[0],tip=top?` ${top.name} (${pv(top)} pts) is your best shot.`:'';
   if(q===0)return{i:'🌅',m:`Tip-off at ${TIPOFF_H}am. Get a head start${top?` with ${top.name}`:''}.`};
-  if(one)return{i:'🎯',m:`${one.name} (${pv(one)} pts) wins this on its own.`};
-  if(q<=2)return sc.me>=oppLive?{i:'👍',m:`Ahead of ${opp} so far. Keep the pace up.`}:{i:'⏱️',m:`${opp} are up ${oppLive-sc.me}. ${top?`${top.name} (${pv(top)} pts) is your best shot.`:''}`};
-  if(q<=4)return{i:'📣',m:`${QLABEL[q]}: you need ${need} more. ${top?`Start with ${top.name} (${pv(top)} pts).`:''}`};
-  return{i:'🌙',m:`${opp} are done on ${sc.opp}. You need ${need} more before 4am.`};
+  if(q<=4){const gap=sc.me-oppLive;
+    if(gap>0)return{i:q>=3?'💪':'👍',m:`Up ${gap} on ${opp} in ${QLABEL[q]}. They're still scoring, so keep going.`};
+    if(gap===0)return{i:'⚖️',m:`All square in ${QLABEL[q]}.${tip}`};
+    return{i:q>=3?'📣':'⏱️',m:`${opp} lead by ${-gap} in ${QLABEL[q]}.${tip}`};}
+  // after 11pm the opponent is done, so their score is final and safe to talk about
+  if(sc.me>sc.opp)return{i:'✅',m:`${opp} are done and you're ahead. Hold on until the 4am buzzer.`};
+  const need=sc.opp-sc.me+1,one=left.filter(p=>pv(p)>=need).sort((a,b)=>pv(a)-pv(b))[0];
+  return{i:'🌙',m:one?`${opp} are done. ${one.name} (${pv(one)} pts) would win it before 4am.`:`${opp} are done. You need ${need} more before 4am.`};
 }
 function courtView(D){
   const starters=POS.map(pos=>S.squad.find(x=>x.slot==='court'&&x.pos===pos.id)).filter(Boolean);
@@ -944,7 +948,8 @@ function doTransfer(np){
 }
 function afterTick(before,D){
   save();const after=score(D);render();
-  if(before.me<=before.opp&&after.me>after.opp)toast('You\'ve taken the lead! 🏀');
+  const live=Math.round(after.opp*oppProgress(gameDate()));
+  if(after.me<after.max&&before.me<=live&&after.me>live)toast('You\'ve taken the lead! 🏀');
   else if(after.me===after.max&&before.me<before.max&&after.max>0)toast('Perfect game! Every player scored.');
 }
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){e.preventDefault();f(el.dataset,el)}});
