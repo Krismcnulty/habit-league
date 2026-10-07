@@ -883,7 +883,7 @@ function awardsView(){
 }
 function clubView(){
   const c=career();
-  const hist=S.history.map(h=>`<div class="trophy"><span class="wl ${h.champ==='me'?'W':''}" style="width:auto;padding:0 8px">${h.w}–${h.l}</span><div class="sp"><b>${monthName(h.k)}</b><div class="small muted">Seed ${h.seed} · ${esc(h.result)}</div></div></div>`).join('');
+  const hist=S.history.map(h=>`<div class="trophy"><span class="wl ${h.champ==='me'?'W':''}" style="width:auto;padding:0 8px">${h.w}–${h.l}</span><div class="sp"><b>${monthName(h.k)}</b><div class="small muted">${h.div?divById(h.div).n+" · ":""}Seed ${h.seed} · ${esc(h.result)}${h.sim?" · simulated":""}</div></div></div>`).join('');
   const tro=S.trophies.map(x=>{const tr=trophyTier(x);return `<div class="trophy">${trophyImg(x.t,44,tr)}<div><b>${divById(tr).n} ${esc(x.t)}</b><div class="small muted">${monthName(x.k)}</div></div></div>`}).join("");
   return `<div class="top"><h1 class="cond">Club</h1></div>
   <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
@@ -900,6 +900,10 @@ function clubView(){
   <p>When your squad locks for a season, your level is set: opponents average 75% of your squad's max points for the whole season. Sign harder players mid-season and you get ahead of them. Levels are labelled Rookie, Pro, All-Star or Hall of Fame, and higher levels earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
   <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
   <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
+  <details class="card" style="margin-top:12px"><summary>Testing</summary><div class="stack" style="margin-top:10px">
+    <p class="small muted" style="margin:0">Adds a made-up Pro season for September 2026 (17–4, top seed, champions) to your cabinet and history, marked as simulated. It doesn't change your XP or this season.</p>
+    <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
+    <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button></div></details>
   <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
 }
 function ballSvg(){return `<svg class="ball" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#ff7a1a"/><g fill="none" stroke="#3a1600" stroke-width="4"><circle cx="50" cy="50" r="46"/><path d="M4 50h92M50 4v92M17 17c14 14 14 52 0 66M83 17c-14 14-14 52 0 66"/></g></svg>`}
@@ -1020,6 +1024,19 @@ const A={
   steps(d){stepsSheet(d.id)},
   closeSheet(){closeSheet()},
   teamSet(d){S.teamSet=d.v;save();render()},
+  simSeason(){
+    if(S.history.some(h=>h.k==='2026-09'))return;
+    S.history.push({k:'2026-09',w:17,l:4,seed:1,result:'Champions',champ:'me',div:'pro',sim:true});
+    S.history.sort((a,b)=>b.k.localeCompare(a.k));
+    S.trophies.push({t:'Regular Season Winners',k:'2026-09',div:'pro',sim:true},{t:'League Champions',k:'2026-09',div:'pro',sim:true});
+    S.trophies.sort((a,b)=>b.k.localeCompare(a.k));
+    save();render();toast('September 2026 added: Pro Regular Season Winners + Pro League Champions');
+  },
+  unsim(){
+    S.history=S.history.filter(h=>!h.sim);S.trophies=S.trophies.filter(t=>!t.sim);
+    const st=stats();S.ach=S.ach||{};for(const id of ['champ','seed1']){const a=ACH.find(x=>x.id===id);if(S.ach[id]&&a.v(st)<a.goal)delete S.ach[id]}
+    save();render();toast('Simulated seasons removed');
+  },
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
