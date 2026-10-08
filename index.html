@@ -659,6 +659,10 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .lvrow b{font-size:14.5px}.lvrow small{display:block;font-size:12px;color:var(--muted)}
 .lvyou{margin-left:6px;font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:var(--orange);color:#1a0d00;vertical-align:2px}
 .lvxp{font-size:12.5px;font-weight:800;color:var(--gold)}
+.rtd{flex:none;font-size:11px;font-weight:800;padding:2px 8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
+.rtd.on{background:rgba(96,165,250,.18);border-color:#60a5fa;color:#bfdbfe}
+.rtd.off{background:none;border-color:transparent;padding-right:0}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -818,6 +822,12 @@ const restsLeft=(id,d)=>Math.max(0,INJURY_USES-restsUsed(id,d));
 // Planned rest days: p.restDays = weekdays (0 = Mon … 6 = Sun) that repeat every week, max INJURY_USES.
 const WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const weekday=d=>(parse(d).getDay()+6)%7;
+// One-off rest chip for today on the Rests sheet (only before the 4th quarter).
+function restToday(p){const t=gameDate(),D=S.days[t];if(!D||D.locked||D.off)return `<span class="rtd off">${restsLeft(p.id)} left</span>`;
+  const on=D.inj.includes(p.id),late=quarter(t)>=4;
+  if(on)return `<button class="rtd on" data-a="uninjure" data-id="${p.id}">Resting today ✕</button>`;
+  if(late||isDone(p,D)||!restsLeft(p.id))return `<span class="rtd off">${restsLeft(p.id)} left</span>`;
+  return `<button class="rtd" data-a="injure" data-id="${p.id}">Rest today · ${restsLeft(p.id)} left</button>`}
 function planRests(D){
   if(!D||D.locked||D.planned||!D.d||D.d<gameDate())return;D.planned=1;D.auto=D.auto||[];const wd=weekday(D.d);
   for(const p of S.squad)if((p.restDays||[]).includes(wd)&&!D.inj.includes(p.id)&&!isDone(p,D)){D.inj.push(p.id);D.auto.push(p.id)}
@@ -1682,7 +1692,7 @@ function squadInfo(k){
     transfer:`<h2>Trades</h2><p>You have <b>${tradesLeft(se)} of ${REG_TRADES} trades</b> left this regular season. The trade deadline is <b>${nice(tradeDeadline(se),{weekday:'long',day:'numeric',month:'short'})}</b>; after that your squad is frozen for the tournament and playoffs (subs and rest days still work).</p><p>Sell a player and sign someone of the same difficulty or harder. Your opponents' level stays the same, so a harder signing helps you win.</p>`,
     locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&t>tradeDeadline(se)?': the trade deadline has passed, so there are no trades in the tournament or playoffs':se&&!tradesLeft(se)?' and both trades are used':''}. You can still sub players, rest them, rename them, edit their steps or change their look.</p>`,
     injury:`<h2>Rest days</h2><p class="small muted" style="margin:0">Up to ${INJURY_USES} a week per player. A rested player doesn't count for or against you. Set rests before ${(TIPOFF_H+12)%12||12}pm.</p>
-      <div class="rsheet">${S.squad.map(p=>`<div class="rsrow">${avatar(p)}<div class="sp" style="min-width:0"><div class="rsname"><b>${esc(p.name)}</b><span style="color:${restsLeft(p.id)?'var(--muted)':'var(--red)'}">${restsLeft(p.id)} left this week</span></div>
+      <div class="rsheet">${S.squad.map(p=>`<div class="rsrow">${avatar(p)}<div class="sp" style="min-width:0"><div class="rsname"><b>${esc(p.name)}</b>${restToday(p)}</div>
         <div class="rdays sm">${WD.map((w,i)=>`<button class="rday ${(p.restDays||[]).includes(i)?'on':''}" data-a="togRest" data-id="${p.id}" data-v="${i}">${w.slice(0,1)}</button>`).join('')}</div></div></div>`).join('')}</div>
       `,
   }[k];
@@ -2229,7 +2239,7 @@ function playerSheet(id){
     <div id="stepList">${(p.steps||[]).map(x=>stepRow(x)).join('')}</div>
     <div class="addstep"><input id="newStep" maxlength="30" placeholder="Add a step, e.g. Brush teeth" enterkeyhint="done"><button class="btn" data-a="addStep" aria-label="Add step">＋</button></div></div>
   <button class="btn primary block" style="margin-top:12px" data-a="savePlayer" data-id="${p.id}">Save changes</button>
-  ${a?`<div class="ecard"><div class="ehead">Squad moves</div>${a}</div>`:''}`);
+`);
 }
 const stepRow=v=>`<div class="steprow"><span class="sdot"></span><input class="stepin" maxlength="30" value="${esc(v)}"><button class="sdel" data-a="delStep" aria-label="Remove step">✕</button></div>`;
 function newPlayer(lib,i,slot){const l=lib.lv[i],pr=ident(prospect(lib));return{id:uid(),face:'lib-'+lib.id,pname:pr.name,num:pr.num,lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0,signedAt:gameDate()}}
@@ -2301,8 +2311,8 @@ const A={
   togRest(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;const i=+d.v;p.restDays=p.restDays||[];
     if(p.restDays.includes(i))p.restDays=p.restDays.filter(x=>x!==i);else{if(p.restDays.length>=INJURY_USES)return toast(`Up to ${INJURY_USES} rest days a week`);p.restDays.push(i)}
     replanToday(p);save();render();if(document.querySelector('.rsheet')){const y=document.querySelector('.sheet').scrollTop;squadInfo('injury');const sh=document.querySelector('.sheet');if(sh)sh.scrollTop=y}},
-  injure(d){const D=ensureDay(gameDate());if(quarter(gameDate())>=4)return toast('Rests close when the 4th quarter starts');if(restsLeft(d.id)<1||D.inj.includes(d.id))return;D.inj.push(d.id);save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
-  uninjure(d){const D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);save();closeSheet();render()},
+  injure(d){const D=ensureDay(gameDate());if(quarter(gameDate())>=4)return toast('Rests close when the 4th quarter starts');if(restsLeft(d.id)<1||D.inj.includes(d.id))return;D.inj.push(d.id);save();const rs=!!document.querySelector('.rsheet');closeSheet();render();if(rs)squadInfo('injury');toast('Resting today. Your opponent adjusts.')},
+  uninjure(d){const D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);save();const rs=!!document.querySelector('.rsheet');closeSheet();render();if(rs)squadInfo('injury')},
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
     const ne=document.getElementById('pNum');if(ne&&!ne.disabled&&ne.value!==''){const v=Math.max(0,Math.min(99,parseInt(ne.value,10)||0));if(retiredNums(p.id).includes(v))toast(`#${v} is retired, so pick another number`);else if(v!==ident(p).num)p.num=v}
     const pn=document.getElementById('pPlayer').value.trim();if(pn&&pn!==ident({id:p.id}).name)p.pname=pn;else if(!pn)delete p.pname;
