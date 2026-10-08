@@ -614,6 +614,13 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 body.dragging .pcard.drop-no{opacity:.35;filter:grayscale(.6)}
 body.dragging .pcard.drop-ok{outline:2px dashed rgba(255,122,26,.7);outline-offset:-2px}
 body.dragging .pcard.drop-hover{outline:2px solid var(--orange);background:rgba(255,122,26,.14);transform:scale(1.02)}
+.tok,.benchwrap .pl{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body.dragging .tok.drop-no,body.dragging .benchwrap .pl.drop-no{opacity:.35;filter:grayscale(.6)}
+body.dragging .tok.drop-ok{outline:2px dashed var(--orange);outline-offset:3px}
+body.dragging .tok.drop-hover{outline:3px solid var(--orange);outline-offset:3px;transform:scale(1.12)}
+body.dragging .benchwrap .pl.drop-ok{outline:2px dashed rgba(255,122,26,.7);outline-offset:-2px}
+body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);background:rgba(255,122,26,.14)}
+.tok.drag-src,.benchwrap .pl.drag-src{opacity:.35}
 .sqhint{font-size:12px;color:var(--muted);margin:-2px 2px 4px}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
@@ -1324,7 +1331,7 @@ function todayView(){
     <div class="clock cond">${cs?'<span class="clutchtag">Clutch</span>':''}${dshort} · ${q===5?`${esc(team(D.oppId).n)} are done`:q===0?`Tip-off ${TIPOFF_H}am`:`${QLABEL[q]} · live`}</div>
     <div class="status" style="margin-top:6px">${status2}</div>
   </div>
-  <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D,cs)}
+  <div class="sect"><h3 class="cond">Starting five · tap to score</h3><span class="small muted">Hold &amp; drag to sub</span></div>${courtView(D,cs)}
   <div class="benchwrap bench-${arenaTheme()||(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench','bench',D,cs)}</div>`;
 }
 
@@ -2050,33 +2057,35 @@ function swapPlayers(a,b){
   save();render();sfx('whistle');buzz(30);toast(`⇄ ${inn.name} on for ${out.name}`);
 }
 let drag=null,dragEndAt=0;
+// Draggable players: Squad cards, or on Gameday the court tokens and bench rows (a quick tap still scores).
+const dragSel=()=>view==='squad'?'.pcard':view==='today'?'.court .tok[data-id],.benchwrap .pl[data-id]':null;
 function dragTargets(p){const D=S.firstStart&&!canEditSquad()?S.days[gameDate()]:null;
-  document.querySelectorAll('.pcard').forEach(c=>{const q=S.squad.find(x=>x.id===c.dataset.id);if(!q||q.id===p.id)return;
+  document.querySelectorAll(dragSel()).forEach(c=>{const q=S.squad.find(x=>x.id===c.dataset.id);if(!q||q.id===p.id)return;
     const ok=q.slot!==p.slot&&q.pos===p.pos&&!(D&&subbedOff(D,(q.slot==='court'?p:q).id));c.classList.add(ok?'drop-ok':'drop-no')})}
 document.addEventListener('pointerdown',e=>{
-  if(view!=='squad'||e.button>0)return;const card=e.target.closest('.pcard');if(!card)return;
+  if(e.button>0||!dragSel())return;const card=e.target.closest(dragSel());if(!card)return;
   const st={card,id:card.dataset.id,x:e.clientX,y:e.clientY,on:false};
   st.timer=setTimeout(()=>{const p=S.squad.find(x=>x.id===st.id);if(!p)return;st.on=true;
-    const r=card.getBoundingClientRect(),g=card.cloneNode(true);g.classList.add('drag-ghost');g.style.width=r.width+'px';g.style.left=r.left+'px';g.style.top=r.top+'px';
-    st.dx=st.x-r.left;st.dy=st.y-r.top;st.ghost=g;document.body.appendChild(g);card.classList.add('drag-src');document.body.classList.add('dragging');dragTargets(p);buzz(15)},380);
+    const src=view==='today'&&!card.matches('.tok')?(card.querySelector('.av')||card):card,r=src.getBoundingClientRect(),g=src.cloneNode(true);g.classList.add('drag-ghost');g.style.width=r.width+'px';g.style.left=r.left+'px';g.style.top=r.top+'px';
+    st.dx=Math.min(st.x-r.left,r.width/2);st.dy=Math.min(st.y-r.top,r.height/2);if(src!==card){st.dx=r.width/2;st.dy=r.height/2}st.ghost=g;document.body.appendChild(g);card.classList.add('drag-src');document.body.classList.add('dragging');dragTargets(p);buzz(15)},380);
   drag=st;
 },{passive:true});
 document.addEventListener('pointermove',e=>{const st=drag;if(!st)return;
   if(!st.on){if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>8){clearTimeout(st.timer);drag=null}return}
   st.ghost.style.left=(e.clientX-st.dx)+'px';st.ghost.style.top=(e.clientY-st.dy)+'px';
   st.ghost.style.visibility='hidden';const under=document.elementFromPoint(e.clientX,e.clientY);st.ghost.style.visibility='';
-  const t=under&&under.closest('.pcard');document.querySelectorAll('.pcard.drop-hover').forEach(c=>{if(c!==t)c.classList.remove('drop-hover')});if(t&&t.classList.contains('drop-ok'))t.classList.add('drop-hover');
+  const t=under&&under.closest(dragSel());document.querySelectorAll('.drop-hover').forEach(c=>{if(c!==t)c.classList.remove('drop-hover')});if(t&&t.classList.contains('drop-ok'))t.classList.add('drop-hover');
   const edge=60;if(e.clientY<edge)scrollBy(0,-8);else if(e.clientY>innerHeight-edge-70)scrollBy(0,8);
 });
 document.addEventListener('touchmove',e=>{if(drag&&drag.on)e.preventDefault()},{passive:false});
 function endDrag(e,cancel){const st=drag;drag=null;if(!st)return;clearTimeout(st.timer);if(!st.on)return;
   dragEndAt=Date.now();st.ghost.remove();document.body.classList.remove('dragging');
-  const t=!cancel&&document.querySelector('.pcard.drop-hover');
-  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('drag-src','drop-ok','drop-no','drop-hover'));
+  const t=!cancel&&document.querySelector('.drop-hover');
+  document.querySelectorAll('.drag-src,.drop-ok,.drop-no,.drop-hover').forEach(c=>c.classList.remove('drag-src','drop-ok','drop-no','drop-hover'));
   if(t){const a=S.squad.find(x=>x.id===st.id),b=S.squad.find(x=>x.id===t.dataset.id);if(a&&b)swapPlayers(a,b)}}
 document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('pointercancel',e=>endDrag(e,true));
 document.addEventListener('click',e=>{if(Date.now()-dragEndAt<450){e.stopPropagation();e.preventDefault()}},true);
-document.addEventListener('contextmenu',e=>{if(e.target.closest('.pcard'))e.preventDefault()});
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.pcard,.court .tok,.benchwrap .pl'))e.preventDefault()});
 
 /* ===================== sheets ===================== */
 function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
