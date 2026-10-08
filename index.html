@@ -637,7 +637,7 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .bench-pre .sect h3,.bench-pre h3{color:#5eead4}
 .top h1.t-pre{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;color:#5eead4;text-shadow:0 0 12px rgba(45,212,191,.35)}
 .gd-intro.pre .gd-lab{color:#5eead4}.gd-intro.pre .gd-v{color:#ccfbf1;text-shadow:0 0 18px rgba(45,212,191,.7)}
-.ptrade{margin-top:2px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.55);color:var(--orange2);white-space:nowrap}
+.ptrade{font-size:10.5px;font-weight:800;padding:2px 7px;line-height:1.3;border-radius:99px;background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.55);color:var(--orange2);white-space:nowrap}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1582,8 +1582,9 @@ function pStatus(p,f,sk){const played=f.filter(x=>x!=='i'),made=played.filter(x=
 function squadRow(p){
   const f=S.firstStart?pForm(p):[],sk=S.firstStart?streak(p):0,stt=pStatus(p,f,sk);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
+  const tr=S.firstStart&&(canEditSquad()||transferOpen())?`<button class="ptrade" data-a="transfer" data-id="${p.id}">⇄ Trade</button>`:'';
   const dots=f.length?`<span class="pform">${f.map(x=>`<i class="${x}"></i>`).join('')}</span>`:'';
-  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${posTag(p)}${S.firstStart&&(canEditSquad()||transferOpen())?`<button class="ptrade" data-a="transfer" data-id="${p.id}">⇄ Trade</button>`:''}</div></div>`}
+  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${tr||posTag(p)}</div></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
