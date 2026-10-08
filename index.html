@@ -1312,22 +1312,17 @@ function shoot(id){
   const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(296/330);
   const peak=Math.max(30,Math.min(y0,y1)-cr.height*.32),cy=2*peak-(y0+y1)/2,cx=(x0+x1)/2;
   const shotFx=(S.cos&&S.cos.shot)||'classic';const ball=document.createElement('div');ball.className='ballfx '+shotFx;ball.innerHTML=ballSvg();court.appendChild(ball);
-  // Slower, bigger shot: arc (68%) -> drops through the net -> two small bounces -> fades. Long enough to see the ball skin.
-  const kf=[],N=30,R=17,F=.68,at=(x,y,r,sc,o,off)=>kf.push({transform:`translate(${x-R}px,${y-R}px) rotate(${r}deg) scale(${sc})`,opacity:o,offset:off});
+  // Slower, bigger shot: arc, then drops through the net and fades. Long enough to see the ball skin.
+  const kf=[],N=30,R=17,F=.85,at=(x,y,r,sc,o,off)=>kf.push({transform:`translate(${x-R}px,${y-R}px) rotate(${r}deg) scale(${sc})`,opacity:o,offset:off});
   for(let i=0;i<=N;i++){const t=i/N,u=1-t;const x=u*u*x0+2*u*t*cx+t*t*x1,y=u*u*y0+2*u*t*cy+t*t*y1;
     const sc=1+.35*Math.sin(Math.PI*t)-.35*t; // grows toward the apex, shrinks into the hoop
     at(x,y,t*540,sc,1,t*F)}
-  at(x1,y1+16,600,.62,1,F+.08);            // through the net
-  at(x1+6,y1+4,640,.62,1,F+.15);           // first bounce
-  at(x1+10,y1+18,670,.6,1,F+.21);
-  at(x1+13,y1+11,690,.6,1,F+.26);          // second, smaller bounce
-  at(x1+15,y1+18,705,.58,1,F+.3);
-  at(x1+16,y1+18,710,.58,0,1);
+  at(x1,y1+16,600,.6,0,1);                  // drops through the net and fades
   const fx=(cls,html)=>{const el=document.createElement('div');el.className=cls;el.style.left=x1+'px';el.style.top=y1+'px';if(html)el.textContent=html;court.appendChild(el);setTimeout(()=>el.remove(),1100)};
-  const a=ball.animate(kf,{duration:1700,easing:'linear'});
+  const a=ball.animate(kf,{duration:1450,easing:'linear'});
   
   let emb=null;if(shotFx==='fire'||shotFx==='lightning')emb=setInterval(()=>{try{const m=new DOMMatrix(getComputedStyle(ball).transform);const e=document.createElement('div');e.className=shotFx==='fire'?'ember':'spark';e.style.left=(m.e+R)+'px';e.style.top=(m.f+R)+'px';court.appendChild(e);setTimeout(()=>e.remove(),500)}catch(_){}},30);
-  setTimeout(()=>{clearInterval(emb);fx('swish '+shotFx);fx('plus','+'+pv(p))},1700*F);
+  setTimeout(()=>{clearInterval(emb);fx('swish '+shotFx);fx('plus','+'+pv(p))},1450*F);
   a.onfinish=()=>{clearInterval(emb);ball.remove();
     if(shotFx==='confetti')for(let i=0;i<16;i++){const c=document.createElement('div');c.className='conf';c.style.left=x1+'px';c.style.top=y1+'px';c.style.background=['#ef4444','#fbbf24','#22c55e','#3b82f6','#ec4899','#a78bfa'][i%6];c.style.setProperty('--dx',(Math.random()*160-80)+'px');c.style.setProperty('--dy',(-40-Math.random()*90)+'px');court.appendChild(c);setTimeout(()=>c.remove(),1000)}};
   setTimeout(()=>ball.remove(),2400);
