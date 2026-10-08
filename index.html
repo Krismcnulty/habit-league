@@ -448,6 +448,11 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .bench-playoffs .sect,.bench-playoffs h3{color:#fbbf24}
 .ggrid.frozen{opacity:.45;pointer-events:none;filter:grayscale(.3)}
 .frozen-note{display:inline-block;margin-top:3px;font-size:11.5px;color:var(--muted)}
+.top .form{display:flex;gap:4px;align-self:center;flex:none}
+.form i{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:12px}
+.form .fW{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.45)}
+.form .fL{background:rgba(240,82,82,.15);color:var(--red);border:1px solid rgba(240,82,82,.4)}
+.form i:last-child{box-shadow:0 0 0 2px rgba(255,255,255,.12)}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1058,7 +1063,7 @@ function restView(t,D,se){
   const msg=wrap?wrap:out?`<div class="restic">🎃</div><h2 class="cond">Knocked out</h2><p>The ${esc(team(out.opp).city+' '+team(out.opp).n)} beat you in the ${HSE.rounds[out.r]}. Rest up: no game until the playoffs.</p>`
     :ev&&!D.ev?`<div class="restic">🛋️</div><h2 class="cond">Rest day</h2><p>The ${esc(ev.n)} is on for Premium players. Enjoy the break: no game today and your streaks are safe.</p>`
     :`<div class="restic">🛋️</div><h2 class="cond">Pre-playoff break</h2><p>No league game today. Your streaks are safe.</p>`;
-  return `<div class="top"><h1 class="cond t-${titleTheme()}">Rest Day</h1><span class="small muted">${nice(t,{weekday:'short',day:'numeric',month:'short'})}</span></div>${lastHtml}
+  return `<div class="top"><h1 class="cond t-${titleTheme()}">Rest Day</h1><span class="small muted">${nice(t,{weekday:'short',day:'numeric',month:'short'})}</span></div>
   <div class="card restcard">${msg}${D.off?'':`<div class="small muted">Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'short'})}</div>`}</div>`;
 }
 function todayView(){
@@ -1089,8 +1094,8 @@ function todayView(){
   let pre='';
   if(se&&!se.locked)pre=`<div class="banner" style="margin-bottom:12px"><b>Pre-season for ${monthName(se.key)}.</b> <span class="small">Make squad changes now. Your squad locks when you lock in, or automatically after today's game.</span><div style="margin-top:8px"><button class="btn" data-a="go" data-v="squad">Open squad</button></div></div>`;
   return `
-  <div class="top"><h1 class="cond t-${titleTheme()}">${esc(stageTitle)}</h1></div>
-  ${lastHtml}${pre}
+  <div class="top"><h1 class="cond t-${titleTheme()}">${esc(stageTitle)}</h1>${formHtml(t,D)}</div>
+  ${pre}
   <div class="board sb-${arenaTheme()||(S.cos&&S.cos.board)||'classic'}">${!arenaTheme()&&(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
     <div class="phase cond">${esc(phase)}</div>
     <div class="teams">
@@ -1413,6 +1418,12 @@ const hsDays=()=>HSE.spans.map(([a,b])=>{const r=[];for(let i=a;i<=b;i++)r.push(
 const ARENA=['board','court','bench'];
 const seasonStage=()=>{if(!S.firstStart)return 'reg';const t=gameDate(),k=t.slice(0,7),ps=poStart(k);if(hsLive())return 'hs';if(t>=ps)return t>addDays(ps,5)?'rest':'po';if(t>=brkStart(k))return 'brk';return 'reg'};
 const arenaTheme=()=>({hs:'spooky',po:'playoffs'})[seasonStage()]||null;
+function formHtml(t,D){
+  const mode=x=>x.ph==='brk'?'brk:'+x.ev:x.ph==='po'||x.ph==='ex'?'po':x.ph;
+  const m=mode(D),start=t.slice(0,8)+'01',out=[];let p=addDays(t,-1);
+  while(p>=start&&out.length<4){const x=S.days[p];if(x&&x.locked&&x.res&&mode(x)===m)out.unshift(x);p=addDays(p,-1)}
+  if(!out.length)return '';
+  return `<div class="form" title="Last ${out.length} ${m==='reg'?'league':m==='po'?'playoff':'tournament'} games">${out.map(x=>`<i class="f${x.res}">${x.res}</i>`).join('')}</div>`}
 const titleTheme=()=>arenaTheme()||(S.cos&&S.cos.board)||'classic';
 const arenaLocked=()=>seasonStage()!=='reg';
 const hsLive=()=>{const t=gameDate();return !!S.firstStart&&t>=HSE.start&&t<=HSE.end};
