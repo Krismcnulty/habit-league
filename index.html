@@ -506,6 +506,20 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .bk-cup .bk-chip{width:24px;height:24px;font-size:8px;border-radius:6px}.bk-cup .bk-chip svg{width:24px;height:24px}
 .bk-q{width:24px;height:24px;border-radius:6px;border:1px dashed #6d28d9;color:#7c6aa8;display:grid;place-items:center;font-weight:900;font-size:12px}
 .r2 .bk-m:after{right:-13px;width:12px}
+.bk-sd{flex:none;width:9px;font-style:normal;font-size:9px;font-weight:700;color:#8b7bb0;text-align:right;margin-right:1px}
+.bracket.po{background:radial-gradient(120% 80% at 50% 0%,#1d2a4a,#070b16 75%);border-color:#6b4f0a}
+.po .bk-h{color:#94a3b8}.po .bk-h small{color:#64748b}.po .bk-h.on{color:#fbbf24}.po .bk-h.on small{color:#fcd34d}
+.po .bk-pair:after{border-color:#8a6a12}
+.po .r1 .bk-m:before,.po .r2 .bk-m:before,.po .r2 .bk-m:after{border-color:#8a6a12}
+.po .bk-m{background:#0b1222;border-color:#25324d}
+.po .bk-m.live{border-color:#a16207;box-shadow:0 0 8px rgba(212,160,23,.35)}
+.po .bk-m.mine{border-color:#fbbf24;box-shadow:0 0 0 1px rgba(251,191,36,.25)}
+.po .bk-m.mine.live{box-shadow:0 0 10px rgba(251,191,36,.5)}
+.po .bk-ln{color:#cbd5e1}.po .bk-ln+.bk-ln{border-top-color:#1c2740}
+.po .bk-ln b{color:#e2e8f0}.po .bk-ln.w b{color:#fcd34d}.po .bk-ln.me .bk-n{color:#fcd34d}
+.po .bk-sd{color:#64748b}.po .bk-ln.tbd{color:#475569}
+.po .bk-chip.ab.tbd{border-color:#334155;color:#475569}.po .bk-q{border-color:#8a6a12;color:#94a3b8}
+.po .bk-tro svg,.po .bk-tro img{width:38px;height:38px}
 /* ---- Halloween Shootout ---- */
 .court-spooky{background:repeating-linear-gradient(90deg,#2a1838 0 22px,#24142f 22px 23px,#2f1b3f 23px 47px,#1f1129 47px 48px);border-color:#f97316}
 .court-spooky svg.lines{stroke:#fb923c}
@@ -1292,14 +1306,8 @@ function leagueView(){
     body=up+`<div class="sect"><h3 class="cond">Results</h3></div><div class="card" style="padding:2px 12px">${past.length?past.join(''):'<p class="muted">No games played yet.</p>'}</div>`;
   }else{
     const ps=poStart(se.key);
-    if(!se.seeds){const st=standings(se,t).slice(0,8);
-      body=`<div class="card"><p style="margin-top:0"><b>Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'long'})}.</b> If the season ended today:</p>
-      ${[[0,7],[3,4],[1,6],[2,5]].map(([a,b])=>`<div class="series ${[st[a].id,st[b].id].includes('me')?'mine':''}"><div class="ln"><span>${a+1}. ${mini(st[a].id)}${esc(team(st[a].id).n)}</span></div><div class="ln"><span>${b+1}. ${mini(st[b].id)}${esc(team(st[b].id).n)}</span></div></div>`).join('')}</div>`;
-    }else{
-      const b=bracket(se,t);
-      body=b.rounds.map((rs,i)=>`<div class="sect"><h3 class="cond">${ROUND_NAMES[i]} · ${nice(addDays(ps,i*2))}–${nice(addDays(ps,i*2+1),{day:'numeric'})}</h3></div>`+(rs.length?rs.map(s=>`<div class="series ${s.a==='me'||s.b==='me'?'mine':''}">
-        <div class="ln ${s.winner===s.a?'win':''}"><span>${s.sa}. ${mini(s.a)}${esc(team(s.a).n)}</span><b>${s.wa}</b></div>
-        <div class="ln ${s.winner===s.b?'win':''}"><span>${s.sb}. ${mini(s.b)}${esc(team(s.b).n)}</span><b>${s.wb}</b></div></div>`).join(''):'<div class="series muted">To be decided</div>')).join('');
+    body=(se.seeds?'':`<p class="small muted" style="margin:2px 4px 8px"><b style="color:var(--text)">Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'long'})}.</b> Projected bracket if the season ended today.</p>`)+poBracket(se,t)+`<p class="small muted" style="margin:0 4px">Each round is decided on total points over its 2 days.</p>`;
+    if(se.seeds){
       if(se.done)body=`<div class="banner" style="margin-bottom:8px">🏆 ${esc(tname(se.done.champ))} are ${monthName(se.key)} champions.</div>`+body;
     }
   }
@@ -1495,20 +1503,33 @@ function hsStrip(){
   return `<div class="hsbar" data-a="go" data-v="league" onclick="standTab='events'"><span>🎃</span><div class="sp"><b>SHOOTOUT · ${HSE.short[r]}</b> <span class="small">Day ${dn} of ${days.length} · ${days.length}-day total</span>
     <div class="hsscore"><span class="${me>them?'up':''}">You ${me}</span><i>–</i><span>${them} ${esc(team(opp).n)}</span></div></div><span class="mvc">›</span></div>`;
 }
-function hsBracket(){
-  const today=gameDate(),{rounds,days}=shootout(),T=EV_TROPHY['Halloween Shootout'];
-  const live=days.findIndex(d=>d[0]===today);
-  const slot=(id,sc,m,started)=>{if(!id)return `<div class="bk-ln tbd"><span class="bk-chip ab tbd">TBD</span><span class="bk-n"></span><b></b></div>`;
+// Shared knockout bracket. rounds[r][i] = {a,b,ta,tb,sa?,sb?,started,winner,done}; cols = [{h,sub,on}]
+function drawBracket({rounds,cols,live,champ,trophy,theme}){
+  const slot=(id,sc,seed,m,started)=>{if(!id)return `<div class="bk-ln tbd">${seed!=null?'<i class="bk-sd"></i>':''}<span class="bk-chip ab tbd">TBD</span><span class="bk-n"></span><b></b></div>`;
     const cls=m&&m.winner?(m.winner===id?'w':'l'):'';
     const chip=id==='me'?`<span class="bk-chip logo">${logoSvg(myLogo())}</span>`:`<span class="bk-chip ab" style="background:${team(id).c}">${esc(team(id).ab)}</span>`;
-    return `<div class="bk-ln ${cls} ${id==='me'?'me':''}">${chip}${id==='me'?'<span class="bk-n">You</span>':'<span class="bk-n"></span>'}<b>${started?sc:''}</b></div>`};
+    return `<div class="bk-ln ${cls} ${id==='me'?'me':''}">${seed!=null?`<i class="bk-sd">${seed}</i>`:''}${chip}${id==='me'?'<span class="bk-n">You</span>':'<span class="bk-n"></span>'}<b>${started?sc:''}</b></div>`};
   const match=(r,i)=>{const m=rounds[r]&&rounds[r][i];
-    return `<div class="bk-m ${m&&(m.a==='me'||m.b==='me')?'mine':''} ${r===live&&m&&!m.done?'live':''}">${slot(m&&m.a,m&&m.ta,m,m&&m.started)}${slot(m&&m.b,m&&m.tb,m,m&&m.started)}</div>`};
+    return `<div class="bk-m ${m&&(m.a==='me'||m.b==='me')?'mine':''} ${r===live&&m&&!m.done?'live':''}">${slot(m&&m.a,m&&m.ta,m?m.sa:(rounds[0][0]&&rounds[0][0].sa!=null?'':null),m,m&&m.started)}${slot(m&&m.b,m&&m.tb,m?m.sb:(rounds[0][0]&&rounds[0][0].sa!=null?'':null),m,m&&m.started)}</div>`};
   const col=(r,n)=>{const ms=[...Array(n)].map((_,i)=>match(r,i));const pairs=[];for(let i=0;i<ms.length;i+=2)pairs.push(n>1?`<div class="bk-pair">${ms[i]}${ms[i+1]}</div>`:ms[i]);
-    return `<div class="bk-col r${r}"><div class="bk-h ${r===live?'on':''}">${HSE.short[r]}<small>${nice(days[r][0],{weekday:'short',day:'numeric'})}</small></div><div class="bk-body">${pairs.join('')}</div></div>`};
-  const fin=rounds[2]&&rounds[2][0],ch=fin&&fin.winner;
-  const champ=`<div class="bk-col champ"><div class="bk-h">🏆</div><div class="bk-body"><div class="bk-cup ${ch?'won':''} ${ch==='me'?'me':''}"><span class="bk-tro">${pixArt(T.rows,'allstar',T.pal)}</span>${ch?(ch==='me'?`<span class="bk-chip logo">${logoSvg(myLogo())}</span>`:`<span class="bk-chip" style="background:${team(ch).c}">${esc(team(ch).ab)}</span>`):'<span class="bk-q">?</span>'}</div></div></div>`;
-  return `<div class="bracket">${col(0,4)}${col(1,2)}${col(2,1)}${champ}</div>`;
+    return `<div class="bk-col r${r}"><div class="bk-h ${cols[r].on?'on':''}">${cols[r].h}<small>${cols[r].sub}</small></div><div class="bk-body">${pairs.join('')}</div></div>`};
+  const cup=`<div class="bk-col champ"><div class="bk-h">🏆</div><div class="bk-body"><div class="bk-cup ${champ?'won':''}"><span class="bk-tro">${trophy}</span>${champ?(champ==='me'?`<span class="bk-chip logo">${logoSvg(myLogo())}</span>`:`<span class="bk-chip" style="background:${team(champ).c}">${esc(team(champ).ab)}</span>`):'<span class="bk-q">?</span>'}</div></div></div>`;
+  return `<div class="bracket ${theme||''}">${col(0,4)}${col(1,2)}${col(2,1)}${cup}</div>`;
+}
+function hsBracket(){
+  const today=gameDate(),{rounds,days}=shootout(),T=EV_TROPHY['Halloween Shootout'];
+  const live=days.findIndex(d=>d[0]===today),fin=rounds[2]&&rounds[2][0];
+  return drawBracket({rounds,live,champ:fin&&fin.winner,trophy:pixArt(T.rows,'allstar',T.pal),
+    cols:HSE.short.map((h,r)=>({h,sub:nice(days[r][0],{weekday:'short',day:'numeric'}),on:r===live}))});
+}
+function poBracket(se,t){
+  const ps=poStart(se.key),live=t>=ps&&t<addDays(ps,6)?Math.floor(diffDays(ps,t)/2):-1;
+  const cols=['QF','SF','Finals'].map((h,r)=>({h,sub:`${nice(addDays(ps,r*2),{day:'numeric'})}–${nice(addDays(ps,r*2+1),{day:'numeric',month:'short'})}`,on:r===live}));
+  let rounds,champ=null;
+  if(!se.seeds){const st=standings(se,t).slice(0,8);rounds=[[[0,7],[3,4],[1,6],[2,5]].map(([a,b])=>({a:st[a].id,b:st[b].id,sa:a+1,sb:b+1}))]}
+  else{const b=bracket(se,t);rounds=b.rounds.map(rs=>rs.map(s=>({a:s.a,b:s.b,sa:s.sa,sb:s.sb,ta:s.wa,tb:s.wb,started:s.games.length>0,winner:s.winner,done:!!s.winner})));
+    const f=rounds[2]&&rounds[2][0];champ=f&&f.winner}
+  return drawBracket({rounds,cols,live,champ,trophy:trophyImg('League Champions',38,divOf(se).id),theme:'po'});
 }
 function hsCardBody(today,e,part){
   if(!S.firstStart)return '';
