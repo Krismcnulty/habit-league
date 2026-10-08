@@ -45,13 +45,32 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .btn.block{width:100%}
 .btn:disabled{opacity:.4}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
-.av{width:46px;height:46px;flex:none;border-radius:12px;background:linear-gradient(180deg,#1f2a4a,#121a33);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.av{width:46px;height:46px;flex:none;border-radius:12px;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
 .shn{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
 .shn::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:60%;transform:translateX(-160%) skewX(-18deg);animation:shnsweep 3.6s ease-in-out infinite;animation-delay:var(--sd,0s)}
 .shn.r-vet::after{background:linear-gradient(90deg,transparent,rgba(244,114,182,.45),rgba(255,255,255,.35),transparent)}
 .shn.r-legend::after{background:linear-gradient(90deg,transparent,rgba(34,211,238,.5),rgba(255,255,255,.45),transparent)}
 .shn.r-goat::after{background:linear-gradient(90deg,transparent,rgba(250,204,21,.6),rgba(255,255,255,.6),transparent);animation-duration:2.6s}
 @keyframes shnsweep{55%,100%{transform:translateX(260%) skewX(-18deg)}}
+:root,.pbg-classic{--pbg:linear-gradient(180deg,#1f2a4a,#121a33)}
+.pbg-midnight{--pbg:radial-gradient(circle at 50% 30%,#1e1b4b,#05060f 75%)}
+.pbg-slate{--pbg:linear-gradient(180deg,#475569,#1e293b)}
+.pbg-sunset{--pbg:linear-gradient(180deg,#9a3412,#581c87)}
+.pbg-hardwood{--pbg:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.35)),repeating-linear-gradient(90deg,#8a5a2b 0 8px,#7a4e24 8px 9px,#946233 9px 17px,#6f4520 17px 18px)}
+.pbg-net{--pbg:repeating-linear-gradient(45deg,rgba(255,255,255,.14) 0 1px,transparent 1px 7px),repeating-linear-gradient(-45deg,rgba(255,255,255,.14) 0 1px,transparent 1px 7px),linear-gradient(180deg,#1e293b,#0f172a)}
+.pbg-spotlight{--pbg:radial-gradient(circle at 50% 22%,rgba(255,244,214,.55),rgba(255,244,214,0) 58%),linear-gradient(180deg,#111827,#030712)}
+.pbg-ice{--pbg:radial-gradient(circle at 72% 18%,rgba(255,255,255,.35),transparent 40%),linear-gradient(180deg,#0e7490,#082f49)}
+.pbg-flames{--pbg:radial-gradient(60% 50% at 25% 105%,#f97316,transparent 70%),radial-gradient(50% 45% at 78% 105%,#ef4444,transparent 70%),linear-gradient(180deg,#1c0a05,#3b0d02)}
+.pbg-velvet{--pbg:radial-gradient(circle at 50% 30%,#9d174d,#3b0a24 75%)}
+.pbg-crystal{--pbg:linear-gradient(135deg,#083344 0%,#0e7490 40%,#22d3ee 50%,#0e7490 60%,#083344 100%)}
+.pbg-trophy{--pbg:radial-gradient(circle at 50% 35%,#a16207,#3f2a02 75%)}
+.pbg-starfield{--pbg:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 72% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 72%,#fff,transparent),radial-gradient(1px 1px at 86% 62%,#fff,transparent),radial-gradient(1px 1px at 12% 86%,#fff,transparent),radial-gradient(1px 1px at 60% 45%,#c7d2fe,transparent),linear-gradient(180deg,#1e1b4b,#020617)}
+.pbg-holo{--pbg:linear-gradient(rgba(10,12,30,.5),rgba(10,12,30,.5)),linear-gradient(120deg,#f0abfc,#93c5fd,#86efac,#fde68a,#f0abfc);--pbgs:100% 100%,300% 300%}
+.pbg-holo .av,.pbg-holo .prof-head,.pbg-holo .lp-head,.gpbg.pbg-holo{animation:holo 6s linear infinite}
+@keyframes holo{from{background-position:0 0,0% 50%}to{background-position:0 0,100% 50%}}
+.gpbg{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid rgba(255,255,255,.15);overflow:hidden}.gpbg svg{width:34px;height:34px;image-rendering:pixelated}
+.rwp.gpbg{width:40px;height:40px}
+.gtile.locked .gpbg{opacity:.4;filter:grayscale(.5)}
 .av svg{width:40px;height:40px;image-rendering:pixelated;display:block}
 .posn{font-weight:700}
 .pos{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:#0f1630;color:var(--orange2);border:1px solid var(--line);min-width:38px;text-align:center}
@@ -118,7 +137,7 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .court:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 61px,rgba(80,40,10,.18) 61px 62px),linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.12))}
 .court svg.lines{position:absolute;inset:0;width:100%;height:100%}
 .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:120px}
-.tok{position:relative;width:54px;height:54px;border-radius:16px;background:linear-gradient(180deg,#1f2a4a,#121a33);border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
+.tok{position:relative;width:54px;height:54px;border-radius:16px;background:var(--pbg);background-size:var(--pbgs,auto);border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
 .tok .rkb{top:-8px;left:-8px;width:21px;height:21px;font-size:11px}
 .tok svg{width:40px;height:40px;image-rendering:pixelated}
 .tok.done{background:linear-gradient(180deg,#14532d,#0f3d22);border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.35),0 4px 10px rgba(0,0,0,.35)}
@@ -239,12 +258,12 @@ td.tpos{white-space:nowrap}
 .lkprev{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:8px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),#0f1424)}
 .lp-court{position:relative;margin:0;border-width:2px;border-radius:10px}
 .lp-court svg{position:absolute;inset:0;width:100%;height:100%}
-.lp-logo{width:40px;height:40px;flex:none}.lp-logo svg{width:100%;height:100%;image-rendering:pixelated}
+.lp-logo{width:30px;height:30px;flex:none}.lp-head{width:38px;height:38px;border-radius:10px;border:2px solid var(--line);background:var(--pbg);background-size:var(--pbgs,auto);display:grid;place-items:center;flex:none;overflow:hidden}.lp-head svg{width:32px;height:32px;image-rendering:pixelated}.lp-logo svg{width:100%;height:100%;image-rendering:pixelated}
 .lp-ball{position:absolute;right:22%;bottom:26%;z-index:2}.lp-ball .ball{width:24px;height:24px;margin:0}
 .lp-board.gboard{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:auto;height:27px;font-size:15px;padding:0 9px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.lp-side{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}.lp-row{display:flex;align-items:center;justify-content:center;gap:10px}
-.lp-jsy svg{width:46px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
-.lp-bench.gbench{width:64px}.lp-bench .pl{height:13px}
+.lp-side{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}.lp-row{display:flex;align-items:center;justify-content:center;gap:8px}
+.lp-jsy svg{width:40px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.lp-bench.gbench{width:46px}.lp-bench .pl{height:13px}
 .lp-fx{display:flex;flex-direction:column;gap:4px}.lp-fx span{font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:8px;background:#0c1226;border:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lp-fx small{color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
 .lktabs{margin:8px 0 0;border-radius:14px 14px 0 0;border-bottom:0;background:var(--panel)}
 .lkhead+.card{margin-top:0;border-top-left-radius:0;border-top-right-radius:0}.lkchips{display:flex;gap:6px;margin-top:6px}.lkchips button{flex:1;padding:5px 0;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px;font-weight:800}
@@ -569,7 +588,7 @@ td.tpos{white-space:nowrap}
 .backbtn{background:none;border:0;color:var(--orange2);font-weight:800;font-size:16px;padding:6px 0}
 .prof{position:relative;text-align:center;padding:16px 14px 14px;border-radius:20px;border:1px solid var(--line);background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--pc) 28%,transparent),transparent 70%),linear-gradient(180deg,#151d33,#0e1426)}
 .prof-art{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:8px}
-.prof-head{width:104px;height:104px;border-radius:24px;border:3px solid var(--pc);background:#0b1020;padding:8px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
+.prof-head{width:104px;height:104px;border-radius:24px;border:3px solid var(--pc);background:var(--pbg);background-size:var(--pbgs,auto);padding:8px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
 .prof-head svg{width:100%;height:100%}
 .prof-jsy{width:95px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 .prof-name{font-size:26px;line-height:1.1}
@@ -1404,20 +1423,23 @@ function jerseySvg(kit,name,num){
    <text x="50" y="82" text-anchor="middle" font-family="Arial Narrow,system-ui,sans-serif" font-weight="900" font-size="40" fill="${K.num}" stroke="${K.pat==='plain'&&kit==='away'?'#0b1020':K.t}" stroke-width="${kit==='home'?0:1.2}" paint-order="stroke">${num}</text></svg>`;
 }
 const BENCHES=[['classic','Classic'],['wood','Wooden bench'],['courtside','Courtside'],['locker','Locker room'],['vip','VIP'],['neon','Neon'],['velvet','Velvet']];
-const COS_LISTS={head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
-const COS_NAMES={head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style'};
+// Player backgrounds: team-wide fill behind every player's head (the border keeps the position colour).
+const PBGS=[['classic','Classic'],['midnight','Midnight'],['slate','Slate'],['sunset','Sunset'],['hardwood','Hardwood'],['net','Net'],['spotlight','Spotlight'],['ice','Ice'],['flames','Flames'],['velvet','Velvet'],['crystal','Crystal'],['trophy','Trophy room'],['starfield','Starfield'],['holo','Holo foil']];
+const RANK_BG={velvet:3,crystal:4,trophy:5};
+const COS_LISTS={pbg:PBGS,head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
+const COS_NAMES={pbg:'player background',head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style'};
 const ACH=[
  {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame'],['cel','stamp']]},
  {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand'],['ball','street']]},
- {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro'],['ball','aba']]},
- {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold'],['kit','retro']]},
+ {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro'],['ball','aba'],['pbg','hardwood']]},
+ {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold'],['kit','retro'],['pbg','ice']]},
  {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk']]},
- {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led'],['bench','courtside']]},
+ {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led'],['bench','courtside'],['pbg','net']]},
  {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain'],['kit','pinstripe']]},
  {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords'],['cel','fireworks'],['bench','locker']]},
- {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast']]},
+ {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast'],['pbg','spotlight']]},
  {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown'],['bench','vip']]},
- {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor'],['cel','crowd']]},
+ {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor'],['cel','crowd'],['pbg','flames']]},
  {id:'allstar',i:'⭐',n:'All-Star',d:'Reach All-Star career level',goal:9000,v:()=>S.xp,rw:[['court','street'],['board','gold']]},
  {id:'mvp',i:'👑',n:'MVP',d:'Reach MVP career level',goal:18000,v:()=>S.xp,rw:[['shot','rainbow'],['ball','gold']]},
  {id:'clutch',i:'🚨',n:'Clutch Gene',d:'Win 5 games you were trailing in clutch time',goal:5,v:s=>s.clutchWins,rw:[['cel','buzzer']]},
@@ -1426,7 +1448,7 @@ const ACH=[
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
-const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy'],['kit','neon'],['kit','sunset'],['kit','galaxy'],['bench','neon'],['bench','velvet']];
+const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy'],['kit','neon'],['kit','sunset'],['kit','galaxy'],['bench','neon'],['bench','velvet'],['pbg','starfield'],['pbg','holo']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
 const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
 const DROP_EPOCH='2026-01-05';
@@ -1435,8 +1457,9 @@ function weeklyDrop(){const w=weekIdx();return[0,1,2].map(i=>PREM_POOL[(w*3+i)%P
 const nextDrop=()=>addDays(DROP_EPOCH,(weekIdx()+1)*7);
 const inDrop=(k,v)=>weeklyDrop().some(([a,b])=>a===k&&b===v);
 const EV_ONLY={'head:zombie':'Halloween Shootout'};
-function cosUnlocked(k,v){if(S.unlockAll)return true;if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
-function lockMsg(k,v){if(EV_ONLY[k+':'+v])return `🎃 Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
+const topRank=()=>Math.max(0,...S.squad.map(p=>Math.max(p.rk||0,pRank(p))));
+function cosUnlocked(k,v){if(S.unlockAll)return true;if(k==='pbg'&&RANK_BG[v]!=null)return topRank()>=RANK_BG[v];if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
+function lockMsg(k,v){if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `🎃 Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
   const today=gameDate(),days=Object.keys(S.days).sort();
   let wins=0,run=0,bestWinRun=0,lossRun=0,comeback=0,perfect=0,clutchWins=0;
@@ -1479,6 +1502,7 @@ let view='today',leagueTab='table',standTab='league',setupStep=0;
 const app=document.getElementById('app');
 function render(){
   processDays();
+  {const b=document.body,v=(S.cos&&S.cos.pbg)||'classic';[...b.classList].forEach(c=>{if(c.startsWith('pbg-')&&c!=='pbg-'+v)b.classList.remove(c)});b.classList.add('pbg-'+v)}
   const nav=document.getElementById('nav');
   if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
   nav.hidden=false;
@@ -1916,6 +1940,7 @@ function itemPreview(k,v){
   return `<span class="dprev" style="background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
 function rewardPic(k,v){
+  if(k==='pbg')return `<span class="rwp gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`;
   if(k==='bench')return `<span class="rwp" style="background:none">${`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`}</span>`;
   if(k==='kit')return `<span class="rwp">${jerseySvg(v,'',23)}</span>`;
   if(k==='ball')return `<span class="rwp gshot">${ballSvg(v)}</span>`;
@@ -1952,7 +1977,7 @@ function headGrid(p){
 function gearGrid(k,cur){
   const fz=ARENA.includes(k)&&arenaLocked(),th=arenaTheme();
   return `${fz?`<span class="frozen-note">🔒 Locked until the new season${th?` · ${th==='spooky'?'Halloween':'Playoff'} theme is on`:''}</span>`:''}<div class="ggrid${fz?' frozen':''}">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
-    const pic=k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 const fit16=a=>a.map(r=>(r+'................').slice(0,16));
@@ -2096,13 +2121,13 @@ function lockerPreview(){
   const C=S.cos||{},board=C.board||'classic',court=C.court||'wood',bench=C.bench||'classic',ball=C.ball||'classic',shot=C.shot||'classic',cel=C.cel||'confetti';
   const nm=(k,v)=>((COS_LISTS[k].find(x=>x[0]===v)||[])[1])||v;
   return `<div class="lkprev"><div class="lp-court court court-${court}">${COURT_MINI}<span class="lp-ball">${ballSvg(ball)}</span><span class="gboard sb-${board} lp-board"><b>88</b><i>–</i><b>72</b></span></div>
-    <div class="lp-side"><div class="lp-row"><span class="lp-logo">${logoSvg(myLogo())}</span><span class="lp-jsy">${jerseySvg(myKit(),'Player',23)}</span><span class="gbench bench-${bench} lp-bench"><span class="pl"></span><span class="pl"></span></span></div>
+    <div class="lp-side"><div class="lp-row"><span class="lp-logo">${logoSvg(myLogo())}</span><span class="lp-head">${faceSvg(S.squad[0]||{id:'pbgdemo'})}</span><span class="lp-jsy">${jerseySvg(myKit(),'Player',23)}</span><span class="gbench bench-${bench} lp-bench"><span class="pl"></span><span class="pl"></span></span></div>
     <div class="lp-fx"><span><small>Shot</small>${esc(nm('shot',shot))}</span><span><small>Win</small>${esc(nm('cel',cel))}</span></div></div></div>`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
   const drop=weeklyDrop(),days=diffDays(gameDate(),nextDrop());
-  const KS=['logo','kit','head','board','court','bench','ball','shot','cel'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
+  const KS=['logo','kit','pbg','head','board','court','bench','ball','shot','cel'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
   const gh=(k,t,d)=>{const [h,n]=gearCount(k);return `<div class="gh"><b>${t}</b><span class="gcount ${h===n?'full':''}">${h}/${n}</span></div>${d?`<div class="small muted">${d}</div>`:''}`};
   return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">${have} / ${all} collected</span></div>
   <button class="prembar ${P?'on':''}" data-a="lkPrem"><span class="pb-k">⭐ Premium</span><span class="sp pb-t">This week: ${drop.map(([k,v])=>cosName(k,v)).join(', ')}</span><span class="pb-d">${days}d ${lkPremOpen?'▴':'▾'}</span></button>
@@ -2118,6 +2143,7 @@ function awardsView(){
   ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
+    <div>${gh('pbg','Player backgrounds','Fills the square behind every player\'s head.')}${gearGrid('pbg',C.pbg||'classic')}</div>
     <div>${gh('head','Player heads','Tap an unlocked head to give it to a player.')}
       <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
         return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':EV_ONLY['head:'+h.id]?'🎃':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
