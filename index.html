@@ -499,6 +499,15 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .ptag.cold{color:#bae6fd;background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.4)}
 .pcard.st-fire{border-color:rgba(249,115,22,.55);box-shadow:0 0 12px rgba(249,115,22,.18)}
 .pcard.st-cold{border-color:rgba(56,189,248,.35)}
+.stiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stile{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 10px;border-radius:12px;background:rgba(11,16,32,.55);border:1px solid var(--line);text-align:left;color:var(--text);min-width:0}
+.st-lab i{font-style:normal;font-size:11px;margin-right:4px;letter-spacing:0}
+.st-lab{display:flex;align-items:center;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.st-val{font-size:15px;font-weight:800;white-space:nowrap}
+.st-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.stile.on{border-color:rgba(255,122,26,.6);background:rgba(255,122,26,.10)}.stile.on .st-val{color:var(--orange2)}
+.stile.empty .st-val{color:var(--red)}
+.stile.lv-rookie .st-val{color:#d6a374}.stile.lv-pro .st-val{color:#cbd5e1}.stile.lv-allstar .st-val{color:var(--gold)}.stile.lv-hof .st-val{color:#7dd3fc}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1412,18 +1421,20 @@ function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
   const left=se?TRANSFER_DAYS-diffDays(se.start,t):0,inj=se?se.injLeft:INJURY_USES;
-  const chips=[`<button class="schip" data-a="sinfo" data-v="level"><b>${dv.n}</b> · ~${dv.avg} pts</button>`];
-  if(edit)chips.push(`<button class="schip hl" data-a="sinfo" data-v="pre">📝 Pre-season</button>`);
-  else if(transferOpen())chips.push(`<button class="schip hl" data-a="sinfo" data-v="transfer">🔁 Transfer · ${left}d left</button>`);
-  else chips.push(`<button class="schip" data-a="sinfo" data-v="locked">🔒 Locked${se&&se.transferUsed?' · swap used':''}</button>`);
-  chips.push(`<button class="schip" data-a="sinfo" data-v="injury">🩹 ${inj} rest${inj===1?'':'s'}</button>`);
+  const tile=(v,ic,lab,val,sub,cls='')=>`<button class="stile ${cls}" data-a="sinfo" data-v="${v}"><span class="st-lab"><i>${ic}</i>${lab}</span><b class="st-val">${val}</b><span class="st-sub">${sub}</span></button>`;
+  const lvl=tile('level','🏀','Level',dv.n,`Opp ~${dv.avg} pts`,'lv-'+dv.id);
+  const tr=edit?tile('pre','📝','Squad','Pre-season','Edit freely','on')
+    :transferOpen()?tile('transfer','🔁','Transfer',`${left} day${left===1?'':'s'}`,'1 swap left','on')
+    :tile('locked','🔒','Transfer',se&&se.transferUsed?'Used':'Closed','Next season');
+  const rs=tile('injury','🩹','Rests',`${inj} left`,'This season',inj?'':'empty');
+  const chips=[lvl,tr,rs];
   const K=KITDEF[myKit()]||KITDEF.home;
   return `<div class="top"><h1 class="cond">Squad</h1></div>
   <div class="teamhd" style="--kc:${K.b}">
     <div class="th-main"><button class="th-logo" data-a="go" data-v="awards" aria-label="Change logo">${logoSvg(myLogo())}</button>
       <div class="sp" style="min-width:0"><div class="th-city">${esc(S.team.city||'')}</div><div class="th-name cond">${esc(S.team.name)}</div><div class="th-sub">${esc(K.n)} kit · max ${max} pts a day</div></div>
       <button class="th-kit" data-a="go" data-v="awards" aria-label="Change kit">${jerseySvg(myKit(),S.team.name||'','')}</button></div>
-    <div class="schips">${chips.join('')}</div>
+    <div class="stiles">${chips.join('')}</div>
   </div>
   ${edit&&squadReady()?`<button class="btn primary block" style="margin-bottom:4px" data-a="lockin">Lock in squad</button>`:''}
   ${squadLists(edit)}`;
