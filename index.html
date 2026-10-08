@@ -10,6 +10,12 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
+@font-face{font-family:"Bebas Neue";src:url(fonts/bebas-neue-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Creepster";src:url(fonts/creepster-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Permanent Marker";src:url(fonts/permanent-marker-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Press Start 2P";src:url(fonts/press-start-2p-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"VT323";src:url(fonts/vt323-latin-400-normal.woff2) format("woff2");font-display:swap}
+
 :root{
   --bg:#0b1020;--panel:#141b2e;--panel2:#1a2340;--line:#26304d;--text:#eef2ff;--muted:#8d96b5;
   --orange:#ff7a1a;--orange2:#ffb066;--green:#22c55e;--red:#f05252;--gold:#fbbf24;--blue:#60a5fa;
@@ -442,6 +448,24 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .bench-playoffs .sect,.bench-playoffs h3{color:#fbbf24}
 .ggrid.frozen{opacity:.45;pointer-events:none;filter:grayscale(.3)}
 .frozen-note{display:inline-block;margin-top:3px;font-size:11.5px;color:var(--muted)}
+/* ---- themed page titles ---- */
+.top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
+.top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
+.top h1.t-classic{color:#fff}.top h1.t-classic:after{content:"";display:block;width:34px;height:3px;margin-top:4px;border-radius:2px;background:var(--orange)}
+.top h1.t-led{font-family:VT323,"Courier New",monospace;font-weight:400;font-size:32px;letter-spacing:.08em;color:#ffb000;text-shadow:0 0 6px rgba(255,160,0,.8),0 0 14px rgba(255,120,0,.4)}
+.top h1.t-chalk{font-family:"Permanent Marker","Chalkboard SE","Marker Felt",cursive;font-weight:400;font-size:26px;letter-spacing:.03em;text-transform:none;color:#f4f1e8;text-shadow:0 0 1px rgba(255,255,255,.6)}
+.top h1.t-broadcast{display:inline-block;color:#fff;font-style:italic;padding:3px 14px 3px 10px;background:linear-gradient(90deg,#1e3a8a 0 55%,#7f1d1d 55%);border-left:4px solid #dc2626;border-radius:3px;font-size:21px}
+.top h1.t-gold{background:linear-gradient(180deg,#fff3c4,#fbbf24 45%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top h1.t-neon{color:#f5d0fe;text-shadow:0 0 4px #e879f9,0 0 12px #d946ef,0 0 24px #a21caf}
+.top h1.t-arcade{font-family:"Press Start 2P","Courier New",monospace;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:0;color:#39ff14;text-shadow:3px 3px 0 #0a5c00}
+/* themed scoreboard fonts */
+.sb-spooky .phase,.sb-spooky .clock{font-family:Creepster,cursive;font-weight:400;letter-spacing:.08em;font-size:14px}
+.sb-playoffs .score{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;letter-spacing:.03em;font-size:60px}
+.sb-playoffs .phase,.sb-playoffs .clock{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;letter-spacing:.12em;font-size:15px}
+.sb-led .score{font-family:VT323,"Courier New",monospace}
+.sb-arcade .score{font-family:"Press Start 2P","Courier New",monospace;font-size:26px;gap:4px}
+.sb-arcade .phase,.sb-arcade .clock{font-family:"Press Start 2P","Courier New",monospace;font-size:8.5px;line-height:1.6}
+.sb-chalk .score,.sb-chalk .phase,.sb-chalk .clock,.sb-chalk .status,.sb-chalk .tmname,.sb-chalk .rec{font-family:"Permanent Marker","Chalkboard SE","Marker Felt",cursive;font-weight:400}
 /* ---- Halloween Shootout ---- */
 .court-spooky{background:repeating-linear-gradient(90deg,#2a1838 0 22px,#24142f 22px 23px,#2f1b3f 23px 47px,#1f1129 47px 48px);border-color:#f97316}
 .court-spooky svg.lines{stroke:#fb923c}
@@ -1034,7 +1058,7 @@ function restView(t,D,se){
   const msg=wrap?wrap:out?`<div class="restic">🎃</div><h2 class="cond">Knocked out</h2><p>The ${esc(team(out.opp).city+' '+team(out.opp).n)} beat you in the ${HSE.rounds[out.r]}. Rest up: no game until the playoffs.</p>`
     :ev&&!D.ev?`<div class="restic">🛋️</div><h2 class="cond">Rest day</h2><p>The ${esc(ev.n)} is on for Premium players. Enjoy the break: no game today and your streaks are safe.</p>`
     :`<div class="restic">🛋️</div><h2 class="cond">Pre-playoff break</h2><p>No league game today. Your streaks are safe.</p>`;
-  return `<div class="top"><h1 class="cond">Rest Day</h1><span class="small muted">${nice(t,{weekday:'short',day:'numeric',month:'short'})}</span></div>${lastHtml}
+  return `<div class="top"><h1 class="cond t-${titleTheme()}">Rest Day</h1><span class="small muted">${nice(t,{weekday:'short',day:'numeric',month:'short'})}</span></div>${lastHtml}
   <div class="card restcard">${msg}${D.off?'':`<div class="small muted">Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'short'})}</div>`}</div>`;
 }
 function todayView(){
@@ -1065,7 +1089,7 @@ function todayView(){
   let pre='';
   if(se&&!se.locked)pre=`<div class="banner" style="margin-bottom:12px"><b>Pre-season for ${monthName(se.key)}.</b> <span class="small">Make squad changes now. Your squad locks when you lock in, or automatically after today's game.</span><div style="margin-top:8px"><button class="btn" data-a="go" data-v="squad">Open squad</button></div></div>`;
   return `
-  <div class="top"><h1 class="cond">${esc(stageTitle)}</h1></div>
+  <div class="top"><h1 class="cond t-${titleTheme()}">${esc(stageTitle)}</h1></div>
   ${lastHtml}${pre}
   <div class="board sb-${arenaTheme()||(S.cos&&S.cos.board)||'classic'}">${!arenaTheme()&&(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
     <div class="phase cond">${esc(phase)}</div>
@@ -1389,6 +1413,7 @@ const hsDays=()=>HSE.spans.map(([a,b])=>{const r=[];for(let i=a;i<=b;i++)r.push(
 const ARENA=['board','court','bench'];
 const seasonStage=()=>{if(!S.firstStart)return 'reg';const t=gameDate(),k=t.slice(0,7),ps=poStart(k);if(hsLive())return 'hs';if(t>=ps)return t>addDays(ps,5)?'rest':'po';if(t>=brkStart(k))return 'brk';return 'reg'};
 const arenaTheme=()=>({hs:'spooky',po:'playoffs'})[seasonStage()]||null;
+const titleTheme=()=>arenaTheme()||(S.cos&&S.cos.board)||'classic';
 const arenaLocked=()=>seasonStage()!=='reg';
 const hsLive=()=>{const t=gameDate();return !!S.firstStart&&t>=HSE.start&&t<=HSE.end};
 const hsRating=id=>.52+rng('hsr'+id)()*.28;
