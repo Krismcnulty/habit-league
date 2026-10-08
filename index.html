@@ -67,9 +67,15 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .pbg-starfield{--pbg:radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 72% 18%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 72%,#fff,transparent),radial-gradient(1px 1px at 86% 62%,#fff,transparent),radial-gradient(1px 1px at 12% 86%,#fff,transparent),radial-gradient(1px 1px at 60% 45%,#c7d2fe,transparent),linear-gradient(180deg,#1e1b4b,#020617)}
 .pbg-holo{--pbg:linear-gradient(rgba(10,12,30,.5),rgba(10,12,30,.5)),linear-gradient(120deg,#f0abfc,#93c5fd,#86efac,#fde68a,#f0abfc);--pbgs:100% 100%,300% 300%}
 .pbg-holo .av,.pbg-holo .prof-head,.pbg-holo .lp-head,.gpbg.pbg-holo{animation:holo 6s linear infinite}
+.pbg-graveyard{--pbg:radial-gradient(circle at 74% 24%,#fef3c7 0 9%,rgba(254,243,199,.25) 10% 14%,transparent 15%),radial-gradient(ellipse 13% 22% at 22% 100%,#0d0818 97%,transparent 100%),radial-gradient(ellipse 10% 17% at 52% 100%,#0d0818 97%,transparent 100%),radial-gradient(ellipse 12% 20% at 84% 100%,#0d0818 97%,transparent 100%),linear-gradient(180deg,#4c1d95,#3b1d6e 70%,#5b3a8a)}
+.pbg-snowfall{--pbg:radial-gradient(1.5px 1.5px at 20% 20%,#fff,transparent),radial-gradient(1.2px 1.2px at 70% 35%,#fff,transparent),radial-gradient(1.8px 1.8px at 45% 65%,#fff,transparent),radial-gradient(1.2px 1.2px at 85% 80%,#e0f2fe,transparent),radial-gradient(1.5px 1.5px at 10% 85%,#fff,transparent),linear-gradient(180deg,#1e3a8a,#0c1a3a);--pbgs:22px 22px,26px 26px,30px 30px,24px 24px,28px 28px,100% 100%}
+.pbg-snowfall .av,.pbg-snowfall .prof-head,.pbg-snowfall .lp-head,.gpbg.pbg-snowfall{animation:snow 5s linear infinite}
+@keyframes snow{from{background-position:0 0,0 0,0 0,0 0,0 0,0 0}to{background-position:4px 22px,-3px 26px,2px 30px,-4px 24px,3px 28px,0 0}}
+.pbg-fireworks{--pbg:radial-gradient(circle at 28% 30%,transparent 0 9%,#f472b6 10% 12%,transparent 13%),radial-gradient(circle at 72% 24%,transparent 0 7%,#fde047 8% 10%,transparent 11%),radial-gradient(circle at 60% 62%,transparent 0 8%,#38bdf8 9% 11%,transparent 12%),radial-gradient(2px 2px at 28% 30%,#fff,transparent),radial-gradient(2px 2px at 72% 24%,#fff,transparent),linear-gradient(180deg,#0b1030,#030617)}
+.pbg-blossom{--pbg:radial-gradient(ellipse 7% 5% at 22% 24%,#fbcfe8 90%,transparent),radial-gradient(ellipse 6% 4% at 76% 18%,#f9a8d4 90%,transparent),radial-gradient(ellipse 7% 5% at 64% 70%,#fbcfe8 90%,transparent),radial-gradient(ellipse 5% 4% at 14% 78%,#f9a8d4 90%,transparent),radial-gradient(ellipse 5% 3.5% at 86% 52%,#fce7f3 90%,transparent),linear-gradient(180deg,#831843,#3b0a24)}
 @keyframes holo{from{background-position:0 0,0% 50%}to{background-position:0 0,100% 50%}}
 .gpbg{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid rgba(255,255,255,.15);overflow:hidden}.gpbg svg{width:34px;height:34px;image-rendering:pixelated}
-.rwp.gpbg{width:40px;height:40px}
+.rwp.gpbg,.evc .evt .rwp.gpbg{width:40px;height:40px;background:var(--pbg);background-size:var(--pbgs,auto)}.evc .evt .rwp.gpbg{width:48px;height:48px}
 .gtile.rr-rare{border-color:rgba(59,130,246,.55);background:linear-gradient(180deg,rgba(59,130,246,.10),transparent 60%),var(--panel2)}
 .gtile.rr-epic{border-color:rgba(168,85,247,.6);background:linear-gradient(180deg,rgba(168,85,247,.14),transparent 60%),var(--panel2)}
 .gtile.rr-leg{border-color:rgba(245,158,11,.75);background:linear-gradient(180deg,rgba(245,158,11,.16),transparent 60%),var(--panel2);box-shadow:0 0 10px rgba(245,158,11,.25)}
@@ -519,9 +525,9 @@ td.tpos{white-space:nowrap}
 .mvc{font-size:22px;color:var(--muted)}
 .mvrow.danger b{color:var(--red)}
 .mvrow.off{opacity:.5}
-.evrw{display:flex;gap:8px;margin-top:10px}
-.evt{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;text-align:center}
-.evt .rwp{width:52px;height:52px;border-radius:12px;border:1px solid var(--line)}
+.evrw{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:6px;margin-top:10px}
+.evt{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;text-align:center}
+.evt .rwp{width:48px;height:48px;border-radius:12px;border:1px solid var(--line)}
 .evt .rwp svg{width:44px;height:44px}
 .evt .rwp.tro2{border-color:rgba(251,191,36,.6);background:radial-gradient(circle,rgba(251,191,36,.18),#0f1630 70%)}
 .evt .req{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-top:-1px}
@@ -1440,7 +1446,7 @@ function jerseySvg(kit,name,num){
 }
 const BENCHES=[['classic','Classic'],['wood','Wooden bench'],['courtside','Courtside'],['locker','Locker room'],['vip','VIP'],['neon','Neon'],['velvet','Velvet']];
 // Player backgrounds: team-wide fill behind every player's head (the border keeps the position colour).
-const PBGS=[['classic','Classic'],['midnight','Midnight'],['slate','Slate'],['sunset','Sunset'],['hardwood','Hardwood'],['net','Net'],['spotlight','Spotlight'],['ice','Ice'],['flames','Flames'],['velvet','Velvet'],['crystal','Crystal'],['trophy','Trophy room'],['starfield','Starfield'],['holo','Holo foil']];
+const PBGS=[['classic','Classic'],['midnight','Midnight'],['slate','Slate'],['sunset','Sunset'],['hardwood','Hardwood'],['net','Net'],['spotlight','Spotlight'],['ice','Ice'],['flames','Flames'],['velvet','Velvet'],['crystal','Crystal'],['trophy','Trophy room'],['starfield','Starfield'],['holo','Holo foil'],['graveyard','Graveyard'],['snowfall','Snowfall'],['fireworks','Fireworks'],['blossom','Blossom']];
 const RANK_BG={velvet:3,crystal:4,trophy:5};
 const COS_LISTS={pbg:PBGS,head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
 const COS_NAMES={pbg:'player background',head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style'};
@@ -1472,7 +1478,8 @@ function weekIdx(){return Math.floor(diffDays(DROP_EPOCH,gameDate())/7)}
 function weeklyDrop(){const w=weekIdx();return[0,1,2].map(i=>PREM_POOL[(w*3+i)%PREM_POOL.length])}
 const nextDrop=()=>addDays(DROP_EPOCH,(weekIdx()+1)*7);
 const inDrop=(k,v)=>weeklyDrop().some(([a,b])=>a===k&&b===v);
-const EV_ONLY={'head:zombie':'Halloween Shootout'};
+const EV_ICON={'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'};
+const EV_ONLY={'head:zombie':'Halloween Shootout','pbg:graveyard':'Halloween Shootout','pbg:snowfall':'Winter Classic','pbg:fireworks':'New Year Cup','pbg:blossom':'Spring Slam'};
 const topRank=()=>Math.max(0,...S.squad.map(p=>Math.max(p.rk||0,pRank(p))));
 function cosUnlocked(k,v){if(S.unlockAll)return true;if(k==='pbg'&&RANK_BG[v]!=null)return topRank()>=RANK_BG[v];if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
 // Rarity: how hard an item is to get. Common = free, Rare = achievements, Epic = harder achievements, events, premium and Veteran/Legend backgrounds, Legendary = the very top.
@@ -2018,7 +2025,7 @@ function gearGrid(k,cur){
   const fz=ARENA.includes(k)&&arenaLocked(),th=arenaTheme();
   return `${fz?`<span class="frozen-note">🔒 Locked until the new season${th?` · ${th==='spooky'?'Halloween':'Playoff'} theme is on`:''}</span>`:''}<div class="ggrid${fz?' frozen':''}">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
     const pic=k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
-    return `<button class="gtile rr-${rarity(k,v)} ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}${isNew(k,v)?'<i class="gnew">NEW</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
+    return `<button class="gtile rr-${rarity(k,v)} ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':EV_ONLY[k+':'+v]?EV_ICON[EV_ONLY[k+':'+v]]:'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}${isNew(k,v)?'<i class="gnew">NEW</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 const fit16=a=>a.map(r=>(r+'................').slice(0,16));
 const EV_TROPHY={
@@ -2028,7 +2035,7 @@ const EV_TROPHY={
  'Spring Slam':{n:'Blossom Medal',rows:fit16(["..rr.......bb...","...rr.....bb....","....rr...bb.....",".....rr.bb......","......rbb.......",".....yyyyyy.....","....yyyyyyyy....","...yyyppppyyy...","...yyppyyppyy...","...yypyiiypyy...","...yyppyyppyy...","...yyyppppyyy...","....yyyyyyyy....",".....yyyyyy.....","................","................"]),pal:{r:'#ec4899',b:'#22c55e',y:'#fbbf24',p:'#f472b6',i:'#fef3c7'}},
 };
 const EV_REQ={'logo:owl':'Semis'};
-const EV_REWARDS={'Halloween Shootout':[['head','zombie'],['ball','pumpkin'],['logo','owl']],'Winter Classic':[['court','neon'],['shot','lightning']],'New Year Cup':[['cel','goldrain'],['logo','star']],'Spring Slam':[['shot','confetti'],['kit','sunset']]};
+const EV_REWARDS={'Halloween Shootout':[['head','zombie'],['pbg','graveyard'],['ball','pumpkin'],['logo','owl']],'Winter Classic':[['court','neon'],['pbg','snowfall'],['shot','lightning']],'New Year Cup':[['cel','goldrain'],['pbg','fireworks'],['logo','star']],'Spring Slam':[['shot','confetti'],['pbg','blossom'],['kit','sunset']]};
 
 /* ===================== Halloween Shootout ===================== */
 const HSE={start:brkStart('2026-10'),end:addDays(poStart('2026-10'),-1),rounds:['Quarterfinal','Semifinal','Final'],short:['QF','SF','Final'],spans:[[0,0],[1,1],[2,2]]};
@@ -2066,7 +2073,7 @@ function hsMe(){const sh=shootout();let cur=null,ri=-1;sh.rounds.forEach((ms,r)=
 function hsFinish(){
   if(S.hsDone)return;const {sh,m,r}=hsMe();const fin=sh.rounds[2]&&sh.rounds[2][0];
   const champ=fin&&fin.winner,reached=m?(m.winner==='me'?r+1:r):0;S.hsDone={champ,reached};S.owned=S.owned||{};
-  if(champ==='me'){S.trophies.push({t:'Pumpkin Trophy',ev:'Halloween Shootout',k:'2026-10'});S.owned['head:zombie']=true;S.owned['ball:pumpkin']=true;S.owned['logo:owl']=true;S.xp+=300}
+  if(champ==='me'){S.trophies.push({t:'Pumpkin Trophy',ev:'Halloween Shootout',k:'2026-10'});S.owned['head:zombie']=true;S.owned['pbg:graveyard']=true;S.owned['ball:pumpkin']=true;S.owned['logo:owl']=true;S.xp+=300}
   else if(reached>=1)S.owned['logo:owl']=true;
 }
 function hsStrip(){
