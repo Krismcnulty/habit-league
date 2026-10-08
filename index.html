@@ -508,6 +508,38 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .stile.on{border-color:rgba(255,122,26,.6);background:rgba(255,122,26,.10)}.stile.on .st-val{color:var(--orange2)}
 .stile.empty .st-val{color:var(--red)}
 .stile.lv-rookie .st-val{color:#d6a374}.stile.lv-pro .st-val{color:#cbd5e1}.stile.lv-allstar .st-val{color:var(--gold)}.stile.lv-hof .st-val{color:#7dd3fc}
+/* ---- player profile ---- */
+.backbtn{background:none;border:0;color:var(--orange2);font-weight:800;font-size:16px;padding:6px 0}
+.prof{position:relative;text-align:center;padding:16px 14px 14px;border-radius:20px;border:1px solid var(--line);background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--pc) 28%,transparent),transparent 70%),linear-gradient(180deg,#151d33,#0e1426)}
+.prof-art{display:flex;justify-content:center;align-items:flex-end;gap:6px;margin-bottom:8px}
+.prof-head{width:104px;height:104px;border-radius:24px;border:3px solid var(--pc);background:#0b1020;padding:8px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
+.prof-head svg{width:100%;height:100%}
+.prof-jsy{width:74px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.prof-name{font-size:26px;line-height:1.1}
+.prof-habit{font-size:14px;margin-top:2px}
+.prof-tags{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px}
+.ptag.pos{border:1px solid;background:rgba(0,0,0,.2)}
+.ptag.slot{color:var(--text);background:rgba(11,16,32,.6);border:1px solid var(--line)}
+.grid30{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.grid30 i,.g30-key i{aspect-ratio:1;border-radius:5px;background:var(--panel2);border:1px solid var(--line)}
+.grid30 i.y,.g30-key i.y{background:var(--green);border-color:var(--green)}
+.grid30 i.n,.g30-key i.n{background:rgba(240,82,82,.45);border-color:rgba(240,82,82,.6)}
+.grid30 i.i,.g30-key i.i{background:#475569;border-color:#475569}
+.grid30 i.t,.g30-key i.t{border:1.5px dashed var(--orange2)}
+.grid30 i.x{opacity:.35}
+.g30-key{display:flex;gap:12px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.g30-key span{display:flex;align-items:center;gap:5px}.g30-key i{width:11px;height:11px;display:inline-block}
+.aw-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.aw-row:first-child{border-top:0;padding-top:0}
+.aw-ic{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;background:var(--panel2);font-size:17px}
+.aw-row.lead .aw-ic{background:rgba(251,191,36,.16);box-shadow:inset 0 0 0 1px rgba(251,191,36,.5)}
+.aw-pos{font-size:12px;font-weight:800;color:var(--muted)}
+.aw-pos.lead{color:#1a1000;background:var(--gold);padding:3px 8px;border-radius:99px}
+.aw-pos.no{opacity:.5}
+.aw-chips{display:flex;flex-wrap:wrap;gap:6px}
+.aw-chip{font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:99px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.45);color:#fde68a}
+.aw-chip small{color:var(--muted);font-weight:600;margin-left:2px}
+.sect .small{margin-left:auto}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1119,8 +1151,8 @@ function render(){
   nav.hidden=false;
   checkAch();if(view==='club')S.achNew=0;
   pvBar();
-  nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.classList.toggle('new',b.dataset.v==='club'&&(S.achNew||0)>0)});
-  app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView})[view]();
+  const nv=view==='profile'?'squad':view;nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===nv);b.classList.toggle('new',b.dataset.v==='club'&&(S.achNew||0)>0)});
+  app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView,profile:profileView})[view]();
   if(view==='today'&&S.newResult&&S.newResult===addDays(gameDate(),-1)){const L=S.days[S.newResult];if(L&&L.res==='W'&&!L.cel){L.cel=1;save();setTimeout(()=>celebrate(myCel(),'WIN',`${L.me}–${L.opp} vs ${team(L.oppId).n}`),450)}}
 }
 
@@ -1725,6 +1757,71 @@ function ballSvg(skin){
   }
 }
 
+/* ===================== player profile + monthly awards ===================== */
+let profId=null;
+const AWARDS=[
+ {id:'mvp',i:'👑',n:'MVP',d:'Most points scored'},
+ {id:'iron',i:'🛡️',n:'Iron Man',d:'Longest streak of the month'},
+ {id:'sixth',i:'🪑',n:'Sixth Man',d:'Most points from the bench'},
+ {id:'improved',i:'📈',n:'Most Improved',d:'Biggest jump in completion vs last month'},
+];
+function monthLines(key,upto){
+  const start=key+'-01',end=monthEnd(key),out={};
+  for(const p of S.squad){let att=0,made=0,run=0,best=0;
+    for(let d=start;d<=end&&d<upto;d=addDays(d,1)){const D=S.days[d];if(!D||!D.locked)continue;if(p.signedAt&&d<p.signedAt)continue;if(restD(D)||D.inj.includes(p.id))continue;
+      att++;if(isDone(p,D)){made++;run++;if(run>best)best=run}else run=0}
+    out[p.id]={att,made,best,pts:made*pv(p),pct:att?made/att:null}}
+  return out;
+}
+function awardRace(key,upto){
+  const L=monthLines(key,upto),prevK=skey(addDays(key+'-01',-1)),P=monthLines(prevK,key+'-01'),ids=S.squad.map(p=>p.id);
+  const rank=(score,ok=()=>true)=>ids.filter(id=>ok(id)&&score(id)>0).sort((a,b)=>score(b)-score(a));
+  return{
+    mvp:rank(id=>L[id].pts),
+    iron:rank(id=>L[id].best),
+    sixth:rank(id=>L[id].pts,id=>S.squad.find(p=>p.id===id).slot==='bench'),
+    improved:rank(id=>Math.round((L[id].pct-P[id].pct)*100),id=>L[id].att>=5&&P[id].att>=5),
+  };
+}
+// Finished months are decided once and kept, so later squad changes don't rewrite history.
+function pastAwards(){
+  S.awards=S.awards||{};const cur=skey(gameDate());
+  for(const k of Object.keys(S.seasons||{}).sort()){if(k>=cur||S.awards[k])continue;
+    const r=awardRace(k,addDays(monthEnd(k),1));S.awards[k]=Object.fromEntries(AWARDS.map(a=>[a.id,r[a.id][0]||null]))}
+  return S.awards;
+}
+function profileView(){
+  const p=S.squad.find(x=>x.id===profId);if(!p){view='squad';return squadView()}
+  const id=ident(p),ps=posById(p.pos),t=gameDate(),f=pForm(p),sk=streak(p),stt=pStatus(p,f,sk),st=pStats(p);
+  // 30-day grid
+  const cells=[];for(let i=29;i>=0;i--){const d=addDays(t,-i),D=S.days[d];let c='';
+    if(p.signedAt&&d<p.signedAt)c='x';else if(!D)c='x';else if(d===t)c=isDone(p,D)?'y':'t';else if(!D.locked)c='x';else if(restD(D)||D.inj.includes(p.id))c='i';else c=isDone(p,D)?'y':'n';
+    cells.push(`<i class="${c}" title="${nice(d)}"></i>`)}
+  // awards
+  const key=skey(t),race=awardRace(key,t),won=pastAwards();
+  const raceRows=AWARDS.map(a=>{const r=race[a.id],pos=r.indexOf(p.id);
+    const tag=pos===0?'<span class="aw-pos lead">Leading</span>':pos>0?`<span class="aw-pos">${pos+1}${['st','nd','rd'][pos]||'th'}</span>`:'<span class="aw-pos no">–</span>';
+    return `<div class="aw-row ${pos===0?'lead':''}"><span class="aw-ic">${a.i}</span><div class="sp"><b>${a.n}</b><div class="small muted">${a.d}</div></div>${tag}</div>`}).join('');
+  const mine=[];for(const k of Object.keys(won).sort().reverse())for(const a of AWARDS)if(won[k][a.id]===p.id)mine.push(`<span class="aw-chip">${a.i} ${a.n} <small>${monthName(k).split(' ')[0].slice(0,3)} ${k.slice(2,4)}</small></span>`);
+  const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
+  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></div>
+  <div class="prof" style="--pc:${ps.c}">
+    <div class="prof-art"><span class="prof-head">${faceSvg(p)}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
+    <div class="prof-name cond">${esc(id.name)}</div>
+    <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
+    <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
+  </div>
+  <div class="sect"><h3 class="cond">This season</h3></div>
+  ${st?`<div class="stgrid" style="margin-top:0"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Completion</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>`:'<p class="muted small">Season stats start at tip-off.</p>'}
+  <div class="sect"><h3 class="cond">Last 30 days</h3></div>
+  <div class="card"><div class="grid30">${cells.join('')}</div>
+    <div class="g30-key"><span><i class="y"></i>Done</span><span><i class="n"></i>Missed</span><span><i class="i"></i>Rested</span><span><i class="t"></i>Today</span></div></div>
+  <div class="sect"><h3 class="cond">Monthly awards</h3><span class="small muted">${monthName(key).split(' ')[0]} race</span></div>
+  <div class="card aw-card">${raceRows}<div class="small muted" style="margin-top:8px">Awards are decided on the last day of the month.</div></div>
+  <div class="sect"><h3 class="cond">Trophy case</h3></div>
+  <div class="card">${mine.length?`<div class="aw-chips">${mine.join('')}</div>`:'<p class="muted small" style="margin:0">No awards yet. Lead a race at month end to win one.</p>'}</div>`;
+}
+
 /* ===================== sheets ===================== */
 function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
 function closeSheet(){const s=document.getElementById('scrim');if(s)s.remove()}
@@ -1768,7 +1865,6 @@ function playerSheet(id){
   }
   const info=`${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''}${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}`;
   sheet(`<div class="row">${avatar(p)}<div class="sp" style="min-width:0"><h2>${esc(p.name)}</h2><div class="small"><b>${esc(ident(p).name)}</b> · ${posTag(p)}</div></div></div>
-  ${statsBlock(p)}
   ${jerseyBlock(p)}
   <div class="ecard"><div class="ehead">Habit<span class="small muted" style="font-weight:600;text-transform:none;letter-spacing:0">${info}</span></div>
     <label class="flab">Name</label><input id="pName" maxlength="28" value="${esc(p.name)}">
@@ -1823,7 +1919,8 @@ const A={
     if(signCtx.transfer)return doTransfer(p);
     S.squad.push(p);save();closeSheet();render();
   },
-  player(d){headOpen=false;playerSheet(d.id)},
+  player(d){profId=d.id;view='profile';closeSheet();render();scrollTo(0,0)},
+  editPlayer(d){headOpen=false;playerSheet(d.id)},
   toggleHeads(){headOpen=!headOpen;const el=document.getElementById('headpick'),b=document.querySelector('.headbtn');if(el)el.classList.toggle('hidden',!headOpen);if(b){b.classList.toggle('open',headOpen);b.querySelector('.hedit').textContent=headOpen?'✕ Close':'✏️ Change'}if(headOpen&&el)el.scrollIntoView({behavior:'smooth',block:'nearest'})},
   newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;delete p.head;save();render();playerSheet(p.id)},
   setHead(d){const p=S.squad.find(x=>x.id===d.id);if(d.v==='scouted'){delete p.head}else{if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));p.head=d.v}save();render();playerSheet(p.id)},
