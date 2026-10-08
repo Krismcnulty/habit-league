@@ -1377,7 +1377,76 @@ function faceParams(p){
   if(L.extra){extra=L.extra;fx={beard:false,stache:false,glasses:false,shades:false,crown:false};if(extra!=='none')fx[extra]=true}
   return{sk,sh,hair,style,mouth,band,extra,fx};
 }
+// ===== HD heads (32x32): same face parameters as the 16x16 heads, drawn with more shading and detail =====
+function hexMix(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+const HD_HW={6:7,7:9,22:9,23:9,24:8,25:7,26:6,27:4};
+const hdHalf=y=>y<6||y>27?0:(HD_HW[y]||10);
+const hdIn=(x,y)=>{const h=hdHalf(y);return h>0&&x>=16-h&&x<=15+h};
+const HD_CROWN=["...............WW...............","........WW.....YY.....WW........","........YY..W.YLLY.W..YY........",".......YYYY.YYYLLYYY.YYYY.......",".......YLYYYYYYYYYYYYYYYYo......",".......LLLLLLLLLLLLLLLLLLo......",".......YYbBYYYYrRYYYYbBYYo......",".......YYBBYYYYRRYYYYBBYYo......",".......OOOOOOOOOOOOOOOOOOO......"];
+const HD_CROWN_C={W:'#fffbeb',Y:'#fbbf24',L:'#fde68a',O:'#b45309',o:'#d97706',R:'#ef4444',r:'#fecaca',B:'#3b82f6',b:'#bfdbfe'};
+function faceSvgHD(p){
+  const {sk,sh,hair,style,mouth,band,fx}=faceParams(p),ink='#140b06';
+  const N=32,G=Array.from({length:N},()=>Array(N).fill(null));
+  const set=(x,y,c)=>{if(x>=0&&x<N&&y>=0&&y<N)G[y][x]=c};
+  const get=(x,y)=>x>=0&&x<N&&y>=0&&y<N?G[y][x]:null;
+  const rect=(x0,y0,x1,y1,c)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)set(x,y,c)};
+  const deep=hexMix(sh,'#000000',.22),lt=hexMix(sk,'#ffffff',.16),lt2=hexMix(sk,'#ffffff',.3);
+  const hd=hexMix(hair,'#000000',.35),hl=hexMix(hair,'#ffffff',.22),hl2=hexMix(hair,'#ffffff',.38);
+  const bald=style==='bald';
+  // afro sits behind the head
+  if(style==='afro'){for(let y=0;y<=19;y++)for(let x=2;x<=29;x++){const d=((x-15.5)**2)/(13.5**2)+((y-8.5)**2)/(10**2);if(d<=1)set(x,y,(x*5+y*3)%7===0?hl:(x>22?hd:hair))}}
+  // head + ears
+  for(let y=6;y<=27;y++)for(let x=0;x<N;x++)if(hdIn(x,y))set(x,y,sk);
+  [[5,15],[5,16],[5,17],[4,16],[26,15],[26,16],[26,17],[27,16]].forEach(([x,y])=>set(x,y,x<16?sk:sh));set(5,16,sh);set(26,16,deep);
+  // shading: right side, jaw, left highlight
+  for(let y=6;y<=27;y++){const h=hdHalf(y),r=15+h;set(r,y,deep);set(r-1,y,sh);if(y>=10&&y<=21){set(r-2,y,sh);set(16-h,y,y>=12?lt:sk);set(17-h,y,y>=13&&y<=19?lt:get(17-h,y))}}
+  for(let x=10;x<=21;x++)if(hdIn(x,27))set(x,27,sh);for(let x=12;x<=19;x++)if(hdIn(x,26))set(x,26,hexMix(sk,sh,.5));
+  // hair styles
+  const hairCap=(top,side)=>{for(let y=top;y<=10;y++)for(let x=6;x<=25;x++)if(hdIn(x,y)||y<6&&x>=8&&x<=23&&(y>=top+1||x>=10&&x<=21))set(x,y,x>=23?hd:hair);
+    for(let y=11;y<=side;y++){set(6,y,hair);set(7,y,hair);set(24,y,hd);set(25,y,hd)}};
+  if(style==='short'||style==='curly'||style==='spiky'||style==='topknot'){hairCap(4,12);for(let x=10;x<=18;x++)set(x,5,hl);for(let x=11;x<=15;x++)set(x,6,hl2);for(let x=8;x<=22;x+=3)set(x,9,hd)}
+  if(style==='curly'){for(let x=7;x<=24;x+=3){rect(x,2,x+1,3,hair);set(x,2,hl)}for(let y=5;y<=10;y+=2)for(let x=8+(y%4);x<=23;x+=4)set(x,y,hl);set(5,10,hair);set(26,10,hd);set(5,11,hair);set(26,11,hd)}
+  if(style==='spiky'){[[8,0],[12,0],[16,0],[20,1],[24,2]].forEach(([cx,ty])=>{for(let y=ty;y<=4;y++){const w=Math.floor((y-ty)/2);for(let x=cx-w;x<=cx+w;x++)set(x,y,cx>=22?hd:hair)}set(cx,ty+1,hl)})}
+  if(style==='topknot'){for(let y=0;y<=3;y++)for(let x=13;x<=18;x++)if(((x-15.5)**2)/9+((y-1.5)**2)/4<=1)set(x,y,hair);set(14,0,hl);set(14,1,hl);rect(14,3,17,3,'#b91c1c')}
+  if(style==='flat'){rect(6,1,25,10,hair);rect(23,1,25,10,hd);for(let x=8;x<=20;x++)set(x,2,hl);for(let x=9;x<=15;x++)set(x,3,hl2);[6,25].forEach(x=>{set(x,1,null)});for(let y=11;y<=12;y++){set(6,y,hair);set(25,y,hd)}}
+  if(style==='mohawk'){for(let y=0;y<=10;y++)for(let x=14;x<=18;x++)set(x,y,x>=17?hd:hair);for(let y=1;y<=8;y+=2)set(15,y,hl);for(let y=6;y<=9;y++)for(let x=7;x<=24;x++)if(hdIn(x,y)&&(x<14||x>18)&&(x+y)%2===0)set(x,y,hexMix(sk,hair,.35))}
+  if(style==='buzz'){for(let y=6;y<=9;y++)for(let x=6;x<=25;x++)if(hdIn(x,y))set(x,y,(x+y*2)%5===0?hl:(x>=23?hd:hair));for(let y=10;y<=11;y++){set(6,y,hair);set(7,y,hair);set(24,y,hd);set(25,y,hd)}}
+  if(style==='afro'){for(let y=6;y<=10;y++)for(let x=6;x<=25;x++)if(hdIn(x,y))set(x,y,(x*5+y*3)%7===0?hl:(x>=23?hd:hair));for(let y=11;y<=16;y++){set(6,y,hair);set(25,y,hd)}}
+  if(bald){rect(10,8,13,8,lt2);rect(9,9,11,9,lt);set(22,8,sh)}
+  // headband
+  if(band!=='none'){const bd=hexMix(band,'#000000',.3),bl=hexMix(band,'#ffffff',.35);for(let x=6;x<=25;x++){set(x,9,bl);set(x,10,band);set(x,11,x>=22?bd:band)}set(6,12,band);set(25,12,bd);
+    [[26,10,band],[27,10,band],[27,11,bd],[28,11,band],[28,12,bd],[29,12,band],[29,13,bd],[26,11,bd]].forEach(([x,y,c])=>set(x,y,c))}
+  // brows, eyes, nose
+  const brow=bald?deep:hd;rect(9,13,12,13,brow);rect(19,13,22,13,brow);set(8,14,bald?sh:brow);set(23,14,bald?sh:brow);
+  [9,19].forEach(ex=>{rect(ex,15,ex+3,16,'#f4f1ea');rect(ex+1,15,ex+2,16,'#1d130c');set(ex+1,15,'#ffffff');rect(ex,17,ex+3,17,sh)});
+  set(16,15,sh);set(16,16,sh);set(16,17,sh);set(15,17,lt2);set(15,16,lt);rect(14,19,17,19,deep);set(15,19,sh);set(16,18,sh);
+  set(8,19,lt2);set(9,19,lt);set(9,20,lt);
+  // facial hair
+  if(fx.beard){for(let y=12;y<=30;y++)for(let x=5;x<=26;x++){const inside=hdIn(x,y)&&(y>=21||x<=8||x>=23);const below=y>27&&Math.abs(x+.5-16)<=(9-(y-27)*2.6);if(inside||below)set(x,y,(x*7+y*3)%11===0?hl:(x>=22?hd:hair))}
+    rect(11,21,20,21,hair);set(10,22,hair);set(21,22,hair)}
+  if(fx.stache){rect(11,21,20,21,hair);rect(12,20,19,20,hair);set(11,22,hair);set(20,22,hair);set(13,20,hl)}
+  // mouth
+  if(mouth==='flat'){rect(13,23,18,23,ink)}
+  if(mouth==='smile'){rect(13,23,18,23,ink);set(12,22,ink);set(19,22,ink);rect(14,24,17,24,hexMix(sk,'#b91c1c',.15))}
+  if(mouth==='grin'){rect(12,22,19,22,'#3a0f0a');rect(13,22,18,23,'#f8f5ee');set(12,23,'#3a0f0a');set(19,23,'#3a0f0a');rect(13,24,18,24,'#3a0f0a')}
+  if(mouth==='zgrin'){for(let x=12;x<=19;x++){set(x,22,x%2?'#e7e5c8':ink);set(x,23,x%2?ink:'#e7e5c8')}rect(13,24,18,24,'#7f1d1d')}
+  // eyewear & extras
+  if(fx.glasses){[8,18].forEach(x0=>{rect(x0,14,x0+5,14,ink);rect(x0,18,x0+5,18,ink);rect(x0,14,x0,18,ink);rect(x0+5,14,x0+5,18,ink)});rect(14,15,17,15,ink);set(6,15,ink);set(7,15,ink);set(24,15,ink);set(25,15,ink);set(9,15,'#e0f2fe')}
+  if(fx.shades){rect(7,14,24,14,ink);rect(8,15,13,17,'#1f2937');rect(18,15,23,17,'#1f2937');rect(14,15,17,15,ink);set(9,15,'#9ca3af');set(10,15,'#6b7280');set(19,15,'#9ca3af');set(20,15,'#6b7280');rect(8,18,13,18,ink);rect(18,18,23,18,ink)}
+  if(fx.goggles){rect(4,15,27,16,'#f97316');rect(4,17,27,17,'#c2410c');[8,18].forEach(x0=>{rect(x0,13,x0+5,13,ink);rect(x0,18,x0+5,18,ink);rect(x0,14,x0,17,ink);rect(x0+5,14,x0+5,17,ink);rect(x0+1,14,x0+4,17,'#7dd3fc');rect(x0+2,15,x0+3,16,'#0c4a6e');set(x0+1,14,'#e0f2fe')})}
+  if(fx.warpaint){rect(8,18,12,18,'#dc2626');rect(9,19,11,19,'#dc2626');rect(19,18,23,18,'#dc2626');rect(20,19,22,19,'#dc2626')}
+  if(fx.zombie){const bag='#4d6b3a',st='#3b2a1a';rect(9,17,12,18,bag);rect(19,17,22,18,bag);set(10,15,'#b91c1c');set(11,15,'#b91c1c');set(20,15,'#b91c1c');set(21,15,'#b91c1c');
+    for(let y=7;y<=12;y++)set(21,y,st);[8,10].forEach(y=>{set(20,y,st);set(22,y,st)});rect(8,21,9,22,'#a3c585');set(10,23,'#a3c585');set(23,20,'#5f7f45')}
+  if(fx.crown){HD_CROWN.forEach((row,y)=>[...row].forEach((c,x)=>{if(HD_CROWN_C[c])set(x,y-1,HD_CROWN_C[c])}))}
+  // outline
+  const out=G.map(r=>r.slice());
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
+  let rects='';
+  for(let y=0;y<N;y++){let x=0;while(x<N){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<N&&out[y][x+w]===c)w++;rects+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
+  return `<svg viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}
 function faceSvg(p){
+  if(S&&S.hdHeads)return faceSvgHD(p);
   const {sk,sh,hair,style,mouth,band,fx}=faceParams(p),ink='#140b06';
   const G=Array.from({length:16},()=>Array(16).fill(null));
   const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
@@ -2272,6 +2341,7 @@ function settingsView(){
     <button class="btn block" data-a="tAwards">${S.demoAwards?'🏅 Remove sample player awards':'🏅 Add sample player awards'}</button>
     <button class="btn block" data-a="tRecap">${S.demoRecap?'📋 Hide the season recap':'📋 Show the season recap now'}</button>
     <button class="btn block" data-a="fast100">🏅 Give a player a 100-day streak</button>
+    <button class="btn block" data-a="tHD">${S.hdHeads?'🧑 Back to the original 16×16 heads':'✨ Try the new HD heads (32×32)'}</button>
     <button class="btn block" data-a="tRanks">⭐ Set a player's rank / makes</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
@@ -2741,6 +2811,7 @@ const A={
   mdPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'draft'};closeSheet();
     const nk=nextKey(skey(gameDate()));window.HL_NOW=nk+'-01T06:00:00';view='squad';render();scrollTo(0,0);toast(`📝 Mock draft for ${monthName(nk)} · nothing here is saved`)},
   mdClear(){if(!confirm('Release every player and draft from scratch? (Mock only)'))return;S.squad=[];render();scrollTo(0,0)},
+  tHD(){S.hdHeads=!S.hdHeads;if(!S.hdHeads)delete S.hdHeads;save();render();toast(S.hdHeads?'✨ HD heads on':'Original heads back')},
   tRecap(){S.demoRecap=!S.demoRecap;if(!S.demoRecap)delete S.demoRecap;save();render();toast(S.demoRecap?'Season recap shows on the Standings table':'Season recap hidden')},
   tAwards(){
     if(S.demoAwards){delete S.demoAwards;save();render();return toast('Sample awards removed')}
