@@ -608,6 +608,13 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .score{position:relative}
 .opp-pop{position:absolute;right:-6px;top:-14px;font-size:15px;font-weight:900;color:#f87171;text-shadow:0 2px 6px rgba(0,0,0,.5);animation:opppop 1.4s ease-out forwards;pointer-events:none;font-family:system-ui;letter-spacing:0}
 @keyframes opppop{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-16px)}}
+.pcard{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.drag-ghost{position:fixed;z-index:95;pointer-events:none;margin:0!important;transform:scale(1.04) rotate(-1.5deg);box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 2px var(--orange);opacity:.95}
+.pcard.drag-src{opacity:.35}
+body.dragging .pcard.drop-no{opacity:.35;filter:grayscale(.6)}
+body.dragging .pcard.drop-ok{outline:2px dashed rgba(255,122,26,.7);outline-offset:-2px}
+body.dragging .pcard.drop-hover{outline:2px solid var(--orange);background:rgba(255,122,26,.14);transform:scale(1.02)}
+.sqhint{font-size:12px;color:var(--muted);margin:-2px 2px 4px}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1380,7 +1387,7 @@ function courtView(D,cs){
     return `<div class="spot ${cs&&cs.rem.has(p.id)?'need':''}" style="left:${x}%;top:${y}%">
       <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
-      <div class="tag" data-a="${canEditSquad()?'editPlayer':'subSheet'}" data-id="${p.id}">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
+      <div class="tag" data-a="editPlayer" data-id="${p.id}">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
   return `<div class="court court-${arenaTheme()||(S.cos&&S.cos.court)||'wood'} ${cs?'clutch':''}">${lines}${cs?'<div class="spotdim"></div>':''}${spots}</div>`;
 }
 function shoot(id,bz){
@@ -1503,7 +1510,7 @@ function squadLists(edit){
   const bench=S.squad.filter(x=>x.slot==='bench');
   let bh=bench.map(squadRow).join('');
   for(let i=bench.length;i<BENCH_SIZE;i++)bh+=`<button class="pl empty" style="width:100%" ${edit?'':'disabled'} data-a="sign" data-slot="bench">+ Sign a bench player</button>`;
-  return `<div class="sect"><h3 class="cond">Starting five</h3></div>${court}<div class="sect"><h3 class="cond">Bench</h3></div>${bh}`;
+  return `<div class="sect"><h3 class="cond">Starting five</h3><span class="small muted">Hold &amp; drag to sub</span></div>${court}<div class="sect"><h3 class="cond">Bench</h3></div>${bh}`;
 }
 
 function pStats(p){
@@ -1912,7 +1919,7 @@ function profileView(){
     return `<div class="aw-row ${pos===0?'lead':''}"><span class="aw-ic">${a.i}</span><div class="sp"><b>${a.n}</b><div class="small muted">${a.d}</div></div>${tag}</div>`}).join('');
   const mine=[];for(const k of Object.keys(won).sort().reverse())for(const a of AWARDS)if(won[k][a.id]===p.id)mine.push(`<span class="aw-chip">${a.i} ${a.n} <small>${monthName(k).split(' ')[0].slice(0,3)} ${k.slice(2,4)}</small></span>`);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
-  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><span class="row" style="gap:6px">${!canEditSquad()&&S.days[t]&&!S.days[t].locked&&subOptions(p,S.days[t]).length?`<button class="btn" data-a="subSheet" data-id="${p.id}">⇄ Sub ${p.slot==='court'?'off':'on'}</button>`:''}<button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></span></div>
+  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></div>
   <div class="prof" style="--pc:${ps.c}">
     <div class="prof-art"><span class="prof-head">${faceSvg(p)}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
     <div class="prof-name cond">${esc(id.name)}</div>
@@ -2038,6 +2045,43 @@ function subSheet(id){
     ${blocked.length?`<p class="small muted" style="margin-top:6px">Subbed off earlier today: ${blocked.map(x=>esc(x.name)).join(', ')}</p>`:''}`);
 }
 
+// Drag to sub (Squad screen): hold a player card, drag it onto a player in the same category in the other group, let go to swap.
+function swapPlayers(a,b){
+  if(a.slot===b.slot)return;if(a.pos!==b.pos)return toast(`Swap with a ${posById(a.pos).n} player`);
+  const out=a.slot==='court'?a:b,inn=a.slot==='court'?b:a,live=S.firstStart&&!canEditSquad(),D=live?ensureDay(gameDate()):null;
+  if(live&&subbedOff(D,inn.id))return toast(`${inn.name} was subbed off today · back tomorrow`);
+  out.slot='bench';inn.slot='court';if(live)D.subOff=[...(D.subOff||[]),out.id];
+  save();render();sfx('whistle');buzz(30);toast(`⇄ ${inn.name} on for ${out.name}`);
+}
+let drag=null,dragEndAt=0;
+function dragTargets(p){const D=S.firstStart&&!canEditSquad()?S.days[gameDate()]:null;
+  document.querySelectorAll('.pcard').forEach(c=>{const q=S.squad.find(x=>x.id===c.dataset.id);if(!q||q.id===p.id)return;
+    const ok=q.slot!==p.slot&&q.pos===p.pos&&!(D&&subbedOff(D,(q.slot==='court'?p:q).id));c.classList.add(ok?'drop-ok':'drop-no')})}
+document.addEventListener('pointerdown',e=>{
+  if(view!=='squad'||e.button>0)return;const card=e.target.closest('.pcard');if(!card)return;
+  const st={card,id:card.dataset.id,x:e.clientX,y:e.clientY,on:false};
+  st.timer=setTimeout(()=>{const p=S.squad.find(x=>x.id===st.id);if(!p)return;st.on=true;
+    const r=card.getBoundingClientRect(),g=card.cloneNode(true);g.classList.add('drag-ghost');g.style.width=r.width+'px';g.style.left=r.left+'px';g.style.top=r.top+'px';
+    st.dx=st.x-r.left;st.dy=st.y-r.top;st.ghost=g;document.body.appendChild(g);card.classList.add('drag-src');document.body.classList.add('dragging');dragTargets(p);buzz(15)},380);
+  drag=st;
+},{passive:true});
+document.addEventListener('pointermove',e=>{const st=drag;if(!st)return;
+  if(!st.on){if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>8){clearTimeout(st.timer);drag=null}return}
+  st.ghost.style.left=(e.clientX-st.dx)+'px';st.ghost.style.top=(e.clientY-st.dy)+'px';
+  st.ghost.style.visibility='hidden';const under=document.elementFromPoint(e.clientX,e.clientY);st.ghost.style.visibility='';
+  const t=under&&under.closest('.pcard');document.querySelectorAll('.pcard.drop-hover').forEach(c=>{if(c!==t)c.classList.remove('drop-hover')});if(t&&t.classList.contains('drop-ok'))t.classList.add('drop-hover');
+  const edge=60;if(e.clientY<edge)scrollBy(0,-8);else if(e.clientY>innerHeight-edge-70)scrollBy(0,8);
+});
+document.addEventListener('touchmove',e=>{if(drag&&drag.on)e.preventDefault()},{passive:false});
+function endDrag(e,cancel){const st=drag;drag=null;if(!st)return;clearTimeout(st.timer);if(!st.on)return;
+  dragEndAt=Date.now();st.ghost.remove();document.body.classList.remove('dragging');
+  const t=!cancel&&document.querySelector('.pcard.drop-hover');
+  document.querySelectorAll('.pcard').forEach(c=>c.classList.remove('drag-src','drop-ok','drop-no','drop-hover'));
+  if(t){const a=S.squad.find(x=>x.id===st.id),b=S.squad.find(x=>x.id===t.dataset.id);if(a&&b)swapPlayers(a,b)}}
+document.addEventListener('pointerup',e=>endDrag(e));document.addEventListener('pointercancel',e=>endDrag(e,true));
+document.addEventListener('click',e=>{if(Date.now()-dragEndAt<450){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener('contextmenu',e=>{if(e.target.closest('.pcard'))e.preventDefault()});
+
 /* ===================== sheets ===================== */
 function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
 function closeSheet(){const s=document.getElementById('scrim');if(s)s.remove()}
@@ -2074,8 +2118,7 @@ function playerSheet(id){
     if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="mvrow" data-a="promote" data-id="${p.id}"><span class="mvi">⬆️</span><span class="sp"><b>Move to starting five</b><small>${cur?`Swaps places with ${esc(cur.name)}`:`Starts at ${posById(p.pos).n}`}</small></span><span class="mvc">›</span></button>`}
     else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="mvrow" data-a="bench" data-id="${p.id}"><span class="mvi">⬇️</span><span class="sp"><b>Move to bench</b><small>Still scores full points</small></span><span class="mvc">›</span></button>`;
     a+=`<button class="mvrow danger" data-a="release" data-id="${p.id}"><span class="mvi">✖️</span><span class="sp"><b>Release player</b><small>Frees up this spot</small></span><span class="mvc">›</span></button>`;
-  }else if(S.firstStart&&se&&t>=se.start&&!(D&&D.locked))a+=subRow(p,D);
-  if(!edit&&transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
+  }else if(transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
   if(S.firstStart&&se&&t>=se.start){
     if(inj)a+=`<button class="mvrow" data-a="uninjure" data-id="${p.id}"><span class="mvi">↩️</span><span class="sp"><b>Bring back from injury list</b><small>Plays again today</small></span><span class="mvc">›</span></button>`;
     else if(D&&!isDone(p,D))a+=se.injLeft>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${se.injLeft} of ${INJURY_USES} left this season · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>No injury rests left this season</small></span></div>`;
