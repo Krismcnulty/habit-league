@@ -560,7 +560,8 @@ const nowMs=()=>window.HL_NOW?+new Date(window.HL_NOW):Date.now();
 const gameDate=()=>fmt(new Date(nowMs()-4*3600e3));
 const skey=d=>d.slice(0,7);
 const dim=key=>{const[y,m]=key.split('-').map(Number);return new Date(y,m,0).getDate()};
-const poStart=key=>`${key}-${pad(dim(key)-8)}`;
+// Playoffs: 9 days ending the day before the month's last day, which is a rest day.
+const poStart=key=>`${key}-${pad(dim(key)-9)}`;
 const monthEnd=key=>`${key}-${pad(dim(key))}`;
 const nextKey=key=>skey(addDays(monthEnd(key),1));
 const nice=(s,o={weekday:'short',day:'numeric',month:'short'})=>parse(s).toLocaleDateString('en-GB',o);
@@ -633,6 +634,8 @@ function standings(se,upto){
     let k=x.res.length,s=0;const last=x.res[k-1];while(k-->0&&x.res[k]===last)s++;x.strk=last?last+s:'—'});
   return list;
 }
+// Playoff series: 3 days, decided by the total points over all three (no dead games).
+function poScore(se,d,id){const f=rating(se,id)+(rng(se.key+d+id+'po')()-.5)*.24+.03;return Math.round(dayDiv(d).avg*(1+(f-.66)*.8))}
 function bracket(se,upto){
   if(!se.seeds)return null;
   const ps=poStart(se.key),sd=se.seeds;
@@ -645,10 +648,9 @@ function bracket(se,upto){
     for(let g=0;g<3;g++){
       const d=addDays(ps,r*3+g);if(d>=upto)break;
       for(const s of rounds[r]){
-        if(s.winner)continue;let aw;
-        if(s.a==='me'||s.b==='me'){const D=S.days[d];if(!D||!D.locked||D.ph!=='po')continue;aw=(s.a==='me')===(D.res==='W');s.games.push({d,me:D.me,opp:D.opp,res:D.res})}
-        else{aw=rng(se.key+d+s.a+s.b)()<pWin(rating(se,s.a),rating(se,s.b));s.games.push({d,aw})}
-        aw?s.wa++:s.wb++;if(s.wa===2)s.winner=s.a;if(s.wb===2)s.winner=s.b;
+        if(s.a==='me'||s.b==='me'){const D=S.days[d];if(!D||!D.locked||D.ph!=='po')continue;const A=s.a==='me';s.wa+=A?D.me:D.opp;s.wb+=A?D.opp:D.me;s.games.push({d,me:D.me,opp:D.opp})}
+        else{s.wa+=poScore(se,d,s.a);s.wb+=poScore(se,d,s.b);s.games.push({d})}
+        if(s.games.length===3)s.winner=s.wa>s.wb?s.a:s.wb>s.wa?s.b:(s.a==='me'||s.b==='me'?'me':s.a);
       }
     }
   }
@@ -662,7 +664,8 @@ function ensureDay(d){
   if(d<S.firstStart){friendly()}
   else{
     se=ensureSeason(skey(d));const ps=poStart(se.key);
-    if(d>=brkStart(se.key)&&d<ps){D.ph='brk';const ev=evFor(se.key);if(ev)D.ev=ev.n}
+    if(d===monthEnd(se.key)){D.ph='brk';D.off=1}
+    else if(d>=brkStart(se.key)&&d<ps){D.ph='brk';const ev=evFor(se.key);if(ev)D.ev=ev.n}
     else if(d<ps){D.ph='reg';D.gn=diffDays(se.start,d)+1;D.oppId=se.order[(D.gn-1)%se.order.length]}
     else{
       if(!se.seeds)se.seeds=standings(se,ps).slice(0,8).map(x=>x.id);
@@ -684,7 +687,7 @@ function lockDay(d){
   const D0=ensureDay(d);
   if(D0.ph==='brk'){const opp=D0.ev?hsOppOn(d):null;if(opp){D0.hsOpp=opp;D0.oppId=opp}const sc0=score(D0);D0.me=sc0.me;D0.max=sc0.max;D0.locked=true;
     if(opp){D0.opp=sc0.opp;D0.res=D0.me>=D0.opp?'W':'L';S.xp+=Math.round((D0.me+(D0.res==='W'?50:0))*dayDiv(d).xp)}else D0.rest=1;
-    const se=ensureSeason(skey(d));if(!se.locked&&d>=se.start)se.locked=true;if(d>=se.start)snapPar(se);if(d===HSE.end)hsFinish();return}
+    const se=ensureSeason(skey(d));if(!se.locked&&d>=se.start)se.locked=true;if(d>=se.start)snapPar(se);if(d===HSE.end)hsFinish();if(d===monthEnd(se.key))finalize(se);return}
   const D=D0;const sc=score(D);
   D.me=sc.me;D.max=sc.max;D.opp=sc.opp;
   if(D.me===D.opp&&D.max>0){D.ot=true;D.res=S.squad.filter(p=>p.slot==='court'&&!D.inj.includes(p.id)).every(p=>isDone(p,D))?'W':'L'}
@@ -986,7 +989,7 @@ function setupView(){
   <div class="top"><h1 class="cond">Tip-off</h1><button class="small muted" data-a="setupBack1">Back</button></div>
   <div class="card stack">
     <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one transfer in the first ${TRANSFER_DAYS} days</b> and the <b>injury list</b> (${INJURY_USES} rest days a season). Renaming and editing steps are always allowed.</p>
-    <p class="muted small" style="margin:0">Results lock at 4am. The last 9 days of each month are the playoffs: top 8, best-of-3, quarterfinals to Finals.</p>
+    <p class="muted small" style="margin:0">Results lock at 4am. The playoffs run over the last days of each month: top 8, each round decided by a 3-day points total, then a rest day to close the season.</p>
     ${levelRow(null)}
     ${short?`<div class="banner small">It's too late in ${monthName(skey(t))} for a regular season, so you'll play friendlies until the new season starts on ${nice(addDays(monthEnd(skey(t)),1),{day:'numeric',month:'long'})}.</div>
       <button class="btn primary block" data-a="tipoff" data-d="${addDays(monthEnd(skey(t)),1)}">Lock in for ${monthName(nextKey(skey(t)))}</button>`
@@ -1002,11 +1005,12 @@ function restView(t,D,se){
   const out=D.ev?(()=>{const {m,r}=hsMe();return m&&m.done&&m.winner!=='me'?{r,opp:m.a==='me'?m.b:m.a}:null})():null;
   const last=S.newResult&&S.days[S.newResult];
   const lastHtml=last&&last.res&&S.newResult===addDays(t,-1)?`<div class="card row" style="margin-bottom:12px"><span class="wl ${last.res}">${last.res}</span><div class="sp"><div style="font-weight:700">${last.res==='W'?'Won':'Lost'} ${last.me}–${last.opp} vs ${esc(tname(last.oppId))}</div><div class="small muted">Yesterday · ${last.ph==='brk'?esc(last.ev):last.ph==='po'?ROUND_NAMES[last.rd]:'regular season'}</div></div></div>`:'';
-  const msg=out?`<div class="restic">🎃</div><h2 class="cond">Knocked out</h2><p>The ${esc(team(out.opp).city+' '+team(out.opp).n)} beat you in the ${HSE.rounds[out.r]}. Rest up: no game until the playoffs.</p>`
+  const nk=se?nextKey(se.key):'';const wrap=D.off?`<div class="restic">🏁</div><h2 class="cond">Season wrap-up</h2><p>The Finals are done. Rest up: the ${monthName(nk)} season tips off on ${nice(nk+'-01',{weekday:'long',day:'numeric',month:'short'})}.</p>`:null;
+  const msg=wrap?wrap:out?`<div class="restic">🎃</div><h2 class="cond">Knocked out</h2><p>The ${esc(team(out.opp).city+' '+team(out.opp).n)} beat you in the ${HSE.rounds[out.r]}. Rest up: no game until the playoffs.</p>`
     :ev&&!D.ev?`<div class="restic">🛋️</div><h2 class="cond">Rest day</h2><p>The ${esc(ev.n)} is on for Premium players. Enjoy the break: no game today and your streaks are safe.</p>`
     :`<div class="restic">🛋️</div><h2 class="cond">Pre-playoff break</h2><p>No league game today. Your streaks are safe.</p>`;
   return `<div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Rest day</span></div>${lastHtml}
-  <div class="card restcard">${msg}<div class="small muted">Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'short'})}</div></div>`;
+  <div class="card restcard">${msg}${D.off?'':`<div class="small muted">Playoffs start ${nice(ps,{weekday:'long',day:'numeric',month:'short'})}</div>`}</div>`;
 }
 function todayView(){
   const t=gameDate();const D=ensureDay(t);
@@ -1017,8 +1021,8 @@ function todayView(){
   let phase;
   if(D.ph==='brk')phase=`🎃 ${D.ev} · ${HSE.rounds[hsDays().findIndex(x=>x[0]===t)]}`;
   else if(D.ph==='reg')phase=`Game ${D.gn} · ${divOf(se).n} division · ${monthName(se.key).split(' ')[0]}`;
-  else if(D.ph==='po')phase=`${ROUND_NAMES[D.rd]} · Game ${D.g} · Series ${D.ser[0]}–${D.ser[1]}`;
-  else phase=t<S.firstStart?`Pre-season friendly · season starts ${nice(S.firstStart)}`:(se&&se.seeds?(se.seeds.includes('me')?'Friendly · series won, waiting for the next round':'Friendly · playoffs are on'):'Friendly');
+  else if(D.ph==='po'){const lv=Math.round(sc.opp*oppProgress(t));phase=`${ROUND_NAMES[D.rd]} · Day ${D.g} of 3 · Total ${D.ser[0]+sc.me}–${D.ser[1]+lv}`}
+  else phase=t<S.firstStart?`Pre-season friendly · season starts ${nice(S.firstStart)}`:(se&&se.seeds?(se.seeds.includes('me')?'Friendly · knocked out of the playoffs':'Friendly · missed the playoffs this month'):'Friendly');
   const myRec=se&&D.ph!=='brk'?recordOf('me'):'',oppRec=se&&D.ph!=='ex'?recordOf(D.oppId):'';
   const need=sc.opp-sc.me+1;
   const status='';
