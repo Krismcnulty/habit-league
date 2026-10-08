@@ -716,6 +716,7 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .prank.r-legend{color:#ecfeff;border-color:#06b6d4;background:linear-gradient(90deg,#22d3ee,#0e7490)}
 .prank.r-goat{color:#1a1000;border-color:#eab308;background:linear-gradient(90deg,#fef08a,#facc15,#fde047);box-shadow:0 0 10px rgba(250,204,21,.6)}
 .prof-head{position:relative}
+.prof-rank{margin-top:10px;display:flex;justify-content:center}
 .lvcard{padding:14px;margin-bottom:12px}
 .lv-top{display:flex;align-items:center;gap:8px}.lv-now,.lv-next{display:flex;align-items:center;gap:10px;flex:1;min-width:0}.lv-next{justify-content:flex-end;text-align:right;flex-direction:row-reverse}
 .lv-arrow{color:var(--muted);font-weight:900}
@@ -2144,6 +2145,7 @@ function profileView(){
     <div class="prof-name cond">${esc(id.name)}</div>
     <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
     <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
+    <div class="prof-rank">${rankChip(pRank(p))}</div>
   </div>
   <div class="sect"><h3 class="cond">Stats</h3></div>
   <div class="card statcard"><div class="tabs ptabs">${[['season','This season'],['career','Career']].map(([k,n])=>`<button class="${profTab===k?'on':''}" data-a="profTab" data-v="${k}">${n}</button>`).join('')}</div>
