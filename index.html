@@ -1171,6 +1171,7 @@ const KITDEF={home:{n:'Home',b:'#ff7a1a',t:'#ffffff',num:'#ffffff',pat:'plain'},
  legend:{n:'Legend',b:'#0b0b0b',t:'#d4a017',num:'#d4a017',pat:'panels'},neon:{n:'Neon',b:'#140726',t:'#22d3ee',num:'#f0abfc',pat:'panels'},
  sunset:{n:'Sunset',b:'#f97316',t:'#db2777',num:'#ffffff',pat:'grad'},galaxy:{n:'Galaxy',b:'#312e81',t:'#c4b5fd',num:'#ffffff',pat:'galaxy'}};
 const KITS=Object.entries(KITDEF).map(([k,v])=>[k,v.n]);
+KITDEF.scout={n:'Unsigned',b:'#64748b',t:'#e2e8f0',num:'#f8fafc',pat:'plain'}; // generic jersey for players not yet on your team (added after KITS so it isn't a cosmetic)
 const myKit=()=>(S.cos&&S.cos.kit)||'home';
 function jerseySvg(kit,name,num){
   const K=KITDEF[kit]||KITDEF.home,id='jk'+kit,shirt='M30 6Q50 15 70 6L78 8Q80 28 92 34L92 104Q50 110 8 104L8 34Q20 28 22 8Z';
@@ -2135,7 +2136,7 @@ function libSheet(ctx){
     const items=LIB.filter(x=>x.pos===pos.id&&!owned.has(x.id));
     if(!items.length)return '';
     return `<div class="sect"><h3 class="cond">${pos.n}</h3><span class="small muted">${items.length} available</span></div>`+items.map(x=>{const pr=prospect(x);return `<div class="libcard" style="--pc:${pos.c}">
-      <div class="lc-top">${avatar(pr)}<div class="sp" style="min-width:0"><div class="lc-name">${esc(x.n)}${ROOKIES.has(x.id)?'<span class="rookie">Rookie</span>':''}</div><div class="lc-sub">${esc(ident(pr).name)}${x.steps?` · ${x.steps.length} steps`:''}</div></div></div>
+      <div class="lc-top">${avatar(pr)}<span class="mjs">${jerseySvg('scout',ident(pr).name,ident(pr).num)}</span><div class="sp" style="min-width:0"><div class="lc-name">${esc(x.n)}${ROOKIES.has(x.id)?'<span class="rookie">Rookie</span>':''}</div>${x.steps?`<div class="lc-sub">${x.steps.length} steps</div>`:''}</div></div>
       <div class="lvls">${x.lv.map((l,i)=>{const ok=SHOTS[l.shot].pts>=minPts&&!(sell&&sell.lib===x.id&&SHOTS[l.shot].pts<=minPts);return `<button class="lvl" data-a="signLib" data-lib="${x.id}" data-i="${i}" ${ok?'':'disabled'}>${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts} pts</span></button>`}).join('')}</div></div>`}).join('');
   }).join('');
   const customs=S.squad.filter(p=>p.custom&&(!sell||p.id!==sell.id)).length;
