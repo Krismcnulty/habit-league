@@ -1449,7 +1449,7 @@ function faceSvgHD(p){
   return `<svg viewBox="${vx} ${vy} ${side} ${side}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
 }
 function faceSvg(p){
-  if(S&&S.hdHeads)return faceSvgHD(p);
+  if(!(S&&S.oldHeads))return faceSvgHD(p);
   const {sk,sh,hair,style,mouth,band,fx}=faceParams(p),ink='#140b06';
   const G=Array.from({length:16},()=>Array(16).fill(null));
   const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
@@ -2344,7 +2344,7 @@ function settingsView(){
     <button class="btn block" data-a="tAwards">${S.demoAwards?'🏅 Remove sample player awards':'🏅 Add sample player awards'}</button>
     <button class="btn block" data-a="tRecap">${S.demoRecap?'📋 Hide the season recap':'📋 Show the season recap now'}</button>
     <button class="btn block" data-a="fast100">🏅 Give a player a 100-day streak</button>
-    <button class="btn block" data-a="tHD">${S.hdHeads?'🧑 Back to the original 16×16 heads':'✨ Try the new HD heads (32×32)'}</button>
+    <button class="btn block" data-a="tHD">${S.oldHeads?'✨ Back to the HD heads (32×32)':'🧑 Use the original 16×16 heads'}</button>
     <button class="btn block" data-a="tRanks">⭐ Set a player's rank / makes</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
@@ -2814,7 +2814,7 @@ const A={
   mdPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'draft'};closeSheet();
     const nk=nextKey(skey(gameDate()));window.HL_NOW=nk+'-01T06:00:00';view='squad';render();scrollTo(0,0);toast(`📝 Mock draft for ${monthName(nk)} · nothing here is saved`)},
   mdClear(){if(!confirm('Release every player and draft from scratch? (Mock only)'))return;S.squad=[];render();scrollTo(0,0)},
-  tHD(){S.hdHeads=!S.hdHeads;if(!S.hdHeads)delete S.hdHeads;save();render();toast(S.hdHeads?'✨ HD heads on':'Original heads back')},
+  tHD(){delete S.hdHeads;S.oldHeads=!S.oldHeads;if(!S.oldHeads)delete S.oldHeads;save();render();toast(S.oldHeads?'Original 16×16 heads on':'✨ HD heads on')},
   tRecap(){S.demoRecap=!S.demoRecap;if(!S.demoRecap)delete S.demoRecap;save();render();toast(S.demoRecap?'Season recap shows on the Standings table':'Season recap hidden')},
   tAwards(){
     if(S.demoAwards){delete S.demoAwards;save();render();return toast('Sample awards removed')}
