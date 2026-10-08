@@ -638,6 +638,11 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .top h1.t-pre{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;color:#5eead4;text-shadow:0 0 12px rgba(45,212,191,.35)}
 .gd-intro.pre .gd-lab{color:#5eead4}.gd-intro.pre .gd-v{color:#ccfbf1;text-shadow:0 0 18px rgba(45,212,191,.7)}
 .ptrade{font-size:10.5px;font-weight:800;padding:2px 7px;line-height:1.3;border-radius:99px;background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.55);color:var(--orange2);white-space:nowrap}
+.rdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.rday{padding:10px 0;border-radius:12px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-weight:800;font-size:12.5px;line-height:1}
+.rday small{font-size:9.5px;font-weight:700;color:var(--muted);margin-top:3px}
+.rday.on{background:rgba(96,165,250,.16);border-color:#60a5fa;color:#bfdbfe}.rday.on small{color:#93c5fd}
+.rmeta{color:#93c5fd;font-size:11.5px}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -789,6 +794,20 @@ const CUSTOM_SHOT='jumper', MAX_CUSTOM=2, BENCH_SIZE=5, INJURY_USES=3, TRANSFER_
 const weekStart=d=>{const dt=parse(d),wd=(dt.getDay()+6)%7;return addDays(d,-wd)};
 const restsUsed=(id,d)=>{const w=weekStart(d||gameDate());let n=0;for(let i=0;i<7;i++){const D=S.days[addDays(w,i)];if(D&&D.inj&&D.inj.includes(id))n++}return n};
 const restsLeft=(id,d)=>Math.max(0,INJURY_USES-restsUsed(id,d));
+// Planned rest days: p.restDays = weekdays (0 = Mon … 6 = Sun) that repeat every week, max INJURY_USES.
+const WD=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const weekday=d=>(parse(d).getDay()+6)%7;
+function planRests(D){
+  if(!D||D.locked||D.planned||!D.d||D.d<gameDate())return;D.planned=1;D.auto=D.auto||[];const wd=weekday(D.d);
+  for(const p of S.squad)if((p.restDays||[]).includes(wd)&&!D.inj.includes(p.id)&&!isDone(p,D)){D.inj.push(p.id);D.auto.push(p.id)}
+}
+// After the plan changes, update today (only before the 4th quarter) so the change takes effect straight away.
+function replanToday(p){
+  const t0=gameDate();for(const k of Object.keys(S.days))if(k>t0){const F=S.days[k];if(F.locked)continue;if(F.auto&&F.auto.includes(p.id)){F.inj=F.inj.filter(x=>x!==p.id);F.auto=F.auto.filter(x=>x!==p.id)}delete F.planned}
+  const t=gameDate(),D=S.days[t];if(!D||D.locked||quarter(t)>=4)return;D.auto=D.auto||[];const want=(p.restDays||[]).includes(weekday(t));
+  if(want&&!D.inj.includes(p.id)&&!isDone(p,D)){D.inj.push(p.id);D.auto.push(p.id)}
+  if(!want&&D.auto.includes(p.id)){D.inj=D.inj.filter(x=>x!==p.id);D.auto=D.auto.filter(x=>x!==p.id)}
+}
 const L=(l,shot)=>({l,shot});
 // Rookies: habits new to the league this season. Add to this list as new habits/players arrive each season.
 const ROOKIES=new Set(['protein','podcast','screen','plan','budget']);
@@ -962,7 +981,7 @@ function bracket(se,upto){
   return{rounds};
 }
 function ensureDay(d){
-  let D=S.days[d];if(D&&D.ph){D.d=d;return D}
+  let D=S.days[d];if(D&&D.ph){D.d=d;planRests(D);return D}
   D=S.days[d]=D||{t:{},inj:[]};D.d=d;
   const r=rng('day'+d);let se=null,bump=0;
   const friendly=()=>{D.ph='ex';const ids=TEAMS.map(t=>t.id);D.oppId=ids[Math.floor(r()*ids.length)]};
@@ -982,7 +1001,7 @@ function ensureDay(d){
     }
   }
   D.f=+clamp(rating(se,D.oppId)+(r()-.5)*.12+bump,.35,.93).toFixed(3);
-  return D;
+  planRests(D);return D;
 }
 const pv=p=>SHOTS[p.shot].pts; // every player scores full points; starters vs bench is a role, not a value
 function isDone(p,D){const v=D.t[p.id];return p.steps&&p.steps.length?Array.isArray(v)&&p.steps.every((_,i)=>v[i]):v===true}
@@ -1588,7 +1607,7 @@ function squadRow(p){
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
   const tr=S.firstStart&&(canEditSquad()||transferOpen())?`<button class="ptrade" data-a="transfer" data-id="${p.id}">⇄ Trade</button>`:'';
   const dots=f.length?`<span class="pform">${f.map(x=>`<i class="${x}"></i>`).join('')}</span>`:'';
-  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${tr||posTag(p)}</div></div>`}
+  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}${(p.restDays||[]).length?` · <span class="rmeta">🩹 ${p.restDays.slice().sort().map(i=>WD[i]).join(' ')}</span>`:''}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${tr||posTag(p)}</div></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
@@ -1974,6 +1993,9 @@ function profileView(){
     <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
     <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
   </div>
+  <div class="sect"><h3 class="cond">Rest days</h3><span class="small muted">Repeats weekly · up to ${INJURY_USES}</span></div>
+  <div class="card"><div class="rdays">${WD.map((w,i)=>`<button class="rday ${(p.restDays||[]).includes(i)?'on':''}" data-a="togRest" data-id="${p.id}" data-v="${i}">${w}</button>`).join('')}</div>
+    <div class="small muted" style="margin-top:8px">${(p.restDays||[]).length?`Rests every ${p.restDays.slice().sort().map(i=>WD[i]).join(', ')}: scores nothing for or against you, and your opponent adjusts.`:'No planned rest days. Pick days this habit takes off each week, like gym rest days.'}</div></div>
   <div class="sect"><h3 class="cond">This season</h3></div>
   ${st?`<div class="stgrid" style="margin-top:0"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Completion</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>`:'<p class="muted small">Season stats start at tip-off.</p>'}
   <div class="sect"><h3 class="cond">Last 30 days</h3></div>
@@ -2248,6 +2270,9 @@ const A={
       <div class="sect"><h3 class="cond">1 · Choose a player to swap out</h3></div>
       <div class="sect" style="margin-top:6px"><h3 class="cond" style="font-size:12px">Starting five</h3></div>${S.squad.filter(p=>p.slot==='court').map(row).join('')}
       <div class="sect" style="margin-top:10px"><h3 class="cond" style="font-size:12px">Bench</h3></div>${S.squad.filter(p=>p.slot==='bench').map(row).join('')}`)},
+  togRest(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;const i=+d.v;p.restDays=p.restDays||[];
+    if(p.restDays.includes(i))p.restDays=p.restDays.filter(x=>x!==i);else{if(p.restDays.length>=INJURY_USES)return toast(`Up to ${INJURY_USES} rest days a week`);p.restDays.push(i)}
+    replanToday(p);save();render()},
   injure(d){const D=ensureDay(gameDate());if(quarter(gameDate())>=4)return toast('Rests close when the 4th quarter starts');if(restsLeft(d.id)<1||D.inj.includes(d.id))return;D.inj.push(d.id);save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
   uninjure(d){const D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);save();closeSheet();render()},
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
