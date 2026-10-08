@@ -580,7 +580,8 @@ td.tpos{white-space:nowrap}
 .ish-it.rr-leg{border-color:rgba(245,158,11,.75);background:linear-gradient(180deg,rgba(245,158,11,.16),transparent 60%),var(--well);box-shadow:0 0 8px rgba(245,158,11,.2)}
 .ish-p{margin-top:auto;padding-top:5px}.ish-p i{display:inline-block;font-style:normal;font-weight:900;font-size:11.5px;color:#1a1000;background:var(--orange);padding:3px 10px;border-radius:99px}
 .ish-own{margin-top:auto;padding-top:5px;font-weight:900;font-size:10.5px;color:var(--green)}
-.ish-it{position:relative}.ish-v{position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:2;white-space:nowrap;font-style:normal;font-size:8px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:rgba(217,70,239,.85);padding:1px 5px;border-radius:99px}
+.ish-it{position:relative}
+.ls-more.pool div{width:64px;text-align:center}.ls-more.pool small{color:var(--text);font-size:10.5px;line-height:1.15}.ls-more.pool em{font-style:normal;font-size:9.5px;color:var(--muted)}.ls-more.pool .tod .rwp{outline:2px solid var(--orange);outline-offset:2px;border-radius:8px}.ish-v{position:absolute;top:-7px;left:50%;transform:translateX(-50%);z-index:2;white-space:nowrap;font-style:normal;font-size:8px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:rgba(217,70,239,.85);padding:1px 5px;border-radius:99px}
 .ish-it .rar{display:none}
 /* store themes per collection */
 .card.store.col-xmas{background-image:radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.3) 0 1px,transparent 1.4px),radial-gradient(120% 22% at 50% 0%,rgba(239,68,68,.32),transparent 70%),linear-gradient(180deg,#14532d,#052e16);background-size:37px 41px,23px 29px,auto,auto;background-position:0 0,11px 17px,0 0,0 0;border-color:#dc2626}
@@ -1670,6 +1671,8 @@ const HEADS=[
  {id:'snowman',n:'Snowman',skin:['#f8fafc','#cbd5e1'],hair:'#111827',style:'bald',band:'none',fx:['snowman'],mouth:'none'},
  {id:'leprechaun',n:'Leprechaun',sk:0,hair:'#c2410c',style:'short',band:'none',fx:['beard','lephat'],mouth:'grin'},
  {id:'blacktop',n:'Blacktop',sk:4,hair:'#1b120c',style:'buzz',band:'none',fx:['cap'],mouth:'smile'},
+ {id:'bigbeard',n:'Big Beard',sk:2,hair:'#2a1a12',style:'long',band:'#fbbf24',fx:['beard'],mouth:'flat'},
+ {id:'oldtimer',n:'Old Timer',sk:0,hair:'#e5e7eb',style:'horseshoe',band:'none',fx:['glasses','stache','goatee'],mouth:'grin'},
  {id:'zombie',n:'Zombie',skin:['#8fbf6a','#6a9a4e'],hair:'#2b2f22',style:'spiky',band:'none',fx:['zombie'],mouth:'zgrin'},
 ];
 const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
@@ -1724,6 +1727,9 @@ function faceSvgHD(p){
   if(style==='flat'){rect(6,1,25,10,hair);rect(23,1,25,10,hd);for(let x=8;x<=20;x++)set(x,2,hl);for(let x=9;x<=15;x++)set(x,3,hl2);[6,25].forEach(x=>{set(x,1,null)});for(let y=11;y<=12;y++){set(6,y,hair);set(25,y,hd)}}
   if(style==='mohawk'){for(let y=0;y<=10;y++)for(let x=14;x<=18;x++)set(x,y,x>=17?hd:hair);for(let y=1;y<=8;y+=2)set(15,y,hl);for(let y=6;y<=9;y++)for(let x=7;x<=24;x++)if(hdIn(x,y)&&(x<14||x>18)&&(x+y)%2===0)set(x,y,hexMix(sk,hair,.35))}
   if(style==='buzz'){for(let y=6;y<=9;y++)for(let x=6;x<=25;x++)if(hdIn(x,y))set(x,y,(x+y*2)%5===0?hl:(x>=23?hd:hair));for(let y=10;y<=11;y++){set(6,y,hair);set(7,y,hair);set(24,y,hd);set(25,y,hd)}}
+  if(style==='long'){hairCap(3,13);for(let x=10;x<=18;x++)set(x,4,hl);for(let x=11;x<=15;x++)set(x,5,hl2);for(let x=8;x<=22;x+=3)set(x,8,hd);
+    for(let y=11;y<=25;y++){for(let x=3;x<=6;x++)if(!(y>22&&x===3))set(x,y,(x+y)%5===0?hl:hair);for(let x=25;x<=28;x++)if(!(y>22&&x===28))set(x,y,(x+y)%6===0?hair:hd)}}
+  if(style==='horseshoe'){for(let y=12;y<=18;y++){for(let x=4;x<=6;x++)set(x,y,(x+y)%3===0?hl:hair);for(let x=25;x<=27;x++)set(x,y,hd)}rect(7,12,7,15,hair);rect(24,12,24,15,hd);rect(10,8,13,8,lt2);rect(9,9,11,9,lt);set(22,8,sh)}
   if(style==='afro'){for(let y=6;y<=10;y++)for(let x=6;x<=25;x++)if(hdIn(x,y))set(x,y,(x*5+y*3)%7===0?hl:(x>=23?hd:hair));for(let y=11;y<=16;y++){set(6,y,hair);set(25,y,hd)}}
   if(bald){rect(10,8,13,8,lt2);rect(9,9,11,9,lt);set(22,8,sh)}
   // headband
@@ -1737,6 +1743,7 @@ function faceSvgHD(p){
   // facial hair
   if(fx.beard){for(let y=12;y<=30;y++)for(let x=5;x<=26;x++){const inside=hdIn(x,y)&&(y>=21||x<=8||x>=23);const below=y>27&&Math.abs(x+.5-16)<=(9-(y-27)*2.6);if(inside||below)set(x,y,(x*7+y*3)%11===0?hl:(x>=22?hd:hair))}
     rect(11,21,20,21,hair);set(10,22,hair);set(21,22,hair)}
+  if(fx.goatee){rect(13,25,18,27,hair);rect(14,28,17,28,hair);set(14,26,hl);set(15,27,hl)}
   if(fx.stache){rect(11,21,20,21,hair);rect(12,20,19,20,hair);set(11,22,hair);set(20,22,hair);set(13,20,hl)}
   // mouth
   if(mouth==='flat'){rect(13,23,18,23,ink)}
@@ -1937,7 +1944,7 @@ const ACH=[
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Reserved: drawn items held back for future Store collections. Hidden in the Locker until a collection uses them (or you own them).
-const RESERVED=[['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
+const RESERVED=[['head','bigbeard'],['head','oldtimer'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
 const isPrem=(k,v)=>RESERVED.some(([a,b])=>a===k&&b===v);
 // Item Shop: 4 single items from the reserved pool, rotating every day. Priced by rarity; items a collection uses leave the pool.
 const SHOP_RAR={'logo:rocket':'rare','logo:anchor':'rare','ball:galaxy':'rare','pbg:starfield':'rare','head:bigfella':'epic','head:warrior':'epic','head:flash':'epic','kit:galaxy':'epic','court:beach':'epic','board:arcade':'epic','atm:gold':'leg','atm:arcade':'leg','atm:sunset':'leg'};
@@ -2854,7 +2861,7 @@ function testingHtml(){
     T('hsPreview','🎃','Halloween Shootout','Fast-forward the event')+T('mdPreview','📝','Mock draft','Next season\'s squad pick'))}
   ${sec('🛍️','Store & cosmetics','Switch the seasonal collection and unlock gear',
     COLLECTIONS.map(c=>T('tCol',c.ic[0],c.sh,c.when.split(' · ')[1],{on:activeCol().id===c.id,v:c.id})).join('')
-    +T('tVault','🏛️','Open the vault','Past rotating collections join the shop now')+T('tShop','🔁','Rotate item shop','Skip to tomorrow\'s 4 items')+T('unlockAll','🔒','Unlock all',S.unlockAll?'Everything unlocked: tap to re-lock':'Every cosmetic, for testing',{on:S.unlockAll}))}
+    +T('tPool','📋','Shop pool','See every item, by category')+T('tVault','🏛️','Open the vault','Past rotating collections join the shop now')+T('tShop','🔁','Rotate item shop','Skip to tomorrow\'s 4 items')+T('unlockAll','🔒','Unlock all',S.unlockAll?'Everything unlocked: tap to re-lock':'Every cosmetic, for testing',{on:S.unlockAll}))}
   </div>`;
 }
 function ballSvg(skin){
@@ -3372,6 +3379,11 @@ const A={
     <button class="btn primary block" style="margin-top:14px" data-a="confirmItem" data-k="${d.k}" data-v="${d.v}">Buy for ${gbp(shopPrice(d.k,d.v))}</button><p class="small muted" style="text-align:center;margin:8px 0 0">Prototype: no payment is taken.</p>`)},
   confirmItem(d){S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();closeSheet();render();sfx('cheer');toast(`🛍️ ${cosName(d.k,d.v)} is yours! Find it in the Locker`)},
   tVault(){S.colEnded={...(S.colEnded||{})};let n=0;for(const c of COLLECTIONS)if(c.rot&&c.id!==activeCol().id){S.colEnded[c.id]=addDays(gameDate(),-VAULT_DAYS);n++}save();render();toast(n?'🛍️ Past rotating collections are now in the Item Shop pool':'Switch to another collection first')},
+  tPool(){const pool=shopPool(),today=shopItems().map(([k,v])=>k+':'+v),ORDER=['head','kit','logo','pbg','atm','board','court','bench','ball','shot','cel','snd'];
+    const NAMES={head:'Player heads',kit:'Kits',logo:'Team logos',pbg:'Player backgrounds',atm:'Atmospheres',board:'Scoreboards',court:'Courts',bench:'Benches',ball:'Balls',shot:'Shot styles',cel:'Win celebrations',snd:'Sound packs'};
+    const secs=ORDER.map(k=>{const L=pool.filter(x=>x[0]===k);if(!L.length)return '';return `<div class="rssec">${NAMES[k]} · ${L.length}</div><div class="ls-more pool">${L.map(([kk,v])=>{const P=packOf(kk,v);return `<div class="${today.includes(kk+':'+v)?'tod':''}">${rewardPic(kk,v)}<small>${esc(cosName(kk,v))}</small><em>${gbp(shopPrice(kk,v))}${P?' · '+esc(colOf(P.col).sh):''}</em></div>`}).join('')}</div>`}).join('');
+    const wait=COLLECTIONS.filter(c=>c.rot&&!vaulted(c)).map(c=>{const e=S.colEnded&&S.colEnded[c.id];return `<li><b>${esc(c.n)}</b>: ${c.id===activeCol().id?'in the Store now':e?`joins in ${VAULT_DAYS-diffDays(e,gameDate())} days`:'joins 90 days after it first leaves the Store'}</li>`}).join('');
+    sheet(`<div class="rshead"><h2>Item Shop pool</h2><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div><p class="small muted" style="margin:6px 0 4px">${pool.length} items the daily shop picks from. Today's four are highlighted.</p>${secs}${wait?`<div class="rssec">Waiting in the vault</div><ul class="small" style="margin:4px 0 0;padding-left:18px">${wait}</ul>`:''}`)},
   tShop(){S.shopShift=(S.shopShift||0)+1;save();render();toast('🛍️ Item Shop rotated to tomorrow\'s picks')},
   toStore(){closeSheet();lkTab='store';view='awards';render();scrollTo(0,0)},
   buyPack(d){const B=bundleCol(d.v),P=B?{n:B.n,price:B.bundle.price,items:B.packs.flatMap(p=>p.items)}:PACKS.find(p=>p.id===d.v);if(!P)return;
