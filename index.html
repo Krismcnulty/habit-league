@@ -398,6 +398,21 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .headbtn.open{box-shadow:0 0 0 3px rgba(255,122,26,.5),0 6px 14px rgba(0,0,0,.35)}
 .headbtn.open .hedit{background:var(--text)}
 .nmrow{display:flex;gap:10px;margin-top:22px}
+.steprow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sdot{width:16px;height:16px;flex:none;border-radius:50%;border:2px solid var(--line)}
+.steprow .stepin{flex:1;padding:9px 12px}
+.sdel{width:34px;height:34px;flex:none;border-radius:10px;color:var(--muted);background:var(--panel);border:1px solid var(--line);font-size:13px}
+.addstep{display:flex;gap:8px}
+.addstep input{flex:1;padding:9px 12px;border-style:dashed}
+.addstep .btn{width:44px;padding:0;font-size:20px;background:var(--orange);border-color:var(--orange);color:#1a0d00}
+.mvrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.mvrow+.mvrow,.lvls+.mvrow{margin-top:8px}
+.mvrow b{display:block;font-size:14.5px}
+.mvrow small{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.mvi{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;background:var(--panel2);font-size:17px}
+.mvc{font-size:22px;color:var(--muted)}
+.mvrow.danger b{color:var(--red)}
+.mvrow.off{opacity:.5}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1374,13 +1389,13 @@ function playerSheet(id){
   let a='';
   if(edit&&lib&&lib.lv.length>1)a+=`<label class="flab">Level</label><div class="lvls">${lib.lv.map((l,i)=>`<button class="lvl ${l.l===p.lvl?'on':''}" data-a="setLvl" data-id="${p.id}" data-i="${i}">${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts}</span></button>`).join('')}</div>`;
   if(edit){
-    if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="btn block" data-a="promote" data-id="${p.id}">Start at ${posById(p.pos).n}${cur?` (swap with ${esc(cur.name)})`:''}</button>`}
-    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="btn block" data-a="bench" data-id="${p.id}">Move to bench</button>`;
-    a+=`<button class="btn danger block" data-a="release" data-id="${p.id}">Release player</button>`;
-  }else if(transferOpen())a+=`<button class="btn block" data-a="transfer" data-id="${p.id}">Sell & sign a replacement</button>`;
+    if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="mvrow" data-a="promote" data-id="${p.id}"><span class="mvi">⬆️</span><span class="sp"><b>Move to starting five</b><small>${cur?`Swaps places with ${esc(cur.name)}`:`Starts at ${posById(p.pos).n}`}</small></span><span class="mvc">›</span></button>`}
+    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="mvrow" data-a="bench" data-id="${p.id}"><span class="mvi">⬇️</span><span class="sp"><b>Move to bench</b><small>Scores half points</small></span><span class="mvc">›</span></button>`;
+    a+=`<button class="mvrow danger" data-a="release" data-id="${p.id}"><span class="mvi">✖️</span><span class="sp"><b>Release player</b><small>Frees up this spot</small></span><span class="mvc">›</span></button>`;
+  }else if(transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Transfer this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
   if(S.firstStart&&se&&t>=se.start){
-    if(inj)a+=`<button class="btn block" data-a="uninjure" data-id="${p.id}">Bring back from injury list</button>`;
-    else if(D&&!isDone(p,D))a+=`<button class="btn block" data-a="injure" data-id="${p.id}" ${se.injLeft>0?'':'disabled'}>🩹 Rest today (${se.injLeft} left this season)</button>`;
+    if(inj)a+=`<button class="mvrow" data-a="uninjure" data-id="${p.id}"><span class="mvi">↩️</span><span class="sp"><b>Bring back from injury list</b><small>Plays again today</small></span><span class="mvc">›</span></button>`;
+    else if(D&&!isDone(p,D))a+=se.injLeft>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${se.injLeft} of ${INJURY_USES} left this season · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>No injury rests left this season</small></span></div>`;
   }
   const info=`${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''}${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}`;
   sheet(`<div class="row">${avatar(p)}<div class="sp" style="min-width:0"><h2>${esc(p.name)}</h2><div class="small"><b>${esc(ident(p).name)}</b> · ${posTag(p)}</div></div></div>
@@ -1388,11 +1403,13 @@ function playerSheet(id){
   ${jerseyBlock(p)}
   <div class="ecard"><div class="ehead">Habit<span class="small muted" style="font-weight:600;text-transform:none;letter-spacing:0">${info}</span></div>
     <label class="flab">Name</label><input id="pName" maxlength="28" value="${esc(p.name)}">
-    <label class="flab" style="margin-top:10px">Steps <span class="muted">· optional, one per line</span></label>
-    <textarea id="pSteps" rows="3" placeholder="e.g. Brush teeth" class="ta">${esc((p.steps||[]).join('\n'))}</textarea></div>
+    <label class="flab" style="margin-top:12px">Steps <span class="muted">· optional, tick them all to complete</span></label>
+    <div id="stepList">${(p.steps||[]).map(x=>stepRow(x)).join('')}</div>
+    <div class="addstep"><input id="newStep" maxlength="30" placeholder="Add a step, e.g. Brush teeth" enterkeyhint="done"><button class="btn" data-a="addStep" aria-label="Add step">＋</button></div></div>
   <button class="btn primary block" style="margin-top:12px" data-a="savePlayer" data-id="${p.id}">Save changes</button>
   ${a?`<div class="ecard"><div class="ehead">Squad moves</div>${a}</div>`:''}`);
 }
+const stepRow=v=>`<div class="steprow"><span class="sdot"></span><input class="stepin" maxlength="30" value="${esc(v)}"><button class="sdel" data-a="delStep" aria-label="Remove step">✕</button></div>`;
 function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0,signedAt:gameDate()}}
 
 /* ===================== actions ===================== */
@@ -1453,7 +1470,7 @@ const A={
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
     const ne=document.getElementById('pNum');if(ne&&!ne.disabled&&ne.value!==''){const v=Math.max(0,Math.min(99,parseInt(ne.value,10)||0));if(retiredNums(p.id).includes(v))toast(`#${v} is retired, so pick another number`);else if(v!==ident(p).num)p.num=v}
     const pn=document.getElementById('pPlayer').value.trim();if(pn&&pn!==ident({id:p.id}).name)p.pname=pn;else if(!pn)delete p.pname;
-    const steps=document.getElementById('pSteps').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,8);
+    const pend=document.getElementById('newStep');const steps=[...document.querySelectorAll('.stepin')].map(e=>e.value.trim()).concat(pend&&pend.value.trim()?[pend.value.trim()]:[]).filter(Boolean).slice(0,8);
     const changed=JSON.stringify(steps)!==JSON.stringify(p.steps||[]);p.steps=steps;
     if(changed){const D=S.days[gameDate()];if(D){const v=D.t[p.id];D.t[p.id]=steps.length?(Array.isArray(v)?v.slice(0,steps.length):steps.map(()=>v===true)):(Array.isArray(v)?false:v)}}
     save();closeSheet();render()},
@@ -1486,6 +1503,8 @@ const A={
     S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:(p.seasons||0)>=3?`${p.seasons} seasons`:`${best}-day streak`});
     p.num=id.num;save();closeSheet();render();celebrate('stamp','RETIRED',`#${id.num} ${id.name}`)},
   fastVet(){const p=S.squad.find(x=>x.slot==='court');p.seasons=Math.max(3,p.seasons||0);save();render();toast(`${p.name} is now a 3-season veteran`)},
+  addStep(){const i=document.getElementById('newStep');const v=i.value.trim();if(!v)return i.focus();if(document.querySelectorAll('.stepin').length>=8)return toast('Up to 8 steps');document.getElementById('stepList').insertAdjacentHTML('beforeend',stepRow(v));i.value='';i.focus()},
+  delStep(d,el){el.closest('.steprow').remove()},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
@@ -1522,6 +1541,7 @@ function afterTick(before,D){
   if(after.me<after.max&&before.me<=live&&after.me>live)toast('You\'ve taken the lead! 🏀');
   else if(after.me===after.max&&before.me<before.max&&after.max>0)setTimeout(()=>celebrate(myCel(),'PERFECT GAME','Every player scored'),950);
 }
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='newStep'){e.preventDefault();A.addStep()}});
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(!el||el.disabled)return;const f=A[el.dataset.a];if(f){e.preventDefault();f(el.dataset,el)}});
 document.getElementById('restoreFile').addEventListener('change',async e=>{
   const f=e.target.files[0];e.target.value='';if(!f)return;
