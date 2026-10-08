@@ -706,6 +706,10 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .trdl{font-size:13px;font-weight:800;color:var(--orange2);margin-top:3px}
 .trdl small{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .rsheet{margin-top:6px}
+.hgface{width:44px;height:44px;border-radius:12px;background:linear-gradient(180deg,#1f2a4a,#121a33);border:1px solid var(--line);display:grid;place-items:center}.hgface svg{width:38px;height:38px;image-rendering:pixelated}
+.hgrow{display:flex;align-items:center;gap:10px;width:100%;padding:8px 6px;border:0;border-top:1px solid var(--line);background:none;color:var(--text);font:inherit;text-align:left}
+.rssec+.hgrow{border-top:0}.hgrow b{display:block;font-size:14px}.hgrow small{display:block;font-size:12px;color:var(--muted)}
+.hgrow.on{background:rgba(255,122,26,.08);border-radius:10px}.hgrow.on small{color:var(--orange2)}.hgarrow{color:var(--muted);font-weight:900;padding:0 4px}
 .rshead{display:flex;align-items:center;justify-content:space-between}.rshead h2{margin:0}
 .rsx{width:32px;height:32px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:14px;font-weight:800;display:grid;place-items:center}
 .rsinfo{margin:10px 0 4px;padding:10px 12px;border-radius:12px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.3);font-size:13px;color:#bfdbfe}
@@ -2114,7 +2118,7 @@ function awardsView(){
   ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
-    <div>${gh('head','Player heads','Give unlocked heads to players in the Squad tab.')}
+    <div>${gh('head','Player heads','Tap an unlocked head to give it to a player.')}
       <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
         return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':EV_ONLY['head:'+h.id]?'🎃':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
   </div>
@@ -2606,7 +2610,14 @@ const A={
   claim(d){if(!S.premium)return toast('⭐ Turn on the Premium preview to claim drops');if(!inDrop(d.k,d.v))return;S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();render();toast(`⭐ ${cosName(d.k,d.v)} ${COS_NAMES[d.k]} claimed`)},
   allAch(){sheet(`<h2>Achievements</h2><p class="small muted" style="margin:4px 0 0">${ACH.filter(a=>S.ach&&S.ach[a.id]).length} of ${ACH.length} unlocked. Rewards show in the Locker.</p>${achList()}`)},
   sinfo(d){squadInfo(d.v)},
-  headInfo(d){toast(cosUnlocked('head',d.v)?'Unlocked: tap a player in Squad to give them this head':lockMsg('head',d.v))},
+  headInfo(d){if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));const H=HEADS.find(h=>h.id===d.v);
+    const row=p=>`<button class="hgrow ${p.head===d.v?'on':''}" data-a="giveHead" data-id="${p.id}" data-v="${d.v}">${avatar(p)}<span class="sp" style="min-width:0"><b>${esc(p.name)}</b><small>${p.head===d.v?'Wearing it · tap to take it off':esc(ident(p).name)}</small></span><span class="hgarrow">${p.head===d.v?'✕':'→'}</span></button>`;
+    const st=S.squad.filter(p=>p.slot==='court'),bn=S.squad.filter(p=>p.slot!=='court');
+    sheet(`<div class="rshead"><div class="row" style="gap:10px"><span class="hgface">${faceSvg({id:'x',head:d.v})}</span><div><h2 style="margin:0">${esc(H.n)}</h2><div class="small muted">Choose a player to wear it</div></div></div><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>
+      <div class="rssec">Starting five</div>${st.map(row).join('')}${bn.length?`<div class="rssec">Bench</div>${bn.map(row).join('')}`:''}`)},
+  giveHead(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;const H=HEADS.find(h=>h.id===d.v);
+    if(p.head===d.v){delete p.head;save();render();closeSheet();return toast(`${p.name} is back to their own look`)}
+    p.head=d.v;save();render();closeSheet();toast(`${p.name} now wears ${H.n}`)},
   unlockAll(){S.unlockAll=!S.unlockAll;save();render();toast(S.unlockAll?'All cosmetics unlocked for testing':'Cosmetics re-locked')},
   retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;if((S.retired||[]).some(r=>r.id===p.id)||playerBest(p)<100)return;const id=ident(p),best=playerBest(p);
     if(!confirm(`Retire #${id.num} ${id.name}? Their jersey goes up in the Club rafters for good. They keep playing, and #${id.num} can't be used by anyone else.`))return;
