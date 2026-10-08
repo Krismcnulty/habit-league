@@ -1674,6 +1674,7 @@ const HEADS=[
  {id:'leprechaun',n:'Leprechaun',sk:0,hair:'#c2410c',style:'short',band:'none',fx:['beard','lephat'],mouth:'grin'},
  {id:'blacktop',n:'Blacktop',sk:4,hair:'#1b120c',style:'buzz',band:'none',fx:['cap'],mouth:'smile'},
  {id:'enforcer',n:'Stilt',sk:3,hair:'#1b120c',style:'coils',band:'#facc15',fx:['scowl','stache','vandyke'],mouth:'flat'},
+ {id:'dream',n:'Dream',sk:4,hair:'#1b120c',style:'coils',band:'none',fx:['sportspecs','thinstache'],mouth:'open'},
  {id:'bigbeard',n:'Big Beard',sk:2,hair:'#2a1a12',style:'long',band:'#fbbf24',fx:['beard'],mouth:'flat'},
  {id:'oldtimer',n:'Old Timer',sk:0,hair:'#e5e7eb',style:'horseshoe',band:'none',fx:['glasses','stache','goatee'],mouth:'grin'},
  {id:'zombie',n:'Zombie',skin:['#8fbf6a','#6a9a4e'],hair:'#2b2f22',style:'spiky',band:'none',fx:['zombie'],mouth:'zgrin'},
@@ -1754,17 +1755,23 @@ function faceSvgHD(p){
     rect(11,21,20,21,hair);set(10,22,hair);set(21,22,hair)}
   if(fx.scowl){rect(8,12,12,13,hd);rect(19,12,23,13,hd);rect(11,14,13,14,hd);rect(18,14,20,14,hd);set(8,12,null);set(23,12,null);set(8,12,hdIn(8,12)?sk:null);set(23,12,hdIn(23,12)?sh:null)}
   if(fx.vandyke){rect(11,21,12,25,hair);rect(19,21,20,25,hair);rect(12,25,19,27,hair);rect(13,28,18,29,hair);set(13,26,hl);set(17,27,hl)}
+  if(fx.thinstache){rect(12,21,19,21,hair);[[11,22],[11,23],[20,22],[20,23],[11,24],[20,24]].forEach(([x,y])=>set(x,y,hair))}
   if(fx.goatee){rect(13,25,18,27,hair);rect(14,28,17,28,hair);set(14,26,hl);set(15,27,hl)}
   if(fx.stache){rect(11,21,20,21,hair);rect(12,20,19,20,hair);set(11,22,hair);set(20,22,hair);set(13,20,hl)}
   // mouth
   if(mouth==='flat'){rect(13,23,18,23,ink)}
   if(mouth==='smile'){rect(13,23,18,23,ink);set(12,22,ink);set(19,22,ink);rect(14,24,17,24,hexMix(sk,'#b91c1c',.15))}
   if(mouth==='grin'){rect(12,22,19,22,'#3a0f0a');rect(13,22,18,23,'#f8f5ee');set(12,23,'#3a0f0a');set(19,23,'#3a0f0a');rect(13,24,18,24,'#3a0f0a')}
+  if(mouth==='open'){rect(13,22,18,23,'#3a0f0a');rect(14,22,17,22,'#f1ece2');rect(13,24,18,24,hexMix(sk,'#e11d48',.35));set(13,24,hexMix(sk,'#e11d48',.2));set(18,24,hexMix(sk,'#e11d48',.2))}
   if(mouth==='zgrin'){for(let x=12;x<=19;x++){set(x,22,x%2?'#e7e5c8':ink);set(x,23,x%2?ink:'#e7e5c8')}rect(13,24,18,24,'#7f1d1d')}
   // eyewear & extras
   if(fx.glasses){[8,18].forEach(x0=>{rect(x0,14,x0+5,14,ink);rect(x0,18,x0+5,18,ink);rect(x0,14,x0,18,ink);rect(x0+5,14,x0+5,18,ink)});rect(14,15,17,15,ink);set(6,15,ink);set(7,15,ink);set(24,15,ink);set(25,15,ink);set(9,15,'#e0f2fe')}
   if(fx.shades){rect(7,14,24,14,ink);rect(8,15,13,17,'#1f2937');rect(18,15,23,17,'#1f2937');rect(14,15,17,15,ink);set(9,15,'#9ca3af');set(10,15,'#6b7280');set(19,15,'#9ca3af');set(20,15,'#6b7280');rect(8,18,13,18,ink);rect(18,18,23,18,ink)}
   if(fx.goggles){rect(4,15,27,16,'#f97316');rect(4,17,27,17,'#c2410c');[8,18].forEach(x0=>{rect(x0,13,x0+5,13,ink);rect(x0,18,x0+5,18,ink);rect(x0,14,x0,17,ink);rect(x0+5,14,x0+5,17,ink);rect(x0+1,14,x0+4,17,'#7dd3fc');rect(x0+2,15,x0+3,16,'#0c4a6e');set(x0+1,14,'#e0f2fe')})}
+  if(fx.sportspecs){const F='#f1ead8',Fd='#c8bda3',L='rgba(255,255,255,0)';
+    [7,17].forEach(x0=>{rect(x0,13,x0+7,13,F);rect(x0,19,x0+7,19,Fd);rect(x0,14,x0,18,F);rect(x0+7,14,x0+7,18,Fd);set(x0,13,null);set(x0+7,13,null);set(x0,19,null);set(x0+7,19,null);
+      set(x0,13,hdIn(x0,13)?F:null);set(x0+1,14,'#ffffff')});
+    rect(14,15,16,15,F);rect(4,14,6,16,'#dc2626');rect(25,14,27,16,'#991b1b');set(4,14,'#f87171')}
   if(fx.warpaint){rect(8,18,12,18,'#dc2626');rect(9,19,11,19,'#dc2626');rect(19,18,23,18,'#dc2626');rect(20,19,22,19,'#dc2626')}
   if(fx.zombie){ // hand-drawn zombie: ragged hair, one droopy eye, forehead scar with stitches, rot spots, broken grin
     const D2=hexMix(sk,'#000000',.38),mould=hexMix(sk,'#ffffff',.28),bru='#5b4a6e',st='#2b1d12',scar='#b98585',eyeY='#e9e4b8',red='#ef4444',glow='#fca5a5',H=hair,Hh=hexMix(hair,'#ffffff',.18);
@@ -1955,7 +1962,7 @@ const ACH=[
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Reserved: drawn items held back for future Store collections. Hidden in the Locker until a collection uses them (or you own them).
-const RESERVED=[['head','enforcer'],['head','bigbeard'],['head','oldtimer'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
+const RESERVED=[['head','enforcer'],['head','dream'],['head','bigbeard'],['head','oldtimer'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
 const isPrem=(k,v)=>RESERVED.some(([a,b])=>a===k&&b===v);
 // Item Shop: 4 single items from the reserved pool, rotating every day. Priced by rarity; items a collection uses leave the pool.
 const SHOP_RAR={'logo:rocket':'rare','logo:anchor':'rare','ball:galaxy':'rare','pbg:starfield':'rare','head:bigfella':'epic','head:warrior':'epic','head:flash':'epic','kit:galaxy':'epic','court:beach':'epic','board:arcade':'epic','atm:gold':'leg','atm:arcade':'leg','atm:sunset':'leg'};
