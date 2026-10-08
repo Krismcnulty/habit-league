@@ -240,13 +240,13 @@ td.tpos{white-space:nowrap}
 .lp-court{position:relative;margin:0;border-width:2px;border-radius:10px}
 .lp-court svg{position:absolute;inset:0;width:100%;height:100%}
 .lp-logo{width:40px;height:40px;flex:none}.lp-logo svg{width:100%;height:100%;image-rendering:pixelated}
-.lp-ball{position:absolute;right:16%;bottom:12%;z-index:2}.lp-ball .ball{width:16px;height:16px;margin:0}
+.lp-ball{position:absolute;right:22%;bottom:26%;z-index:2}.lp-ball .ball{width:24px;height:24px;margin:0}
 .lp-board.gboard{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:auto;height:20px;font-size:11px;padding:0 6px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 .lp-side{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}.lp-row{display:flex;align-items:center;justify-content:center;gap:10px}
 .lp-jsy svg{width:46px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
 .lp-bench.gbench{width:64px}.lp-bench .pl{height:13px}
 .lp-fx{display:flex;flex-direction:column;gap:4px}.lp-fx span{font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:8px;background:#0c1226;border:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lp-fx small{color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
-.lkchips{display:flex;gap:6px;margin-top:6px}.lkchips button{flex:1;padding:5px 0;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px;font-weight:800}
+.lktabs{margin:6px 0 0}.lkhint{margin:10px 2px 8px;text-align:right}.lkchips{display:flex;gap:6px;margin-top:6px}.lkchips button{flex:1;padding:5px 0;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px;font-weight:800}
 .gh{display:flex;align-items:center;justify-content:space-between}.gcount{font-size:11.5px;font-weight:800;color:var(--muted);padding:1px 7px;border-radius:99px;background:#0c1226;border:1px solid var(--line)}.gcount.full{color:#1a1000;background:var(--gold);border-color:var(--gold)}
 #lk-team,#lk-arena,#lk-fx{scroll-margin-top:200px}
 .switch{width:50px;height:30px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);position:relative;flex:none}
@@ -2086,7 +2086,7 @@ function evCard(ev,today){
 // Locker: collection counts per category (premium items only count once you can see them).
 function gearVisible(k){const L=k==='head'?HEADS.map(h=>[h.id,h.n]):COS_LISTS[k];return L.filter(([v])=>!(isPrem(k,v)&&!cosUnlocked(k,v)&&!S.premium&&!inDrop(k,v)))}
 function gearCount(k){const L=gearVisible(k);return [L.filter(([v])=>cosUnlocked(k,v)).length,L.length]}
-let lkPremOpen=false;
+let lkPremOpen=false,lkTab='team';
 function lockerPreview(){
   const C=S.cos||{},board=C.board||'classic',court=C.court||'wood',bench=C.bench||'classic',ball=C.ball||'classic',shot=C.shot||'classic',cel=C.cel||'confetti';
   const nm=(k,v)=>((COS_LISTS[k].find(x=>x[0]===v)||[])[1])||v;
@@ -2109,8 +2109,8 @@ function awardsView(){
       <button class="btn ${own?'':'primary'}" style="padding:6px 10px;font-size:13px" data-a="claim" data-k="${k}" data-v="${v}" ${own?'disabled':''}>${own?'Owned':P?'Claim':'⭐ Premium'}</button></div>`}).join('')}</div>
     ${P?'':`<ul class="perks"><li><b>Special tournaments</b> alongside the league</li><li><b>Weekly drops</b> of kits, courts, looks and shot effects</li><li><b>Friend leagues</b>: host as many as you like</li><li><b>Deeper stats</b>: full history, heatmaps, trends</li><li><b>Cloud sync</b> and automatic backups</li></ul><div class="small muted">Never more scoring power: premium only changes looks and adds ways to play.</div>`}
   </div>`:''}
-  <div class="lkhead">${lockerPreview()}<div class="lkchips">${[['team','Team'],['arena','Arena'],['fx','Effects']].map(([k,n])=>`<button data-a="lkJump" data-v="${k}">${n}</button>`).join('')}</div></div>
-  <div class="sect" id="lk-team"><h3 class="cond">Team</h3><span class="small muted">🔒 earn in Club · ⭐ premium</span></div>
+  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team'],['arena','Arena'],['fx','Effects']].map(([k,n])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}</button>`).join('')}</div></div>
+  ${lkTab==='team'?`<div class="lkhint small muted">🔒 earn in Club · ⭐ premium</div>
   <div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
@@ -2118,18 +2118,18 @@ function awardsView(){
       <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
         return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':EV_ONLY['head:'+h.id]?'🎃':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
   </div>
-  <div class="sect" id="lk-arena"><h3 class="cond">Arena</h3></div>
+`:''}${lkTab==='arena'?`<div class="lkhint small muted">🔒 earn in Club · ⭐ premium</div>
   <div class="card stack">
     <div>${gh('board','Scoreboard')}${gearGrid('board',(C.board)||'classic')}</div>
     <div>${gh('court','Court')}${gearGrid('court',C.court||'wood')}</div>
     <div>${gh('bench','Bench','How your bench rows look on Gameday.')}${gearGrid('bench',(C.bench)||'classic')}</div>
   </div>
-  <div class="sect" id="lk-fx"><h3 class="cond">Effects</h3></div>
+`:''}${lkTab==='fx'?`<div class="lkhint small muted">🔒 earn in Club · ⭐ premium</div>
   <div class="card stack">
     <div>${gh('ball','Ball')}${gearGrid('ball',C.ball||'classic')}</div>
     <div>${gh('shot','Shot style')}${gearGrid('shot',C.shot||'classic')}</div>
     <div>${gh('cel','Win celebration','Plays when you see a win, or score a perfect game. Tap your current one to preview it.')}${gearGrid('cel',C.cel||'confetti')}</div>
-  </div>`;
+  </div>`:''}`;
 }
 function clubView(){
   const c=career();
@@ -2603,7 +2603,7 @@ const A={
     save();render();toast('Simulated seasons removed');
   },
   lkPrem(){lkPremOpen=!lkPremOpen;render()},
-  lkJump(d){const el=document.getElementById('lk-'+d.v),h=document.querySelector('.lkhead');if(!el)return;window.scrollTo({top:el.getBoundingClientRect().top+scrollY-(h?h.offsetHeight:0)-6,behavior:'smooth'})},
+  lkJump(d){lkTab=d.v;render();const h=document.querySelector('.lkhead');if(h&&h.getBoundingClientRect().top<=0)window.scrollTo({top:h.offsetTop})},
   togglePrem(){S.premium=!S.premium;save();render();toast(S.premium?'⭐ Premium preview on (no payment in the prototype)':'Premium preview off')},
   claim(d){if(!S.premium)return toast('⭐ Turn on the Premium preview to claim drops');if(!inDrop(d.k,d.v))return;S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();render();toast(`⭐ ${cosName(d.k,d.v)} ${COS_NAMES[d.k]} claimed`)},
   allAch(){sheet(`<h2>Achievements</h2><p class="small muted" style="margin:4px 0 0">${ACH.filter(a=>S.ach&&S.ach[a.id]).length} of ${ACH.length} unlocked. Rewards show in the Locker.</p>${achList()}`)},
