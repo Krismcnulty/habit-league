@@ -703,12 +703,9 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .trk-row{padding:8px 0;border-top:1px solid #1e293b}.trk-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}.trk-h b{flex:1;font-size:14px}.trk-h small{color:var(--muted);font-size:12px}.trk-h .btn{padding:4px 10px;font-size:12px;min-height:0;width:auto}
 .trk-c{display:flex;flex-wrap:wrap;gap:4px}.trk-c .prank{font-size:8.5px;padding:3px 5px;letter-spacing:.04em}.trk-c .prank{margin:0;cursor:pointer;opacity:.45;font-family:inherit}.trk-c .prank.on{opacity:1;outline:2px solid #fff;outline-offset:1px}
 .prank.big{font-size:11px;padding:3px 8px;margin-left:0;white-space:nowrap;flex:none}
-.rankbar{margin:12px auto 0;max-width:280px}
 .rb-top{display:flex;align-items:center;justify-content:center;gap:8px}.rb-top small{font-size:12px;color:var(--muted)}
 .rb-bar{height:6px;border-radius:99px;background:#0b1020;border:1px solid var(--line);overflow:hidden;margin-top:7px}
 .rb-bar i{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa)}
-.rankbar.r-pro .rb-bar i{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.rankbar.r-allstar .rb-bar i{background:linear-gradient(90deg,#f472b6,#a855f7)}
 .rkb{position:absolute;top:-6px;left:-6px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:900;line-height:1;border:2px solid var(--bg,#0b1020);z-index:2}
 .rkb.r-pro{background:#3b82f6;color:#fff}
 .rkb.r-allstar{background:linear-gradient(180deg,#fde68a,#f59e0b);color:#78350f;font-size:11px}
@@ -718,9 +715,23 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 @keyframes goatglow{50%{box-shadow:0 0 18px rgba(250,204,21,1)}}
 .prank.r-legend{color:#ecfeff;border-color:#06b6d4;background:linear-gradient(90deg,#22d3ee,#0e7490)}
 .prank.r-goat{color:#1a1000;border-color:#eab308;background:linear-gradient(90deg,#fef08a,#facc15,#fde047);box-shadow:0 0 10px rgba(250,204,21,.6)}
-.rankbar.r-vet .rb-bar i{background:linear-gradient(90deg,#22d3ee,#0891b2)}
-.rankbar.r-legend .rb-bar i{background:linear-gradient(90deg,#facc15,#fde047)}
 .prof-head{position:relative}
+.lvcard{padding:14px;margin-bottom:12px}
+.lv-top{display:flex;align-items:center;gap:8px}.lv-now,.lv-next{display:flex;align-items:center;gap:10px;flex:1;min-width:0}.lv-next{justify-content:flex-end;text-align:right;flex-direction:row-reverse}
+.lv-arrow{color:var(--muted);font-weight:900}
+.lv-k{font-size:9.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lv-n{display:block;font-size:17px;line-height:1.15;white-space:nowrap}.lv-top small{font-size:11.5px;color:var(--muted)}
+.lv-next .lv-n{color:#cbd5e1}
+.rkb.lvb{position:static;width:40px;height:40px;font-size:19px;flex:none;border-width:3px}
+.rkb.lvb.r-rookie{background:#334155;color:#94a3b8}.rkb.lvb.dim{opacity:.45;filter:grayscale(.4);animation:none;box-shadow:none}
+.lv-bar{height:8px;border-radius:99px;background:#0b1020;border:1px solid var(--line);overflow:hidden;margin:12px 0 6px}.lv-bar i{display:block;height:100%;border-radius:99px}
+.lv-need{font-size:12.5px;color:var(--muted);text-align:center}.lv-max{margin-top:10px;color:#fde047;font-weight:700}
+.lv-ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.lv-step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px}
+.lv-step .rkb.lvb{width:28px;height:28px;font-size:13px;border-width:2px}
+.lv-step span{font-size:9px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}.lv-step small{font-size:10px;color:var(--muted)}
+.lv-step.lock .rkb{opacity:.3;filter:grayscale(1);animation:none;box-shadow:none}.lv-step.lock span{color:var(--muted);opacity:.6}
+.lv-step.cur .rkb{outline:2px solid #fff;outline-offset:2px}
 .rkb.big{width:32px;height:32px;top:-10px;left:-10px;font-size:16px;border-width:3px}
 .rkb.big.r-allstar{font-size:18px}
 .rk-sym{font-style:normal;margin-right:4px}
@@ -2092,6 +2103,15 @@ function pCareer(p){
   const bk=Object.keys(bym).sort((a,b)=>bym[b]-bym[a])[0];
   return{seasons:(p.seasons||0)+1,att,made,pct:att?Math.round(made/att*100):null,best:playerBest(p),pts:made*pv(p),bestMonth:bk?monthName(bk):null,bestMade:bk?bym[bk]:0};
 }
+function levelBlock(p){
+  const r=pRank(p),m=careerMakes(p),R=PRANKS[r],nx=PRANKS[r+1];
+  const sym=i=>i?RSYM[i]:'•',badge=(i,c='')=>`<i class="rkb lvb r-${PRANKS[i].id}${c}">${sym(i)}</i>`;
+  const head=`<div class="lv-top"><div class="lv-now">${badge(r)}<div><div class="lv-k">Current level</div><b class="lv-n" style="color:${R.c}">${R.n}</b><small>${m} career make${m===1?'':'s'}</small></div></div>${nx?`<div class="lv-arrow">→</div><div class="lv-next">${badge(r+1,' dim')}<div><div class="lv-k">Next</div><b class="lv-n">${nx.n}</b><small>at ${nx.at} makes</small></div></div>`:''}</div>`;
+  const bar=nx?(()=>{const pct=Math.min(100,(m-R.at)/(nx.at-R.at)*100);return `<div class="lv-bar"><i style="width:${pct}%;background:${nx.c}"></i></div><div class="lv-need">${nx.at-m} more make${nx.at-m===1?'':'s'} to ${sym(r+1)} ${nx.n}</div>`})()
+    :`<div class="lv-need lv-max">🐐 Top level reached. The greatest of all time.</div>`;
+  const ladder=`<div class="lv-ladder">${PRANKS.map((X,i)=>`<div class="lv-step${i<r?' got':i===r?' cur':' lock'}">${badge(i)}<span>${X.n}</span><small>${X.at}</small></div>`).join('')}</div>`;
+  return `<div class="card lvcard r-${R.id}">${head}${bar}${ladder}</div>`;
+}
 // Banner tier = the player's rank; it keeps upgrading while a retired player keeps playing.
 function bannerRank(r){const p=S.squad.find(x=>x.id===r.id);return Math.max(r.rk||0,p?pRank(p):0)}
 function rankChip(r){return `<span class="prank big r-${PRANKS[r].id}">${r?`<i class="rk-sym">${RSYM[r]}</i>`:''}${PRANKS[r].n}</span>`}
@@ -2124,12 +2144,13 @@ function profileView(){
     <div class="prof-name cond">${esc(id.name)}</div>
     <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
     <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
-    ${(()=>{const r=pRank(p),m=careerMakes(p),nx=PRANKS[r+1];return `<div class="rankbar r-${PRANKS[r].id}"><div class="rb-top"><span class="prank big r-${PRANKS[r].id}">${r?`<i class="rk-sym">${RSYM[r]}</i>`:''}${PRANKS[r].n}</span><small>${!nx?`${m} career makes · top rank`:`${m} / ${nx.at} makes to ${nx.n}`}</small></div>${nx?`<div class="rb-bar"><i style="width:${Math.min(100,m/nx.at*100)}%"></i></div>`:''}</div>`})()}
   </div>
   <div class="sect"><h3 class="cond">Stats</h3></div>
   <div class="card statcard"><div class="tabs ptabs">${[['season','This season'],['career','Career']].map(([k,n])=>`<button class="${profTab===k?'on':''}" data-a="profTab" data-v="${k}">${n}</button>`).join('')}</div>
   ${profTab==='career'?(()=>{const c=pCareer(p);return `<div class="stgrid" style="margin-top:8px"><div><b>${c.seasons}</b><span>Season${c.seasons===1?'':'s'}</span></div><div><b>${c.made}</b><span>Makes</span></div><div><b>${c.pct===null?'–':c.pct+'%'}</b><span>All-time</span></div><div><b>${c.best}</b><span>Best streak</span></div></div>`})()
    :st?`<div class="stgrid" style="margin-top:8px"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Completion</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>`:'<p class="muted small">Season stats start at tip-off.</p>'}</div>
+  <div class="sect"><h3 class="cond">Player level</h3><span class="small muted">Earned with career makes</span></div>
+  ${levelBlock(p)}
   ${retireBlock(p)}
   <div class="sect"><h3 class="cond">Trophy case</h3></div>
   <div class="card tshelf-card">${mine.length?`<div class="tshelf">${mine.join('')}</div>`:'<p class="muted small" style="margin:0">No awards yet. Lead a race at month end to win one.</p>'}</div>
