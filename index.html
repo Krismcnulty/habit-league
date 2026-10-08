@@ -1305,6 +1305,25 @@ function streak(p){
 }
 function career(){let i=0;while(i+1<CAREER.length&&S.xp>=CAREER[i+1][0])i++;const[lo,name]=CAREER[i];const hi=CAREER[i+1]?CAREER[i+1][0]:null;return{name,lo,hi,pct:hi?(S.xp-lo)/(hi-lo):1}}
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ===================== pixel art → SVG (16×16, or smoothed and shaded 32×32 in HD) ===================== */
+function gridSvg(G){
+  const ink='#140b06',hd=!(typeof S!=='undefined'&&S&&S.oldHeads);let n=16;
+  if(hd){
+    // Scale2x: doubles the grid and rounds off diagonal steps, then a 1px bevel (light top-left, dark bottom-right)
+    const g=(x,y)=>x>=0&&x<16&&y>=0&&y<16?G[y][x]:null,H=Array.from({length:32},()=>Array(32).fill(null));
+    for(let y=0;y<16;y++)for(let x=0;x<16;x++){const P=G[y][x],A=g(x,y-1),B=g(x+1,y),C=g(x-1,y),D=g(x,y+1);
+      H[2*y][2*x]=C===A&&C!==D&&A!==B?A:P;H[2*y][2*x+1]=A===B&&A!==C&&B!==D?B:P;H[2*y+1][2*x]=D===C&&D!==B&&C!==A?C:P;H[2*y+1][2*x+1]=B===D&&B!==A&&D!==C?D:P}
+    const lum=c=>{const v=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return(.3*v[0]+.59*v[1]+.11*v[2])/255};
+    const h=(x,y)=>x>=0&&x<32&&y>=0&&y<32?H[y][x]:null,B2=H.map(r=>r.slice());
+    for(let y=0;y<32;y++)for(let x=0;x<32;x++){const c=H[y][x];if(!c||lum(c)<.18)continue;
+      if(!h(x,y-1)||!h(x-1,y))B2[y][x]=hexMix(c,'#ffffff',.3);
+      else if(!h(x,y+1)||!h(x+1,y))B2[y][x]=hexMix(c,'#000000',.28)}
+    G=B2;n=32}
+  const out=G.map(r=>r.slice());
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
+  let r='';for(let y=0;y<n;y++){let x=0;while(x<n){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<n&&out[y][x+w]===c)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
+  return `<svg viewBox="${hd?'-1 -1 34 34':'-1 -1 18 18'}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
 /* ===================== team logos (original pixel art) ===================== */
 const LOGOS=[['ball','Basketball'],['shield','Shield'],['flame','Flame'],['bolt','Bolt'],['mountain','Summit'],['swords','Crossed swords'],['crown','Crown'],['owl','Night owl'],['rocket','Rocket'],['star','Superstar'],['anchor','Anchor']];
 function logoSvg(id){
@@ -1327,10 +1346,7 @@ function logoSvg(id){
     case 'star':{disc(7.5,7.5,7.4,'#4c1d95');star(7,8,'#fde047');[[2,3],[13,2],[12,12],[3,12]].forEach(([x,y])=>set(x,y,'#e9d5ff'));break}
     case 'anchor':{disc(7.5,7.5,7.4,'#e0f2fe');const c='#1e3a8a';disc(7.5,3,1.6,c);set(7,3,'#e0f2fe');set(8,3,'#e0f2fe');for(let y=4;y<=12;y++)row(y,7,8,c);row(6,4,11,c);rows({10:[2,3],11:[2,4],12:[3,6],13:[5,10]},c);rows({10:[12,13],11:[11,13],12:[9,12]},c);break}
   }
-  const out=G.map(r=>r.slice());
-  for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
-  let r='';for(let y=0;y<16;y++){let x=0;while(x<16){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<16&&out[y][x+w]===c)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
-  return `<svg viewBox="-1 -1 18 18" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+  return gridSvg(G);
 }
 const myLogo=()=>(S.cos&&S.cos.logo)||'ball';
 const badge=(id,sz=46)=>{if(id==='me')return `<div class="badge logo" style="width:${sz}px;height:${sz}px">${logoSvg(myLogo())}</div>`;const t=team(id);return `<div class="badge" style="background:${t.c};width:${sz}px;height:${sz}px">${esc(t.ab)}</div>`};
@@ -1851,10 +1867,8 @@ const TIER_PAL={rookie:{g:'#cd7f32',h:'#f6d1a8',d:'#7a4a1f',y:'#cd7f32',n:'#4a2c
 const TIER_METAL={rookie:'Bronze',pro:'Silver',allstar:'Gold',hof:'Diamond'};
 function pixArt(rows,tier,pal){
   const P={...TPAL,...(TIER_PAL[tier]||{}),...(pal||{})};
-  const ink='#140b06',G=rows.map(r=>[...r].map(c=>c==='.'?null:P[c]));const out=G.map(r=>r.slice());
-  for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
-  let r='';for(let y=0;y<16;y++){let x=0;while(x<16){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<16&&out[y][x+w]===c)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
-  return `<svg viewBox="-1 -1 18 18" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+  const G=rows.map(r=>[...r].map(c=>c==='.'?null:P[c]));
+  return gridSvg(G);
 }
 const TROPHIES={'League Champions':{art:CUP,how:'Win the Finals'},'Regular Season Winners':{art:BANNER,how:'Finish 1st before the playoffs'}};
 const trophyImg=(t,sz,tier)=>`<span class="tro" style="width:${sz}px;height:${sz}px">${pixArt(TROPHIES[t].art,tier||'allstar')}</span>`;
