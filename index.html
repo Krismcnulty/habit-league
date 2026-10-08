@@ -119,6 +119,7 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .court svg.lines{position:absolute;inset:0;width:100%;height:100%}
 .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:120px}
 .tok{position:relative;width:54px;height:54px;border-radius:16px;background:linear-gradient(180deg,#1f2a4a,#121a33);border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
+.tok .rkb{top:-8px;left:-8px;width:21px;height:21px;font-size:11px}
 .tok svg{width:40px;height:40px;image-rendering:pixelated}
 .tok.done{background:linear-gradient(180deg,#14532d,#0f3d22);border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.35),0 4px 10px rgba(0,0,0,.35)}
 .tok.inj{filter:grayscale(1);opacity:.6}
@@ -1402,6 +1403,8 @@ const SURNAMES=['Mercer','Okafor','Reyes','Dlamini','Kowalski','Brennan','Achebe
 function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.floor(r()*19)];const gen=`${ini}. ${SURNAMES[Math.floor(r()*SURNAMES.length)]}`;const n0=Math.floor(r()*100);return{name:p.pname||gen,num:p.num!=null?p.num:n0}}
 // Shimmer over the head for Veteran, Legend and G.O.A.T. players (staggered so they don't sweep in sync).
 const shine=p=>{const r=pRank(p);if(r<3)return '';const d=([...String(p.id)].reduce((a,c)=>a+c.charCodeAt(0),0)%40)/10;return `<span class="shn r-${PRANKS[r].id}" style="--sd:${d}s"></span>`};
+const rkBadge=p=>{const rk=pRank(p);return rk?`<i class="rkb r-${PRANKS[rk].id}" title="${PRANKS[rk].n}">${RSYM[rk]}</i>`:''};
+const avAndRank=p=>{const av=avatar(p),rb=rkBadge(p);return rb?av.slice(0,av.lastIndexOf('</span>'))+rb+'</span>':av};
 const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p)}${shine(p)}</span>`};
 const pts=p=>`<span class="ptsb shot-${p.shot}">${pv(p)}<small> pts</small></span>`;
 const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
@@ -1575,7 +1578,7 @@ function courtView(D,cs){
     const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length:0;
     return `<div class="spot ${cs&&cs.rem.has(p.id)?'need':''}" style="left:${x}%;top:${y}%">
-      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}${shine(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
+      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}${shine(p)}${rkBadge(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
       <div class="tag">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
   return `<div class="court court-${arenaTheme()||(S.cos&&S.cos.court)||'wood'} ${cs?'clutch':''}">${lines}${cs?'<div class="spotdim"></div>':''}${spots}</div>`;
@@ -1617,7 +1620,7 @@ function playerSection(title,slot,D,cs){
     const steps='';
     const act=inj?'':`data-a="${p.steps&&p.steps.length?'steps':'tick'}" data-id="${p.id}"`;
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''} ${cs&&cs.rem.has(p.id)?'need':''}" ${act} style="cursor:pointer">
-      ${avatar(p)}
+      ${avAndRank(p)}
       <span class="mjs" title="${esc(ident(p).name)}">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
       <div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}</div>
       <div class="meta">${esc(p.lvl)}${inj?' · 🩹 resting':''}</div></div>
