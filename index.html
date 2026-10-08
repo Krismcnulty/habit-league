@@ -476,6 +476,20 @@ td.tpos{white-space:nowrap}
 .sb-tomb .clock b,.sb-tomb .status b{color:#111418}
 .sb-tomb.gboard{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14' preserveAspectRatio='none'%3E%3Cpath d='M0 14 L0 9 L2 4 L4 9 L6 2 L8 9 L11 5 L13 10 L15 3 L17 9 L20 6 L22 10 L24 1 L26 9 L29 5 L31 10 L33 3 L35 9 L37 4 L40 8 L40 14Z' fill='%234d7c0f'/%3E%3C/svg%3E") repeat-x 0 100%/26px 6px,radial-gradient(circle at 30% 30%,rgba(0,0,0,.22) 0 1px,transparent 1.6px) 0 0/7px 8px,radial-gradient(60% 50% at 0% 100%,rgba(101,163,13,.6),transparent 70%),linear-gradient(180deg,#959ca7,#5b6370 55%,#3f4550)!important;border:2px solid #23272e!important;border-bottom-width:3px!important;border-radius:50% 50% 5px 5px/14px 14px 5px 5px!important;padding-top:3px!important;font-family:Creepster,cursive;font-weight:400;letter-spacing:.03em;color:#d9f99d;text-shadow:0 1px 0 #1f2937,0 0 6px rgba(163,230,53,.7)}
 .sb-tomb.gboard i{color:#1f2937;opacity:.8;text-shadow:none}
+/* sound packs */
+.gsnd{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--well);border:1px solid var(--line);position:relative;overflow:hidden}
+.gsnd svg{width:28px;height:28px}
+.gsnd.s-arena:after{display:none}
+.gsnd:after{content:"";position:absolute;right:2px;top:2px;width:4px;height:7px;border:2px solid rgba(255,255,255,.55);border-left:0;border-radius:0 9px 9px 0}
+.gsnd.s-arena{background:radial-gradient(120% 140% at 50% -20%,#2a1a0e,#141b2e 60%)}
+.gsnd.s-street{background:repeating-linear-gradient(45deg,#3f3f46 0 4px,#36363c 4px 8px)}
+.gsnd.s-arcade{background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),#000;border-color:#39ff14}
+.gsnd.s-organ{background:radial-gradient(#5b1a1a,#2a0b0b)}
+.gsnd.s-haunted{background:radial-gradient(120% 120% at 50% 0%,#3b0764,#0b0414 72%);border-color:#a3e635}
+.gtile.locked .gsnd{opacity:.4;filter:grayscale(.6)}
+.rwp .gsnd{width:36px;height:36px}.rwp .gsnd svg{width:24px;height:24px}
+.ls-pic .gsnd{width:70px;height:70px;border-radius:16px}.ls-pic .gsnd svg{width:50px;height:50px}.ls-pic .gsnd:after{right:6px;top:8px;width:8px;height:14px}
+.evt .gsnd{width:44px;height:44px}
 /* ---- win celebrations ---- */
 .gcel{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:24px;background:var(--well);border:1px solid var(--line)}
 .gcel.c-stamp{font-weight:900;font-size:22px;color:#fff;background:#dc2626;border-radius:50%;border:3px solid #fff;font-family:system-ui}
@@ -1396,6 +1410,10 @@ const IPAL={y:'#fbbf24',Y:'#d97706',l:'#fde68a',o:'#f97316',O:'#c2410c',r:'#ef44
  b:'#3b82f6',B:'#1e3a8a',c:'#7dd3fc',C:'#0ea5e9',v:'#a855f7',V:'#6b21a8',w:'#ffffff',s:'#cbd5e1',S:'#64748b',d:'#334155',n:'#111827',
  t:'#a16207',T:'#6b4226',f:'#f2c79b',F:'#c68642',i:'#f9a8d4',I:'#ec4899',e:'#e5e7eb',k:'#2a1c12',u:'#8b5cf6',a:'#facc15'};
 const PIXI={
+bell:["................",".......dd.......","......dssd......",".....dsssSd.....","....dsssSSSd....","....dsssSSSd....","....dsssSSSd....","...dssssSSSSd...","...dssssSSSSd...","..dsssssSSSSSd..",".dssssssSSSSSSd.",".dddddddddddddd.","......dSSd......",".......dd.......","................","................"],
+joystick:["................","......rrrr......",".....rprrrr.....",".....rprrrR.....",".....rrrrrR.....","......RRRR......",".......dd.......",".......dd.......",".......dd.......","..nnnnnnnnnnnn..",".nSSSSSSSSSSSSn.",".nSyySSSSSSbbSn.",".nSyYSSSSSSbBSn.",".nSSSSSSSSSSSSn.","..nnnnnnnnnnnn..","................"],
+sneaker:["................","................","................","....nnnn........","...nwwwwn.......","...nwrrwwn......","...nwwrrwwn.....","..nwwwwrrwwnn...","..nwsswwwrrwwnn.",".nwwwwwwwwwwwwwn",".nrrrrrrrrrrrrrn",".nwwwwwwwwwwwwwn",".nSSSSSSSSSSSSSn","..nnnnnnnnnnnnn.","................","................"],
+keys:["................","................","..TTTTTTTTTTTT..",".TttttttttttttT.",".TTTTTTTTTTTTTT.",".TwnnwnnwwnnwnT.",".TwnnwnnwwnnwnT.",".TwnnwnnwwnnwnT.",".TwnnwnnwwnnwnT.",".TwswwswwswwswT.",".TwswwswwswwswT.",".TwswwswwswwswT.",".TSSSSSSSSSSSST.",".TTTTTTTTTTTTTT.","..T..........T..","................"],
 star:["................",".......yy.......","......yyyy......","......ylyy......",".....yllyyy.....",".yyyyyllyyyyyyy.","..yyyllyyyyyyY..","...yyyyyyyyyY...","....yyyyyyyY....","....yyyyyyyY....","...yyyyYYyyyY...","...yyyY..YyyY...","..yyyY....YyyY..","..yyY......YyY..","..yY........YY..","................"],
 pumpkin:["................",".......GG.......","........G.......","...oooOooOooo...","..ooooOooOoooo..",".oonnoOooOonnoo.",".onnnoOooOonnno.",".ooooOOnnOOoooo.",".ooooOooooOoooo.",".onnnnnnnnnnnno.",".oonnonnnnonnoo.","..oooonooonooo..","...oooooooooo...","....OOOOOOOO....","................","................"],
 lock:["................","......ssss......",".....sS..Ss.....",".....s....s.....",".....s....s.....","...yyyyyyyyyy...","...ylllyyyyyY...","...ylyyttyyyY...","...yyyyttyyyY...","...yyyyytyyyY...","...yyyyytyyyY...","...yyyyyyyyyY...","...YYYYYYYYYY...","................","................","................"],
@@ -1692,6 +1710,8 @@ const SHOTFX=[['classic','Classic'],['fire','Fireball'],['rainbow','Rainbow swis
 const BOARDS=[['classic','Classic'],['led','Retro LED'],['chalk','Chalkboard'],['broadcast','Broadcast'],['gold','Gold Edition'],['neon','Neon'],['arcade','Arcade'],['tomb','Tombstone']];
 const CELS=[['confetti','Confetti'],['buzzer','Buzzer beater'],['stamp','W Stamp'],['fireworks','Fireworks'],['crowd','Crowd roar'],['goldrain','Gold rain'],['lasers','Laser show'],['boo','Boo!']];
 const CEL_ICON={boo:'👻',confetti:'🎊',buzzer:'🚨',stamp:'W',fireworks:'🎆',crowd:'🙌',goldrain:'🪙',lasers:'✨'};
+const SOUNDS=[['arena','Arena'],['street','Street Court'],['arcade','Retro Arcade'],['organ','Ballpark Organ'],['haunted','Haunted']];
+const SND_ICON={arena:'speaker',street:'sneaker',arcade:'joystick',organ:'keys',haunted:'bell'};
 const BALLS=[['classic','Classic'],['street','Street'],['aba','ABA'],['gold','Gold'],['glow','Glow'],['pumpkin','Pumpkin'],['galaxy','Galaxy'],['candy','Candy corn']];
 // Kits: a player's jersey (shown on player cards and retired jerseys, never on the court).
 const KITDEF={home:{n:'Home',b:'#ff7a1a',t:'#ffffff',num:'#ffffff',pat:'plain'},away:{n:'Away',b:'#f1f5f9',t:'#ff7a1a',num:'#ff7a1a',pat:'plain'},
@@ -1733,18 +1753,18 @@ const PBGS=[['classic','Classic'],['midnight','Midnight'],['slate','Slate'],['su
 const RANK_BG={velvet:3,crystal:4,trophy:5};
 // Atmosphere: the whole app's theme, collected like any other gear (Blackout always free).
 const ATMS=[['navy','Navy'],['blackout','Blackout'],['steel','Steel'],['hardwood','Hardwood'],['forest','Forest'],['crimson','Crimson'],['royale','Royale'],['neon','Neon Night'],['gold','Gold Edition'],['arcade','Arcade'],['sunset','Sunset Strip'],['dynasty','Dynasty'],['pumpkin','Pumpkin Patch']];
-const COS_LISTS={atm:ATMS,pbg:PBGS,head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
-const COS_NAMES={atm:'atmosphere',pbg:'player background',head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style'};
+const COS_LISTS={atm:ATMS,pbg:PBGS,head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS,snd:SOUNDS};
+const COS_NAMES={atm:'atmosphere',pbg:'player background',head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style',snd:'sound pack'};
 const ACH=[
  {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame'],['cel','stamp'],['atm','hardwood']]},
  {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand'],['ball','street'],['atm','forest']]},
- {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro'],['ball','aba'],['pbg','hardwood']]},
+ {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro'],['ball','aba'],['pbg','hardwood'],['snd','street']]},
  {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold'],['kit','retro'],['pbg','ice']]},
  {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk'],['atm','crimson']]},
- {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led'],['bench','courtside'],['pbg','net']]},
+ {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led'],['bench','courtside'],['pbg','net'],['snd','arcade']]},
  {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain'],['kit','pinstripe'],['atm','royale']]},
  {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords'],['cel','fireworks'],['bench','locker']]},
- {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast'],['pbg','spotlight']]},
+ {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast'],['pbg','spotlight'],['snd','organ']]},
  {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown'],['bench','vip']]},
  {id:'onfire',i:'☄️',n:'On Fire',d:'Reach a 30-day streak on any player',goal:30,v:s=>s.bestStreak,rw:[['head','professor'],['cel','crowd'],['pbg','flames']]},
  {id:'allstar',i:'💪',n:'Powerhouse',d:'Reach the Powerhouse club level',goal:9000,v:()=>S.xp,rw:[['court','street'],['board','gold']]},
@@ -1757,7 +1777,7 @@ const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
 const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy'],['kit','neon'],['kit','sunset'],['kit','galaxy'],['bench','neon'],['bench','velvet'],['pbg','starfield'],['pbg','holo'],['atm','neon'],['atm','gold'],['atm','arcade'],['atm','sunset']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
-const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
+const owned=(k,v)=>!!(S.owned&&(S.owned[k+':'+v]||(k==='snd'&&v==='haunted'&&S.owned['cel:boo']&&S.owned['ball:candy'])));
 const DROP_EPOCH='2026-01-05';
 function weekIdx(){return Math.floor(diffDays(DROP_EPOCH,gameDate())/7)}
 function weeklyDrop(){const w=weekIdx();return[0,1,2].map(i=>PREM_POOL[(w*3+i)%PREM_POOL.length])}
@@ -1771,7 +1791,7 @@ const ATM_TOP=()=>CAREER[CAREER.length-1];
 const PACKS=[
  {id:'hw-arena',n:'Haunted Arena',d:'A fog-covered court, a tombstone scoreboard, coffin benches and the Pumpkin Patch atmosphere.',price:1.99,items:[['court','haunted'],['board','tomb'],['bench','coffin'],['atm','pumpkin']]},
  {id:'hw-squad',n:'Spooky Squad',d:"A Ghost head, the Witch's Brew kit, a jack-o'-lantern logo and a haunted mist behind every player.",price:1.99,items:[['head','ghost'],['kit','witch'],['logo','jacko'],['pbg','mist']]},
- {id:'hw-fx',n:'Fright Night FX',d:'A candy corn ball, a bat-swarm shot trail and a Boo! win celebration.',price:1.99,items:[['ball','candy'],['shot','bats'],['cel','boo']]}];
+ {id:'hw-fx',n:'Fright Night FX',d:'A candy corn ball, a bat-swarm shot trail, a Boo! win celebration and the Haunted sound pack.',price:1.99,items:[['ball','candy'],['shot','bats'],['cel','boo'],['snd','haunted']]}];
 const PACK_BUNDLE={id:'hw-all',n:'Halloween Collection',price:3.99};
 const packOf=(k,v)=>PACKS.find(p=>p.items.some(([a,b])=>a===k&&b===v));
 const packOwned=p=>p.items.every(([k,v])=>owned(k,v));
@@ -1800,7 +1820,7 @@ function lockSheet(k,v){
     const o=a.rw.filter(([rk,rv])=>!(rk===k&&rv===v));if(o.length)more=`<div class="rssec">Also unlocks</div><div class="ls-more">${o.map(([rk,rv])=>`<div>${rewardPic(rk,rv)}<small>${cosName(rk,rv)}</small></div>`).join('')}</div>`}
   sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>
     <div class="ls-top"><div class="ls-pic rr-${r}">${itemPreview(k,v)}</div><span class="rar rr-${r}">${RAR_N[r]}</span><h2>${esc(nm)}</h2><div class="small muted">${COS_NAMES[k]} · 🔒 locked</div></div>
-    <div class="ls-how">${how}</div>${prog}${btn}${more}`);
+    <div class="ls-how">${how}</div>${k==='snd'?`<button class="btn block" style="margin-top:10px" data-a="sndDemo" data-v="${v}">🔊 Hear it</button>`:''}${prog}${btn}${more}`);
 }
 function lockMsg(k,v){if(packOf(k,v))return `🛍️ Part of the ${packOf(k,v).n} pack in the Store`;if(k==='atm'&&v==='dynasty')return `🏛️ Reach the ${ATM_TOP()[1]} club level to unlock`;if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `🎃 Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
@@ -2281,6 +2301,7 @@ function itemPreview(k,v){
   if(k==='cel')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`}</span>`;
   if(k==='board')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`}</span>`;
   if(k==='court')return `<span class="dprev court-${v}" style="background-size:auto"></span>`;
+  if(k==='snd')return `<span class="dprev" style="display:grid;place-items:center;border:0">${`<span class="gsnd s-${v}">${pixIcon(SND_ICON[v])}</span>`}</span>`;
   if(k==='shot')return `<span class="dprev" style="display:grid;place-items:center;font-size:26px;background:var(--well)">${{lightning:'⚡',confetti:'🎉'}[v]||'🏀'}</span>`;
   return `<span class="dprev" style="background:var(--pbg);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
@@ -2295,6 +2316,7 @@ function rewardPic(k,v){
   if(k==="head")return `<span class="rwp">${faceSvg({id:"x",head:v})}</span>`;
   if(k==='logo')return `<span class="rwp">${logoSvg(v)}</span>`;
   if(k==='court')return `<span class="rwp"><span class="court court-${v} gcourt" style="width:40px;border-width:1.5px;border-radius:5px">${COURT_MINI}</span></span>`;
+  if(k==='snd')return `<span class="rwp" style="background:none">${`<span class="gsnd s-${v}">${pixIcon(SND_ICON[v])}</span>`}</span>`;
   return `<span class="rwp gshot ${v}">${ballSvg()}</span>`;
 }
 function achList(only){const st=stats();
@@ -2323,7 +2345,7 @@ function headGrid(p){
 function gearGrid(k,cur){
   const fz=ARENA.includes(k)&&arenaLocked(),th=arenaTheme();
   return `${fz?`<span class="frozen-note">🔒 Locked until the new season${th?` · ${th==='spooky'?'Halloween':'Playoff'} theme is on`:''}</span>`:''}<div class="ggrid${fz?' frozen':''}">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
-    const pic=k==='atm'?atmSwatch(v):k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='atm'?atmSwatch(v):k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='snd'?`<span class="gsnd s-${v}">${pixIcon(SND_ICON[v])}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile rr-${rarity(k,v)} ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':packOf(k,v)?'🛍️':EV_ONLY[k+':'+v]?EV_ICON[EV_ONLY[k+':'+v]]:'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}${isNew(k,v)?'<i class="gnew">NEW</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 const fit16=a=>a.map(r=>(r+'................').slice(0,16));
@@ -2468,16 +2490,16 @@ function lockerPreview(){
   const nm=(k,v)=>((COS_LISTS[k].find(x=>x[0]===v)||[])[1])||v;
   return `<div class="lkprev"><div class="lp-court court court-${court}">${COURT_MINI}<span class="lp-ball">${ballSvg(ball)}</span><span class="gboard sb-${board} lp-board"><b>88</b><i>–</i><b>72</b></span></div>
     <div class="lp-side"><div class="lp-row"><span class="lp-logo">${logoSvg(myLogo())}</span><span class="lp-head">${faceSvg(S.squad[0]||{id:'pbgdemo'})}</span><span class="lp-jsy">${jerseySvg(myKit(),'Player',23)}</span><span class="gbench bench-${bench} lp-bench"><span class="pl"></span><span class="pl"></span></span></div>
-    <div class="lp-fx"><span><small>Shot</small>${esc(nm('shot',shot))}</span><span><small>Win</small>${esc(nm('cel',cel))}</span></div></div></div>`;
+    <div class="lp-fx"><span><small>Shot</small>${esc(nm('shot',shot))}</span><span><small>Win</small>${esc(nm('cel',cel))}</span><span><small>Sound</small>${esc(nm('snd',C.snd||'arena'))}</span></div></div></div>`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
   const drop=weeklyDrop(),days=diffDays(gameDate(),nextDrop());
   lkShown=allGear().filter(([k,v])=>isNew(k,v)).map(([k,v])=>k+':'+v);
-  const KS=['atm','logo','kit','pbg','head','board','court','bench','ball','shot','cel'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
+  const KS=['atm','logo','kit','pbg','head','board','court','bench','ball','shot','cel','snd'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
   const gh=(k,t,d)=>{const [h,n]=gearCount(k);return `<div class="gh"><b>${t}</b><span class="gcount ${h===n?'full':''}">${h}/${n}</span></div>${d?`<div class="small muted">${d}</div>`:''}`};
   return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">${have} / ${all} collected</span></div>
-  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['atm','board','court','bench']],['fx','Effects',['ball','shot','cel']],['store','🛍️ Store',[]]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
+  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['atm','board','court','bench']],['fx','Effects',['ball','shot','cel','snd']],['store','🛍️ Store',[]]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
   ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
@@ -2496,6 +2518,7 @@ function awardsView(){
     <div>${gh('ball','Ball')}${gearGrid('ball',C.ball||'classic')}</div>
     <div>${gh('shot','Shot style')}${gearGrid('shot',C.shot||'classic')}</div>
     <div>${gh('cel','Win celebration','Plays when you see a win, or score a perfect game. Tap your current one to preview it.')}${gearGrid('cel',C.cel||'confetti')}</div>
+    <div>${gh('snd','Sound pack','The swish, whistle and crowd you hear on Gameday. Tap one to hear it.')}${gearGrid('snd',C.snd||'arena')}</div>
   </div>`:''}${lkTab==='store'?storeView():''}`;
 }
 function storeView(){
@@ -2820,8 +2843,48 @@ function tone(c,type,f0,f1,t0,dur,vol,dest){const o=c.createOscillator(),g=c.cre
   g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.02);g.gain.setValueAtTime(vol,t0+dur*.7);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g).connect(dest);o.start(t0);o.stop(t0+dur+.05)}
 function noise(c,t0,dur,vol,ftype,f0,f1,q,dest){const n=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();n.buffer=noiseBuf(c,dur+.1);f.type=ftype;f.frequency.setValueAtTime(f0,t0);if(f1)f.frequency.exponentialRampToValueAtTime(f1,t0+dur);f.Q.value=q||1;
   g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+dur*.15);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);n.connect(f).connect(g).connect(dest);n.start(t0);n.stop(t0+dur+.05)}
-function sfx(name){
+const sndPack=()=>(S.cos&&S.cos.snd)||'arena';
+function sndDemo(v){if(!sndOn())return toast('🔇 Sound is off: turn it on in Settings to hear it');actx();sfx('swish',v);setTimeout(()=>sfx('whistle',v),700);setTimeout(()=>sfx('cheer',v),1500)}
+// vibrato tone (ghost voices)
+function vtone(c,type,f0,f1,t0,dur,vol,dest,rate,depth){const o=c.createOscillator(),l=c.createOscillator(),lg=c.createGain(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f0,t0);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t0+dur);
+  l.frequency.value=rate;lg.gain.value=depth;l.connect(lg).connect(o.frequency);g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+dur*.35);g.gain.exponentialRampToValueAtTime(.0001,t0+dur);o.connect(g).connect(dest);o.start(t0);l.start(t0);o.stop(t0+dur+.05);l.stop(t0+dur+.05)}
+// drawbar organ note: stacked harmonics, optional tremolo
+function organ(c,f,t0,dur,vol,dest,trem){const g=c.createGain();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+.015);g.gain.setValueAtTime(vol,t0+dur);g.gain.linearRampToValueAtTime(0,t0+dur+.08);g.connect(dest);
+  let tg=g;if(trem){const tr=c.createGain(),l=c.createOscillator(),lg=c.createGain();l.frequency.value=trem;lg.gain.value=.35;tr.gain.value=.65;l.connect(lg).connect(tr.gain);tr.connect(g);l.start(t0);l.stop(t0+dur+.1);tg=tr}
+  [[1,1],[2,.55],[3,.35],[4,.22],[6,.12],[8,.08]].forEach(([h,w])=>{const o=c.createOscillator(),og=c.createGain();o.type='sine';o.frequency.value=f*h;og.gain.value=w*.3;o.connect(og).connect(tg);o.start(t0);o.stop(t0+dur+.1)})}
+// church bell: inharmonic partials with long decay
+function bell(c,f,t0,dur,vol,dest){[[.5,.5],[1,1],[1.19,.5],[1.5,.35],[2,.4],[2.74,.2],[3.76,.12]].forEach(([h,w])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f*h;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol*w,t0+.008);g.gain.exponentialRampToValueAtTime(.0001,t0+dur*(1.2-h*.18));o.connect(g).connect(dest);o.start(t0);o.stop(t0+dur+.1)})}
+const NOTE=n=>440*Math.pow(2,(n-69)/12);
+// Sound packs: each overrides some of the five game sounds; anything missing falls back to the Arena set.
+const SFX={
+ arcade:{
+  swish:(c,t,o)=>{tone(c,'square',988,0,t,.07,.13,o);tone(c,'square',1319,0,t+.07,.25,.13,o)},
+  tick:(c,t,o)=>tone(c,'square',660,0,t,.05,.1,o),
+  whistle:(c,t,o)=>{tone(c,'square',523,0,t,.08,.11,o);tone(c,'square',784,0,t+.1,.14,.11,o)},
+  cheer:(c,t,o)=>[72,76,79,84,79,84].forEach((n,i)=>tone(c,'square',NOTE(n),0,t+i*.09,i===5?.45:.1,.11,o)),
+  ooh:(c,t,o)=>[67,66,65,64].forEach((n,i)=>tone(c,i===3?'sawtooth':'square',NOTE(n),i===3?NOTE(n)*.85:0,t+i*.24,i===3?.7:.2,.11,o))},
+ street:{
+  swish:(c,t,o)=>{noise(c,t,.22,.45,'bandpass',2400,1200,1,o);for(let i=0;i<8;i++){noise(c,t+.03+i*.03,.05,.55-i*.05,'bandpass',4200+Math.random()*1800,0,9,o);tone(c,'triangle',3000+Math.random()*1600,0,t+.03+i*.03,.06,.05,o)}},
+  tick:(c,t,o)=>tone(c,'sine',1900,2800,t,.09,.2,o),
+  whistle:(c,t,o)=>{tone(c,'sine',2100,3000,t,.08,.2,o);tone(c,'sine',2700,1900,t+.13,.11,.2,o)},
+  cheer:(c,t,o)=>{noise(c,t,1.3,.32,'bandpass',1000,1300,.7,o);for(let i=0;i<12;i++)noise(c,t+.1+i*.11+Math.random()*.04,.035,.75,'bandpass',1300+Math.random()*700,0,1.4,o)},
+  ooh:(c,t,o)=>{const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=800;f.connect(o);for(let i=0;i<5;i++){const f0=160+Math.random()*80;tone(c,'sawtooth',f0,f0*.7,t+Math.random()*.06,1,.04,f)}}},
+ organ:{
+  swish:(c,t,o)=>[[72,0,.07],[76,.08,.07],[79,.16,.2]].forEach(([n,d,l])=>organ(c,NOTE(n),t+d,l,.5,o)),
+  tick:(c,t,o)=>organ(c,NOTE(84),t,.05,.35,o),
+  whistle:(c,t,o)=>{organ(c,NOTE(67),t,.09,.45,o);organ(c,NOTE(72),t+.12,.16,.45,o)},
+  cheer:(c,t,o)=>[[67,0,.1],[72,.13,.1],[76,.26,.1],[79,.39,.18],[76,.62,.1],[79,.75,.6]].forEach(([n,d,l])=>organ(c,NOTE(n),t+d,l,.5,o,l>.5?6:0)),
+  ooh:(c,t,o)=>[[67,0,.18],[66,.25,.18],[65,.5,.18],[64,.75,.8]].forEach(([n,d,l])=>organ(c,NOTE(n),t+d,l,.45,o,l>.5?5:0))},
+ haunted:{
+  swish:(c,t,o)=>{[50,53,57,62].forEach(n=>organ(c,NOTE(n),t,.45,.22,o,7));noise(c,t,.35,.25,'lowpass',1400,300,.7,o)},
+  tick:(c,t,o)=>{tone(c,'triangle',1250,900,t,.05,.18,o);noise(c,t,.04,.25,'highpass',3000,0,.7,o)},
+  whistle:(c,t,o)=>bell(c,196,t,2.2,.22,o),
+  cheer:(c,t,o)=>{[330,392,440,494,523].forEach((f,i)=>vtone(c,'sine',f*.9,f*1.05,t+i*.05,1.6,.06,o,5+i*.4,10));
+    for(let i=0;i<9;i++){const t0=t+.9+i*.085,f0=620-i*22;tone(c,'sawtooth',f0,f0*.8,t0,.07,.06,o)}},
+  ooh:(c,t,o)=>{vtone(c,'sine',520,240,t,1.5,.14,o,4.5,14);vtone(c,'sine',390,180,t+.1,1.4,.08,o,5,10);noise(c,t,1.4,.12,'lowpass',500,200,.7,o)}}};
+function sfx(name,pk){
   if(!sndOn())return;const c=actx();if(!c||c.state!=='running')return;const t=c.currentTime+.01,out=c.createGain();out.gain.value=.55;out.connect(c.destination);
+  const P=SFX[pk||sndPack()];if(P&&P[name]){P[name](c,t,out);return}
   if(name==='swish'){noise(c,t,.32,.9,'bandpass',2600,900,1.2,out);noise(c,t+.05,.18,.35,'highpass',5000,0,.7,out)}
   if(name==='tick'){tone(c,'triangle',880,1320,t,.08,.25,out)}
   if(name==='ooh'){ // disappointed crowd: many low voices sliding down, muffled
@@ -3005,7 +3068,8 @@ const A={
   newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;delete p.head;save();render();playerSheet(p.id)},
   setHead(d){const p=S.squad.find(x=>x.id===d.id);if(d.v==='scouted'){delete p.head}else{if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));p.head=d.v}save();render();playerSheet(p.id)},
   look(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const p=S.squad.find(x=>x.id===d.id);p.look={...(p.look||{}),[d.k]:d.v};save();render();playerSheet(p.id)},
-  cos(d){if(!cosUnlocked(d.k,d.v))return lockSheet(d.k,d.v);if(ARENA.includes(d.k)&&arenaLocked())return toast('Scoreboard, court and bench are locked until the new season on the 1st');const same=S.cos&&S.cos[d.k]===d.v;S.cos={...(S.cos||{}),[d.k]:d.v};save();render();if(d.k==='cel')celebrate(d.v,same?'PREVIEW':'WIN','96–87')},
+  cos(d){if(!cosUnlocked(d.k,d.v))return lockSheet(d.k,d.v);if(ARENA.includes(d.k)&&arenaLocked())return toast('Scoreboard, court and bench are locked until the new season on the 1st');const same=S.cos&&S.cos[d.k]===d.v;S.cos={...(S.cos||{}),[d.k]:d.v};save();render();if(d.k==='cel')celebrate(d.v,same?'PREVIEW':'WIN','96–87');if(d.k==='snd')sndDemo(d.v)},
+  sndDemo(d){sndDemo(d.v)},
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
   subSheet(d){subSheet(d.id)},
   doSub(d){const out=S.squad.find(x=>x.id===d.out),inn=S.squad.find(x=>x.id===d.in);if(!out||!inn||out.pos!==inn.pos)return;const D=ensureDay(gameDate());
