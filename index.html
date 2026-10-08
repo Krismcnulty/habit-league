@@ -195,6 +195,23 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .tro{display:inline-grid;place-items:center;flex:none}
 .tro svg{width:100%;height:100%;image-rendering:pixelated}
 .stakes{margin-bottom:12px}
+.stk2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stk{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;padding:10px 6px;border-radius:12px;background:#0c1226;border:1px solid var(--line)}
+.stk b{font-size:13px;margin-top:4px}.stk small{font-size:11px;color:var(--muted);line-height:1.3;min-height:28px}.stk .tstat{margin-top:6px}
+.stk.won{border-color:var(--gold)}
+.race{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),#0f1424)}
+.race.in{border-color:rgba(34,197,94,.55);background:radial-gradient(100% 140% at 0% 0%,rgba(34,197,94,.14),transparent 60%),linear-gradient(180deg,var(--panel),#0f1424)}
+.race.out{border-color:rgba(255,122,26,.55);background:radial-gradient(100% 140% at 0% 0%,rgba(255,122,26,.14),transparent 60%),linear-gradient(180deg,var(--panel),#0f1424)}
+.rc-k{font-size:10.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.rc-tag{font-size:9.5px;letter-spacing:.06em;padding:2px 6px;border-radius:99px;background:#0c1226;border:1px solid var(--line);color:var(--text)}
+.race.in .rc-tag{color:#86efac;border-color:rgba(34,197,94,.5)}.race.out .rc-tag{color:#fdba74;border-color:rgba(255,122,26,.5)}
+.race b{display:block;font-size:17px;margin:3px 0 1px}.race small{font-size:12.5px;color:var(--muted)}
+.rc-left{text-align:center;flex:none;padding-left:12px;border-left:1px solid var(--line)}.rc-left b{font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:34px;line-height:1;margin:0}.rc-left small{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+td.tpos{white-space:nowrap}
+.mv{display:inline-block;min-width:16px;margin-left:2px;font-style:normal;font-size:8.5px;font-weight:900;vertical-align:1px}.mv.up{color:var(--green)}.mv.dn{color:#f87171}
+.clx{display:inline-block;margin-left:5px;font-style:normal;font-size:9.5px;font-weight:900;padding:0 4px;border-radius:4px;line-height:14px;vertical-align:1px}.clx.x{background:rgba(34,197,94,.18);color:#86efac}.clx.e{background:rgba(248,113,113,.15);color:#fca5a5}
+.evcount{margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid rgba(251,146,60,.35);text-align:center}
+.evcount b{display:block;font-family:Creepster,cursive;font-weight:400;font-size:22px;letter-spacing:.04em;color:#fb923c;text-shadow:0 0 10px rgba(251,146,60,.5)}.evcount span{font-size:11.5px;color:var(--muted)}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:12px 8px;border-radius:14px;background:radial-gradient(100% 80% at 50% 0%,rgba(251,191,36,.12),transparent 70%),var(--panel2);border:1px solid var(--line)}
 .tcard b{font-size:14px;line-height:1.2}
@@ -1679,11 +1696,27 @@ function trophyStatus(se,t){
   if(last&&last.winner==='me')return lr===2?{s:'Won ✓',won:1}:{s:`Into the ${ROUND_NAMES[lr+1]}`,good:1};
   return{s:'Knocked out'};
 }
+// Playoff race: games left, and which teams have clinched (x) or been eliminated (e). Every team plays once a day.
+const PO_TEAMS=8;
+function raceMarks(st,G){const m={};st.forEach(x=>{const others=st.filter(y=>y!==x);
+  if(others.filter(y=>y.w+G>=x.w).length<PO_TEAMS)m[x.id]='x';else if(others.filter(y=>y.w>x.w+G).length>=PO_TEAMS)m[x.id]='e'});return m}
+function raceCard(se,t,st,G,marks){
+  const ord=n=>n+(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%100]||'th');
+  const i=st.findIndex(x=>x.id==='me'),me=st[i],over=t>=brkStart(se.key),pl=n=>`${n} game${n===1?'':'s'}`;
+  let head,sub,cls,tag;
+  if(!me.gp&&!over){head='Tip-off';sub=`The top ${PO_TEAMS} of ${st.length} make the playoffs`;cls='';tag='Under way'}
+  else if(over){head=i<PO_TEAMS?`${ord(i+1)} seed`:`Finished ${ord(i+1)}`;sub=i<PO_TEAMS?`Playoffs start ${nice(poStart(se.key))}`:'Missed the playoffs this season';cls=i<PO_TEAMS?'in':'out';tag=i<PO_TEAMS?'In ✓':'Out'}
+  else if(marks.me==='x'){head=`${ord(i+1)} · playoffs clinched`;sub='A top-8 spot is locked in. Now chase the top seed';cls='in';tag='Clinched ✓'}
+  else if(marks.me==='e'){head=`${ord(i+1)} · eliminated`;sub='Out of playoff reach. Spoil someone else\'s season';cls='out';tag='Eliminated'}
+  else if(i<PO_TEAMS){const g=me.w-st[PO_TEAMS].w;head=`${ord(i+1)} · in a playoff spot`;sub=g>0?`${pl(g)} clear of 9th`:'Level with 9th on wins. Hold on';cls='in';tag='In'}
+  else{const g=st[PO_TEAMS-1].w-me.w;head=`${ord(i+1)} · outside the top ${PO_TEAMS}`;sub=g>0?`${pl(g)} behind 8th`:'Level with 8th on wins';cls='out';tag='Chasing'}
+  return `<div class="race ${cls}"><div class="sp"><div class="rc-k">Playoff race <span class="rc-tag">${tag}</span></div><b>${head}</b><small>${sub}</small></div>${over?'':`<div class="rc-left"><b>${G}</b><small>game${G===1?'':'s'} left</small></div>`}</div>`;
+}
 function trophyCard(se){
   if(!se)return '';const tv=divOf(se);
-  return `<div class="card stakes"><div class="row" style="margin-bottom:4px"><b class="cond sp" style="font-size:13px;color:var(--muted)">Season trophies</b><span class="small" style="color:var(--orange2)">${tv.n} · ${TIER_METAL[tv.id]}</span></div>
-  ${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t);
-    return `<div class="trow ${st.won?'won':''}">${trophyImg(t,42,tv.id)}<div class="sp"><b>${t}</b><div class="small muted">${TROPHIES[t].how}${t==='League Champions'?` · +${Math.round(500*tv.xp)} XP`:''}</div></div><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div>`;
+  return `<div class="card stakes"><div class="row" style="margin-bottom:8px"><b class="cond sp" style="font-size:13px;color:var(--muted)">Season trophies</b><span class="small" style="color:var(--orange2)">${tv.n} · ${TIER_METAL[tv.id]}</span></div>
+  <div class="stk2">${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t);
+    return `<div class="stk ${st.won?'won':''}">${trophyImg(t,44,tv.id)}<b>${t==='Regular Season Winners'?'Regular Season':t}</b><small>${TROPHIES[t].how}${t==='League Champions'?` · +${Math.round(500*tv.xp)} XP`:''}</small><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div></div>`;
 }
 function leagueView(){
   const se=curSeason();const t=gameDate();
@@ -1691,9 +1724,12 @@ function leagueView(){
   let body='';
   if(!se||t<se.start){body=`<div class="card muted">The ${se?monthName(se.key):''} season tips off ${se?nice(se.start):'soon'}. Friendlies until then.</div>`}
   else if(leagueTab==='table'){
-    const st=standings(se,t);
-    body=`<div class="card" style="padding:6px 8px"><table><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th><th>STRK</th></tr>${st.map((x,i)=>`<tr class="${x.id==='me'?'me':''} ${i===8?'cut':''}"><td>${i+1}</td><td>${mini(x.id)}${esc(team(x.id).n)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.gp?x.pct.toFixed(3).replace(/^0/,''):'—'}</td><td>${x.gb?x.gb:'—'}</td><td>${x.strk}</td></tr>`).join('')}</table></div>
-    <p class="small muted" style="margin:10px 4px">Top 8 make the playoffs (${nice(poStart(se.key))}). Teams below the orange line miss out. ${t<brkStart(se.key)?`${diffDays(t,brkStart(se.key))} regular-season day${diffDays(t,brkStart(se.key))===1?'':'s'} left, including today.`:'Regular season complete.'}</p>`;
+    const st=standings(se,t),end=brkStart(se.key),G=t<end?diffDays(t,end):0,marks=raceMarks(st,G);
+    const y=addDays(t,-1),prev=y>regStart(se)?standings(se,y):null,pi={};if(prev&&prev.some(x=>x.gp))prev.forEach((x,k)=>pi[x.id]=k);
+    const mv=(id,k)=>{if(pi[id]==null||pi[id]===k)return '<i class="mv"></i>';const d=pi[id]-k;return `<i class="mv ${d>0?'up':'dn'}">${d>0?'▲':'▼'}${Math.abs(d)}</i>`};
+    const mk=id=>marks[id]?`<i class="clx ${marks[id]}" title="${marks[id]==='x'?'Clinched a playoff spot':'Eliminated'}">${marks[id]}</i>`:'';
+    body=`${raceCard(se,t,st,G,marks)}<div class="card" style="padding:6px 8px"><table><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th><th>STRK</th></tr>${st.map((x,i)=>`<tr class="${x.id==='me'?'me':''} ${i===8?'cut':''}"><td class="tpos">${i+1}${mv(x.id,i)}</td><td>${mini(x.id)}${esc(team(x.id).n)}${mk(x.id)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.gp?x.pct.toFixed(3).replace(/^0/,''):'—'}</td><td>${x.gb?x.gb:'—'}</td><td>${x.strk}</td></tr>`).join('')}</table></div>
+    <p class="small muted" style="margin:10px 4px">Top 8 make the playoffs (${nice(poStart(se.key))}). <i class="clx x">x</i> clinched · <i class="clx e">e</i> eliminated · ▲▼ places moved since yesterday.</p>`;
   }else if(leagueTab==='games'){
     const ps=poStart(se.key);let up='';let d=t,i=0;
     if(t<brkStart(se.key)){const rows=[];if(d<regStart(se))d=regStart(se);while(d<brkStart(se.key)&&i<6){const gn=diffDays(regStart(se),d)+1;const opp=se.order[(gn-1)%se.order.length];rows.push(`<div class="res">${mini(opp)}<div class="sp">${esc(tname(opp))}<div class="small muted">${d===t?'Today':nice(d)} · Game ${gn}</div></div><span class="small muted">${recordOf(opp)}</span></div>`);d=addDays(d,1);i++}up=`<div class="sect"><h3 class="cond">Coming up</h3></div><div class="card" style="padding:2px 12px">${rows.join('')}</div>`}
@@ -1708,7 +1744,7 @@ function leagueView(){
   }
   const top=`<div class="top"><h1 class="cond">Standings</h1><span class="small muted">${standTab==='league'&&se?divOf(se).n+' · '+monthName(se.key):'Special events'}</span></div>
   <div class="tabs big">${[['league','🏀 League'],['events','🏆 Tournaments']].map(([k,n])=>`<button class="${standTab===k?'on':''}" data-a="stab" data-v="${k}">${n}</button>`).join('')}</div>`;
-  if(standTab==='events')return top+tourTrophyCard()+`${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
+  if(standTab==='events')return top+`${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
   return top+`${trophyCard(se)}${tabs}${body}`;
 }
 
@@ -1961,7 +1997,7 @@ function poBracket(se,t){
 }
 function hsCardBody(today,e,part){
   if(!S.firstStart)return '';
-  if(today<e.s)return part==='bracket'?'':`<button class="btn block" style="margin-top:12px" data-a="hsPreview">▶ Preview the Shootout</button>`;
+  if(today<e.s){const n=diffDays(today,e.s);return part==='bracket'?'':`<div class="evcount"><b>${n===1?'Tips off tomorrow':`Tips off in ${n} days`}</b><span>${nice(e.s,{weekday:'short',day:'numeric',month:'short'})} · 8 teams · knockout</span></div><button class="btn block" style="margin-top:12px" data-a="hsPreview">▶ Preview the Shootout</button>`}
   const D=S.hsDone;const head=D?(D.champ==='me'?'<div class="small" style="margin-top:8px;color:var(--gold)">🏆 You won the Halloween Shootout!</div>':`<div class="small muted" style="margin-top:8px">🏆 ${esc(team(D.champ).city+' '+team(D.champ).n)} won the Shootout</div>`):'<div class="small" style="margin-top:8px;color:var(--green)">Live now · the league is paused while it\'s on</div>';
   return part==='bracket'?hsBracket():head;
 }
@@ -2004,7 +2040,7 @@ function evCard(ev,today){
   return `${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
     const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small><em class="req">Winner</em></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small><em class="req ${EV_REQ[k+':'+v]?'semi':''}">${EV_REQ[k+':'+v]||'Winner'}</em></div>`)).join('');
     return `<div class="card evc ev-${{'Halloween Shootout':'hw','Winter Classic':'wc','New Year Cup':'ny','Spring Slam':'ss'}[e.n]||'x'}"><div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
-      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):`<div class="small evsoon">Coming soon in the prototype</div>`}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}</div>`}).join('')}`;
+      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):''}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}</div>`}).join('')}`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
