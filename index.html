@@ -1313,7 +1313,7 @@ function leagueView(){
   }
   const top=`<div class="top"><h1 class="cond">Standings</h1><span class="small muted">${standTab==='league'&&se?divOf(se).n+' · '+monthName(se.key):'Special events'}</span></div>
   <div class="tabs big">${[['league','🏀 League'],['events','🏆 Tournaments']].map(([k,n])=>`<button class="${standTab===k?'on':''}" data-a="stab" data-v="${k}">${n}</button>`).join('')}</div>`;
-  if(standTab==='events')return top+tourTrophyCard()+`<p class="small muted" style="margin:0 4px 10px">3-day knockout tournaments in the break before the playoffs. The league pauses while they're on, and your squad plays as normal.</p>${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
+  if(standTab==='events')return top+tourTrophyCard()+`${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
   return top+`${trophyCard(se)}${tabs}${body}`;
 }
 
