@@ -717,16 +717,16 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .prank.r-goat{color:#1a1000;border-color:#eab308;background:linear-gradient(90deg,#fef08a,#facc15,#fde047);box-shadow:0 0 10px rgba(250,204,21,.6)}
 .prof-head{position:relative}
 .prof-rank{margin-top:10px;display:flex;justify-content:center}
-.lvcard{padding:14px;margin-bottom:12px}
+.lvcard{padding:10px 12px;margin-bottom:12px}
 .lv-top{display:flex;align-items:center;gap:8px}.lv-now,.lv-next{display:flex;align-items:center;gap:10px;flex:1;min-width:0}.lv-next{justify-content:flex-end;text-align:right;flex-direction:row-reverse}
 .lv-arrow{color:var(--muted);font-weight:900}
 .lv-k{font-size:9.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.lv-n{display:block;font-size:17px;line-height:1.15;white-space:nowrap}.lv-top small{font-size:11.5px;color:var(--muted)}
+.lv-n{display:block;font-size:15px;line-height:1.15;white-space:nowrap}.lv-top small{font-size:11.5px;color:var(--muted)}
 .lv-next .lv-n{color:#cbd5e1}
-.rkb.lvb{position:static;width:40px;height:40px;font-size:19px;flex:none;border-width:3px}
+.rkb.lvb{position:static;width:32px;height:32px;font-size:15px;flex:none;border-width:3px}
 .rkb.lvb.r-rookie{background:#334155;color:#94a3b8}.rkb.lvb.dim{opacity:.45;filter:grayscale(.4);animation:none;box-shadow:none}
-.lv-bar{height:8px;border-radius:99px;background:#0b1020;border:1px solid var(--line);overflow:hidden;margin:12px 0 6px}.lv-bar i{display:block;height:100%;border-radius:99px}
-.lv-need{font-size:12.5px;color:var(--muted);text-align:center}.lv-max{margin-top:10px;color:#fde047;font-weight:700}
+.lv-bar{height:8px;border-radius:99px;background:#0b1020;border:1px solid var(--line);overflow:hidden;margin:9px 0 5px}.lv-bar i{display:block;height:100%;border-radius:99px}
+.lv-need{font-size:12px;color:var(--muted);text-align:center}.lv-max{margin-top:6px;color:#fde047;font-weight:700}
 .lv-ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .lv-step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px}
 .lv-step .rkb.lvb{width:28px;height:28px;font-size:13px;border-width:2px}
@@ -2110,8 +2110,7 @@ function levelBlock(p){
   const head=`<div class="lv-top"><div class="lv-now">${badge(r)}<div><div class="lv-k">Current level</div><b class="lv-n" style="color:${R.c}">${R.n}</b><small>${m} career make${m===1?'':'s'}</small></div></div>${nx?`<div class="lv-arrow">→</div><div class="lv-next">${badge(r+1,' dim')}<div><div class="lv-k">Next</div><b class="lv-n">${nx.n}</b><small>at ${nx.at} makes</small></div></div>`:''}</div>`;
   const bar=nx?(()=>{const pct=Math.min(100,(m-R.at)/(nx.at-R.at)*100);return `<div class="lv-bar"><i style="width:${pct}%;background:${nx.c}"></i></div><div class="lv-need">${nx.at-m} more make${nx.at-m===1?'':'s'} to ${sym(r+1)} ${nx.n}</div>`})()
     :`<div class="lv-need lv-max">🐐 Top level reached. The greatest of all time.</div>`;
-  const ladder=`<div class="lv-ladder">${PRANKS.map((X,i)=>`<div class="lv-step${i<r?' got':i===r?' cur':' lock'}">${badge(i)}<span>${X.n}</span><small>${X.at}</small></div>`).join('')}</div>`;
-  return `<div class="card lvcard r-${R.id}">${head}${bar}${ladder}</div>`;
+  return `<div class="card lvcard r-${R.id}">${head}${bar}</div>`;
 }
 // Banner tier = the player's rank; it keeps upgrading while a retired player keeps playing.
 function bannerRank(r){const p=S.squad.find(x=>x.id===r.id);return Math.max(r.rk||0,p?pRank(p):0)}
