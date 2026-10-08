@@ -1953,6 +1953,7 @@ function clubView(){
     <button class="btn block" data-a="tIntro">🏀 Replay today's tip-off intro</button>
     <button class="btn block" data-a="tReveal">📣 Replay the last final buzzer reveal</button>
     <button class="btn block" data-a="tSound">🔊 Play every sound</button>
+    <button class="btn block" data-a="tAwards">${S.demoAwards?'🏅 Remove sample player awards':'🏅 Add sample player awards'}</button>
     <button class="btn block" data-a="fastVet">Make a starter a 3-season veteran</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
@@ -2017,7 +2018,7 @@ function profileView(){
     if(p.signedAt&&d<p.signedAt)c='x';else if(!D)c='x';else if(d===t)c=isDone(p,D)?'y':'t';else if(!D.locked)c='x';else if(restD(D)||D.inj.includes(p.id))c='i';else c=isDone(p,D)?'y':'n';
     cells.push(`<i class="${c}" title="${nice(d)}"></i>`)}
   // awards
-  const key=skey(t),race=awardRace(key,t),won=pastAwards();
+  const key=skey(t),race=awardRace(key,t),won={...pastAwards(),...(S.demoAwards||{})};
   const raceRows=AWARDS.map(a=>{const r=race[a.id],pos=r.indexOf(p.id);
     const tag=pos===0?'<span class="aw-pos lead">Leading</span>':pos>0?`<span class="aw-pos">${pos+1}${['st','nd','rd'][pos]||'th'}</span>`:'<span class="aw-pos no">–</span>';
     return `<div class="aw-row ${pos===0?'lead':''}"><span class="aw-ic">${a.i}</span><div class="sp"><b>${a.n}</b><div class="small muted">${a.d}</div></div>${tag}</div>`}).join('');
@@ -2360,6 +2361,13 @@ const A={
   mdPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'draft'};closeSheet();
     const nk=nextKey(skey(gameDate()));window.HL_NOW=nk+'-01T06:00:00';view='squad';render();scrollTo(0,0);toast(`📝 Mock draft for ${monthName(nk)} · nothing here is saved`)},
   mdClear(){if(!confirm('Release every player and draft from scratch? (Mock only)'))return;S.squad=[];render();scrollTo(0,0)},
+  tAwards(){
+    if(S.demoAwards){delete S.demoAwards;save();render();return toast('Sample awards removed')}
+    const ids=[...S.squad].sort((a,b)=>pv(b)-pv(a)).map(p=>p.id),bench=S.squad.filter(p=>p.slot==='bench').map(p=>p.id),pick=(k,i)=>ids[(k+i)%ids.length];
+    S.demoAwards={'2026-07':{mvp:pick(0,0),iron:pick(0,2),sixth:bench[0],improved:pick(0,3),closer:pick(0,0)},
+      '2026-08':{mvp:pick(1,0),iron:pick(1,1),sixth:bench[1]||bench[0],improved:pick(1,4),closer:pick(1,2)},
+      '2026-09':{mvp:pick(0,0),iron:pick(2,0),sixth:bench[2]||bench[0],improved:pick(2,3),closer:pick(0,0)}};
+    save();profId=ids[0];view='profile';render();scrollTo(0,document.body.scrollHeight);toast('Sample awards added (testing only)')},
   clPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'clutch'};closeSheet();clSetup();view='today';render();scrollTo(0,0);toast('🚨 Clutch preview · nothing here is saved')},
   clReplay(){clSetup();render();scrollTo(0,0)},
   pvNext(){const t=gameDate();if(t>HSE.end){standTab='events';view='league';render();scrollTo(0,0);return}
