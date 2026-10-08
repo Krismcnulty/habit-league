@@ -560,8 +560,8 @@ const nowMs=()=>window.HL_NOW?+new Date(window.HL_NOW):Date.now();
 const gameDate=()=>fmt(new Date(nowMs()-4*3600e3));
 const skey=d=>d.slice(0,7);
 const dim=key=>{const[y,m]=key.split('-').map(Number);return new Date(y,m,0).getDate()};
-// Playoffs: 9 days ending the day before the month's last day, which is a rest day.
-const poStart=key=>`${key}-${pad(dim(key)-9)}`;
+// Playoffs: 6 days (three 2-day rounds) ending the day before the month's last day, which is a rest day.
+const poStart=key=>`${key}-${pad(dim(key)-6)}`;
 const monthEnd=key=>`${key}-${pad(dim(key))}`;
 const nextKey=key=>skey(addDays(monthEnd(key),1));
 const nice=(s,o={weekday:'short',day:'numeric',month:'short'})=>parse(s).toLocaleDateString('en-GB',o);
@@ -634,7 +634,7 @@ function standings(se,upto){
     let k=x.res.length,s=0;const last=x.res[k-1];while(k-->0&&x.res[k]===last)s++;x.strk=last?last+s:'—'});
   return list;
 }
-// Playoff series: 3 days, decided by the total points over all three (no dead games).
+// Playoff series: 2 days, decided by the total points over both (no dead games).
 function poScore(se,d,id){const f=rating(se,id)+(rng(se.key+d+id+'po')()-.5)*.24+.03;return Math.round(dayDiv(d).avg*(1+(f-.66)*.8))}
 function bracket(se,upto){
   if(!se.seeds)return null;
@@ -645,12 +645,12 @@ function bracket(se,upto){
   for(let r=0;r<3;r++){
     if(r>0){const prev=rounds[r-1];if(!prev.length||!prev.every(s=>s.winner))break;
       for(let i=0;i<prev.length;i+=2){const a=prev[i].winner,b=prev[i+1].winner;rounds[r].push(mk(a,b,seedOf(a),seedOf(b)))}}
-    for(let g=0;g<3;g++){
-      const d=addDays(ps,r*3+g);if(d>=upto)break;
+    for(let g=0;g<2;g++){
+      const d=addDays(ps,r*2+g);if(d>=upto)break;
       for(const s of rounds[r]){
         if(s.a==='me'||s.b==='me'){const D=S.days[d];if(!D||!D.locked||D.ph!=='po')continue;const A=s.a==='me';s.wa+=A?D.me:D.opp;s.wb+=A?D.opp:D.me;s.games.push({d,me:D.me,opp:D.opp})}
         else{s.wa+=poScore(se,d,s.a);s.wb+=poScore(se,d,s.b);s.games.push({d})}
-        if(s.games.length===3)s.winner=s.wa>s.wb?s.a:s.wb>s.wa?s.b:(s.a==='me'||s.b==='me'?'me':s.a);
+        if(s.games.length===2)s.winner=s.wa>s.wb?s.a:s.wb>s.wa?s.b:(s.a==='me'||s.b==='me'?'me':s.a);
       }
     }
   }
@@ -669,7 +669,7 @@ function ensureDay(d){
     else if(d<ps){D.ph='reg';D.gn=diffDays(se.start,d)+1;D.oppId=se.order[(D.gn-1)%se.order.length]}
     else{
       if(!se.seeds)se.seeds=standings(se,ps).slice(0,8).map(x=>x.id);
-      const off=diffDays(ps,d),rd=Math.floor(off/3);const b=bracket(se,d);
+      const off=diffDays(ps,d),rd=Math.floor(off/2);const b=bracket(se,d);
       const s=(b.rounds[rd]||[]).find(x=>!x.winner&&(x.a==='me'||x.b==='me'));
       if(s){D.ph='po';D.rd=rd;D.g=s.games.length+1;D.oppId=s.a==='me'?s.b:s.a;D.ser=s.a==='me'?[s.wa,s.wb]:[s.wb,s.wa];bump=.03}
       else friendly();
@@ -989,7 +989,7 @@ function setupView(){
   <div class="top"><h1 class="cond">Tip-off</h1><button class="small muted" data-a="setupBack1">Back</button></div>
   <div class="card stack">
     <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one transfer in the first ${TRANSFER_DAYS} days</b> and the <b>injury list</b> (${INJURY_USES} rest days a season). Renaming and editing steps are always allowed.</p>
-    <p class="muted small" style="margin:0">Results lock at 4am. The playoffs run over the last days of each month: top 8, each round decided by a 3-day points total, then a rest day to close the season.</p>
+    <p class="muted small" style="margin:0">Results lock at 4am. The playoffs run over the last days of each month: top 8, each round decided by a 2-day points total, then a rest day to close the season.</p>
     ${levelRow(null)}
     ${short?`<div class="banner small">It's too late in ${monthName(skey(t))} for a regular season, so you'll play friendlies until the new season starts on ${nice(addDays(monthEnd(skey(t)),1),{day:'numeric',month:'long'})}.</div>
       <button class="btn primary block" data-a="tipoff" data-d="${addDays(monthEnd(skey(t)),1)}">Lock in for ${monthName(nextKey(skey(t)))}</button>`
@@ -1021,7 +1021,7 @@ function todayView(){
   let phase;
   if(D.ph==='brk')phase=`🎃 ${D.ev} · ${HSE.rounds[hsDays().findIndex(x=>x[0]===t)]}`;
   else if(D.ph==='reg')phase=`Game ${D.gn} · ${divOf(se).n} division · ${monthName(se.key).split(' ')[0]}`;
-  else if(D.ph==='po'){const lv=Math.round(sc.opp*oppProgress(t));phase=`${ROUND_NAMES[D.rd]} · Day ${D.g} of 3 · Total ${D.ser[0]+sc.me}–${D.ser[1]+lv}`}
+  else if(D.ph==='po'){const lv=Math.round(sc.opp*oppProgress(t));phase=`${ROUND_NAMES[D.rd]} · Day ${D.g} of 2 · Total ${D.ser[0]+sc.me}–${D.ser[1]+lv}`}
   else phase=t<S.firstStart?`Pre-season friendly · season starts ${nice(S.firstStart)}`:(se&&se.seeds?(se.seeds.includes('me')?'Friendly · knocked out of the playoffs':'Friendly · missed the playoffs this month'):'Friendly');
   const myRec=se&&D.ph!=='brk'?recordOf('me'):'',oppRec=se&&D.ph!=='ex'?recordOf(D.oppId):'';
   const need=sc.opp-sc.me+1;
@@ -1206,7 +1206,7 @@ function leagueView(){
       ${[[0,7],[3,4],[1,6],[2,5]].map(([a,b])=>`<div class="series ${[st[a].id,st[b].id].includes('me')?'mine':''}"><div class="ln"><span>${a+1}. ${mini(st[a].id)}${esc(team(st[a].id).n)}</span></div><div class="ln"><span>${b+1}. ${mini(st[b].id)}${esc(team(st[b].id).n)}</span></div></div>`).join('')}</div>`;
     }else{
       const b=bracket(se,t);
-      body=b.rounds.map((rs,i)=>`<div class="sect"><h3 class="cond">${ROUND_NAMES[i]} · ${nice(addDays(ps,i*3))}–${nice(addDays(ps,i*3+2),{day:'numeric'})}</h3></div>`+(rs.length?rs.map(s=>`<div class="series ${s.a==='me'||s.b==='me'?'mine':''}">
+      body=b.rounds.map((rs,i)=>`<div class="sect"><h3 class="cond">${ROUND_NAMES[i]} · ${nice(addDays(ps,i*2))}–${nice(addDays(ps,i*2+1),{day:'numeric'})}</h3></div>`+(rs.length?rs.map(s=>`<div class="series ${s.a==='me'||s.b==='me'?'mine':''}">
         <div class="ln ${s.winner===s.a?'win':''}"><span>${s.sa}. ${mini(s.a)}${esc(team(s.a).n)}</span><b>${s.wa}</b></div>
         <div class="ln ${s.winner===s.b?'win':''}"><span>${s.sb}. ${mini(s.b)}${esc(team(s.b).n)}</span><b>${s.wb}</b></div></div>`).join(''):'<div class="series muted">To be decided</div>')).join('');
       if(se.done)body=`<div class="banner" style="margin-bottom:8px">🏆 ${esc(tname(se.done.champ))} are ${monthName(se.key)} champions.</div>`+body;
