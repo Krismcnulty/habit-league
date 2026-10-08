@@ -571,6 +571,17 @@ td.tpos{white-space:nowrap}
 .store.col-street .st-k{color:#fde047}.store.col-street .st-t{font-family:"Permanent Marker",cursive;font-weight:400;font-size:28px;color:#f9a8d4;text-shadow:2px 2px 0 #18181b,3px 3px 0 #22d3ee}
 .store.col-street .pack{border-color:rgba(244,114,182,.45);background:radial-gradient(100% 120% at 0% 0%,rgba(244,114,182,.12),transparent 60%),var(--well)}
 .store[class*="col-"] .pack.own{border-color:rgba(34,197,94,.45)}
+/* testing area */
+.tdet summary{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.tdet summary small{font-weight:500;font-size:11.5px}
+.tstack{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.tsec{border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--well)}
+.tsec-h{display:flex;align-items:center;gap:9px;margin:0 2px 9px}.tsec-h>span{font-size:20px;line-height:1}.tsec-h b{display:block;font-size:14px}.tsec-h small{display:block;font-size:11.5px;color:var(--muted);line-height:1.3}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tt{position:relative;display:flex;align-items:center;gap:8px;min-height:54px;padding:8px 9px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;text-align:left;cursor:pointer}
+.tt:active{transform:scale(.98)}.tt[disabled]{opacity:.45}
+.tt-i{flex:none;font-size:20px;line-height:1;width:24px;text-align:center}.tt-t{min-width:0}.tt-t b{display:block;font-size:12.5px;line-height:1.2}.tt-t small{display:block;font-size:10.5px;color:var(--muted);line-height:1.25;margin-top:2px}
+.tt.on{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 12%,var(--panel))}
+.tt-on{position:absolute;top:5px;right:6px;font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.06em;color:var(--bg);background:var(--orange);padding:1px 5px;border-radius:99px}
 /* ---- win celebrations ---- */
 .gcel{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:24px;background:var(--well);border:1px solid var(--line)}
 .gcel.c-stamp{font-weight:900;font-size:22px;color:#fff;background:#dc2626;border-radius:50%;border:3px solid #fff;font-family:system-ui}
@@ -2775,25 +2786,28 @@ function settingsView(){
   <p>When your squad locks for a season, your level is set: opponents average 75% of your squad's max points for the whole season. Sign harder players mid-season and you get ahead of them. Levels are labelled Rookie, Pro, All-Star or Hall of Fame, and higher levels earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
   <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
   <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
-  <details class="card" style="margin-top:12px"><summary>Testing</summary><div class="stack" style="margin-top:10px">
-    <p class="small muted" style="margin:0">Adds a made-up Pro season for September 2026 (17–4, top seed, champions) to your cabinet and history, marked as simulated. It doesn't change your XP or this season.</p>
-    <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
-    <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button>
-    <button class="btn block" data-a="hsPreview">🎃 Fast-forward through the Halloween Shootout</button>
-    <button class="btn block" data-a="mdPreview">📝 Mock draft (next season's squad selection)</button>
-    <button class="btn block" data-a="clPreview">🚨 Simulate clutch time</button>
-    <button class="btn block" data-a="tIntro">🏀 Replay today's tip-off intro</button>
-    <button class="btn block" data-a="tReveal">📣 Replay the last final buzzer reveal</button>
-    <button class="btn block" data-a="tSound">🔊 Play every sound</button>
-    <button class="btn block" data-a="tAwards">${S.demoAwards?'🏅 Remove sample player awards':'🏅 Add sample player awards'}</button>
-    <button class="btn block" data-a="tRecap">${S.demoRecap?'📋 Hide the season recap':'📋 Show the season recap now'}</button>
-    <button class="btn block" data-a="fast100">🏅 Give a player a 100-day streak</button>
-    <button class="btn block" data-a="tHD">${S.oldHeads?'✨ Back to the HD heads (32×32)':'🧑 Use the original 16×16 heads'}</button>
-    <button class="btn block" data-a="tRanks">⭐ Set a player's rank / makes</button>
-    <div><div class="small muted" style="margin:0 0 6px">Store collection on show</div><div class="row" style="flex-wrap:wrap;gap:6px">${COLLECTIONS.map(c=>`<button class="btn sp ${activeCol().id===c.id?'primary':''}" style="flex:1 1 45%" data-a="tCol" data-v="${c.id}">${c.ic[0]} ${c.sh}</button>`).join('')}</div></div>
-    <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
-    <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
+  <details class="card tdet" style="margin-top:12px" ${testOpen?'open':''}><summary>⚙️ Testing <small class="muted">Prototype tools · nothing here is permanent</small></summary>${testingHtml()}</details>
   <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
+}
+// Testing area, grouped into sections. Each tool is a tile: icon, short name, one-line hint; toggles show as "on".
+let testOpen=false;document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('tdet'))testOpen=e.target.open},true);
+function testingHtml(){
+  const T=(a,ic,n,h,o={})=>`<button class="tt ${o.on?'on':''}" data-a="${a}"${o.v?` data-v="${o.v}"`:''} ${o.dis?'disabled':''}><span class="tt-i">${ic}</span><span class="tt-t"><b>${n}</b><small>${h}</small></span>${o.on?'<i class="tt-on">ON</i>':''}</button>`;
+  const sec=(ic,n,d,body)=>`<section class="tsec"><div class="tsec-h"><span>${ic}</span><div><b>${n}</b><small>${d}</small></div></div><div class="tgrid">${body}</div></section>`;
+  const anySim=S.history.some(h=>h.sim);
+  return `<div class="tstack">
+  ${sec('🏀','Gameday moments','Replay the big moments without waiting for them',
+    T('tIntro','🏀','Tip-off intro','Replay today\'s intro')+T('tReveal','📣','Final buzzer','Replay the last reveal')+T('clPreview','🚨','Clutch time','Simulate a close finish')+T('tSound','🔊','Every sound','Play the current sound pack'))}
+  ${sec('📋','Seasons & history','Fill the cabinet and history with sample data',
+    T(anySim?'unsim':'simSeason','🏆','Simulated season',anySim?'Added: tap to remove it':'Sept 2026: 17–4, champions',{on:anySim})+T('tRecap','📋','Season recap',S.demoRecap?'Showing now: tap to hide':'Show it on the Table now',{on:S.demoRecap})+T('tAwards','🏅','Player awards',S.demoAwards?'Samples added: tap to remove':'Add sample monthly awards',{on:S.demoAwards}))}
+  ${sec('⭐','Players','Jump players up the ranks',
+    T('tRanks','⭐','Rank / makes','Set any player\'s level')+T('fast100','🏅','100-day streak','Retire a jersey')+T('tHD',S.oldHeads?'🧑':'✨','HD heads',S.oldHeads?'Off: using 16×16 heads':'32×32 heads (tap for 16×16)',{on:!S.oldHeads}))}
+  ${sec('🎃','Events & draft','Preview what\'s coming',
+    T('hsPreview','🎃','Halloween Shootout','Fast-forward the event')+T('mdPreview','📝','Mock draft','Next season\'s squad pick'))}
+  ${sec('🛍️','Store & cosmetics','Switch the seasonal collection and unlock gear',
+    COLLECTIONS.map(c=>T('tCol',c.ic[0],c.sh,c.when.replace('Seasonal · ','').replace('Summer · ',''),{on:activeCol().id===c.id,v:c.id})).join('')
+    +T('unlockAll','🔒','Unlock all',S.unlockAll?'Everything unlocked: tap to re-lock':'Every cosmetic, for testing',{on:S.unlockAll}))}
+  </div>`;
 }
 function ballSvg(skin){
   skin=skin||(S&&S.cos&&S.cos.ball)||'classic';
