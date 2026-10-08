@@ -572,15 +572,16 @@ td.tpos{white-space:nowrap}
 .ishop{padding:12px;margin-top:12px}
 .ish-h{display:flex;align-items:center;gap:10px;margin:2px 2px 10px}.ish-h b{display:block;font-size:17px}.ish-h small{display:block;font-size:12px;color:var(--muted)}
 .ish-t{font-size:11px;font-weight:900;white-space:nowrap;color:var(--orange);background:color-mix(in srgb,var(--orange) 14%,transparent);padding:4px 9px;border-radius:99px}
-.ish-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ish-it{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--well);color:var(--text);font:inherit;text-align:center;cursor:pointer}
-.ish-it .dprev{width:64px;height:64px;margin:0 0 4px}.ish-it .dprev svg{width:52px;height:52px}.ish-it b{font-size:13px;line-height:1.2}.ish-it small{font-size:11px;color:var(--muted)}.ish-it .rar{margin-top:5px}
+.ish-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ish-it{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 3px 7px;border-radius:10px;border:1px solid var(--line);background:var(--well);color:var(--text);font:inherit;text-align:center;cursor:pointer;min-width:0}
+.ish-it .dprev{width:46px;height:46px;margin:0 0 2px}.ish-it .dprev svg{width:38px;height:38px}.ish-it b{font-size:10.5px;line-height:1.15}.ish-it small{font-size:9.5px;color:var(--muted)}
 .ish-it.rr-rare{border-color:rgba(59,130,246,.55);background:linear-gradient(180deg,rgba(59,130,246,.12),transparent 60%),var(--well)}
 .ish-it.rr-epic{border-color:rgba(168,85,247,.6);background:linear-gradient(180deg,rgba(168,85,247,.15),transparent 60%),var(--well)}
-.ish-it.rr-leg{border-color:rgba(245,158,11,.75);background:linear-gradient(180deg,rgba(245,158,11,.16),transparent 60%),var(--well);box-shadow:0 0 10px rgba(245,158,11,.2)}
-.ish-p{margin-top:7px;font-weight:900;font-size:14px;color:#1a1000;background:var(--orange);padding:5px 14px;border-radius:99px}
-.ish-own{margin-top:7px;font-weight:900;font-size:12px;color:var(--green)}
-.ish-it.own{opacity:.85}
+.ish-it.rr-leg{border-color:rgba(245,158,11,.75);background:linear-gradient(180deg,rgba(245,158,11,.16),transparent 60%),var(--well);box-shadow:0 0 8px rgba(245,158,11,.2)}
+.ish-p{margin-top:auto;padding-top:5px}.ish-p i{display:inline-block;font-style:normal;font-weight:900;font-size:11.5px;color:#1a1000;background:var(--orange);padding:3px 10px;border-radius:99px}
+.ish-own{margin-top:auto;padding-top:5px;font-weight:900;font-size:10.5px;color:var(--green)}
+.ish-it .rar{display:none}
+.ish-key .k-rare{color:#93c5fd}.ish-key .k-epic{color:#d8b4fe}.ish-key .k-leg{color:#fbbf24}
 /* store themes per collection */
 .card.store.col-xmas{background-image:radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.3) 0 1px,transparent 1.4px),radial-gradient(120% 22% at 50% 0%,rgba(239,68,68,.32),transparent 70%),linear-gradient(180deg,#14532d,#052e16);background-size:37px 41px,23px 29px,auto,auto;background-position:0 0,11px 17px,0 0,0 0;border-color:#dc2626}
 .store.col-xmas .st-k{color:#fecaca}.store.col-xmas .st-t{font-family:"Mountains of Christmas",cursive;font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 0 #dc2626,0 0 12px rgba(255,255,255,.4)}
@@ -2722,8 +2723,8 @@ function storeView(){
 function itemShopHtml(){
   const next=addDays(weekStart(gameDate()),7),d=diffDays(gameDate(),next);
   return `<div class="card ishop"><div class="ish-h"><div class="sp"><b>Item Shop</b><small>Single items · new picks every Monday</small></div><span class="ish-t">${d<=1?'New items tomorrow':`New in ${d} days`}</span></div>
-    <div class="ish-grid">${shopItems().map(([k,v])=>{const own=cosUnlocked(k,v),r=rarity(k,v);return `<button class="ish-it rr-${r} ${own?'own':''}" data-a="buyItem" data-k="${k}" data-v="${v}">${itemPreview(k,v)}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small><span class="rar rr-${r}">${RAR_N[r]}</span>${own?'<span class="ish-own">✓ Owned</span>':`<span class="ish-p">${gbp(shopPrice(k,v))}</span>`}</button>`}).join('')}</div>
-    <p class="small muted" style="margin:10px 2px 0">Rare ${gbp(SHOP_PRICE.rare)} · Epic ${gbp(SHOP_PRICE.epic)} · Legendary ${gbp(SHOP_PRICE.leg)}. Yours to keep.</p></div>`;
+    <div class="ish-grid">${shopItems().map(([k,v])=>{const own=cosUnlocked(k,v),r=rarity(k,v);return `<button class="ish-it rr-${r} ${own?'own':''}" data-a="buyItem" data-k="${k}" data-v="${v}">${itemPreview(k,v)}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small><span class="rar rr-${r}">${RAR_N[r]}</span>${own?'<span class="ish-own">✓ Owned</span>':`<span class="ish-p"><i>${gbp(shopPrice(k,v))}</i></span>`}</button>`}).join('')}</div>
+    <p class="small muted ish-key" style="margin:10px 2px 0"><b class="k-rare">Rare ${gbp(SHOP_PRICE.rare)}</b> · <b class="k-epic">Epic ${gbp(SHOP_PRICE.epic)}</b> · <b class="k-leg">Legendary ${gbp(SHOP_PRICE.leg)}</b></p></div>`;
 }
 let clubTab='overview';
 // Club records, all worked out from saved games.
