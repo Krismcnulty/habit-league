@@ -273,6 +273,7 @@ td.tpos{white-space:nowrap}
 .pl.divon{border-color:var(--orange)}
 .prem{background:radial-gradient(120% 90% at 100% 0%,rgba(251,191,36,.14),transparent 60%),var(--panel);border-color:rgba(251,191,36,.35)}
 .prem.on{border-color:var(--gold)}
+.pxi{display:inline-block;width:1.2em;height:1.2em;vertical-align:-.22em;font-style:normal;line-height:1}.pxi svg{width:100%;height:100%;display:block}
 .clubhero{position:relative;margin-bottom:12px;padding:14px;border-radius:18px;border:1px solid var(--line);background:radial-gradient(120% 120% at 0% 0%,rgba(255,122,26,.16),transparent 55%),linear-gradient(180deg,var(--panel),var(--deep))}
 .ch-top{display:flex;align-items:center;gap:12px}.ch-city{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .ch-name{font-size:26px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ch-jsy svg{width:52px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
@@ -566,7 +567,7 @@ td.tpos{white-space:nowrap}
 .court-playoffs{background:repeating-linear-gradient(90deg,#3a2a1a 0 22px,#2f2215 22px 23px,#43301d 23px 47px,#281c11 47px 48px);border-color:#d4a017;box-shadow:0 0 0 1px #6b4f0a,0 0 18px rgba(212,160,23,.25)}
 .court-playoffs svg.lines{stroke:#fbbf24}
 .court-playoffs:before{background:radial-gradient(circle at 50% 108%,rgba(251,191,36,.30),transparent 45%),linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.05))}
-.court-playoffs:after{content:"🏆";position:absolute;right:10px;top:6px;font-size:18px;filter:drop-shadow(0 0 6px rgba(251,191,36,.6))}
+.court-playoffs:after{content:var(--icx-trophy,"");position:absolute;right:10px;top:6px;font-size:18px;filter:drop-shadow(0 0 6px rgba(251,191,36,.6))}
 .sb-playoffs{background:radial-gradient(120% 120% at 50% 0%,#1f2a44,#05070d 72%)!important;border:2px solid #d4a017!important;box-shadow:0 0 0 1px #6b4f0a,0 0 18px rgba(212,160,23,.3)}
 .sb-playoffs:after{border:0!important;width:auto!important;height:auto!important;inset:auto 12px 12px auto!important;content:"PLAYOFFS";font-size:10px;font-weight:900;letter-spacing:.14em;color:#1a1204;background:linear-gradient(180deg,#fde68a,#d4a017);padding:3px 7px;border-radius:5px!important}
 .sb-playoffs .score{color:#fff;text-shadow:0 0 12px rgba(251,191,36,.55)}
@@ -961,10 +962,10 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 /* ---- Halloween Shootout ---- */
 .court-spooky{background:repeating-linear-gradient(90deg,#2a1838 0 22px,#24142f 22px 23px,#2f1b3f 23px 47px,#1f1129 47px 48px);border-color:#f97316}
 .court-spooky svg.lines{stroke:#fb923c}
-.court-spooky:before{content:"🦇";padding:6px 10px;font-size:16px;background:radial-gradient(circle at 50% 115%,rgba(249,115,22,.28),transparent 60%)}
-.court-spooky:after{content:"🎃";position:absolute;right:10px;top:6px;font-size:18px}
+.court-spooky:before{content:var(--icx-bat,"");padding:6px 10px;font-size:16px;background:radial-gradient(circle at 50% 115%,rgba(249,115,22,.28),transparent 60%)}
+.court-spooky:after{content:var(--icx-pumpkin,"");position:absolute;right:10px;top:6px;font-size:18px}
 .sb-spooky{background:radial-gradient(120% 120% at 50% 0%,#3b0764,#0b0414 72%)!important;border:2px solid #f97316!important;box-shadow:0 0 16px rgba(249,115,22,.35)}
-.sb-spooky:after{border:0!important;width:auto!important;height:auto!important;inset:8px 12px auto auto!important;content:"🦇";font-size:18px;border-radius:0!important}
+.sb-spooky:after{border:0!important;width:auto!important;height:auto!important;inset:8px 12px auto auto!important;content:var(--icx-bat,"");font-size:18px;border-radius:0!important}
 .sb-spooky .score{color:#fed7aa;text-shadow:0 0 10px rgba(249,115,22,.8)}
 .sb-spooky .score .lead{color:#fde047}
 .sb-spooky .phase,.sb-spooky .clock{color:#c084fc}
@@ -1346,6 +1347,81 @@ function gridSvg(G){
   let r='';for(let y=0;y<n;y++){let x=0;while(x<n){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<n&&out[y][x+w]===c)w++;r+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
   return `<svg viewBox="${hd?'-1 -1 34 34':'-1 -1 18 18'}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
 }
+// ===== Pixel icons: every emoji in the app is drawn as 16×16 pixel art and shown at 32×32 (smoothed + shaded) =====
+const IPAL={y:'#fbbf24',Y:'#d97706',l:'#fde68a',o:'#f97316',O:'#c2410c',r:'#ef4444',R:'#991b1b',p:'#fca5a5',g:'#22c55e',G:'#15803d',m:'#86efac',
+ b:'#3b82f6',B:'#1e3a8a',c:'#7dd3fc',C:'#0ea5e9',v:'#a855f7',V:'#6b21a8',w:'#ffffff',s:'#cbd5e1',S:'#64748b',d:'#334155',n:'#111827',
+ t:'#a16207',T:'#6b4226',f:'#f2c79b',F:'#c68642',i:'#f9a8d4',I:'#ec4899',e:'#e5e7eb',k:'#2a1c12',u:'#8b5cf6',a:'#facc15'};
+const PIXI={
+star:["................",".......yy.......","......yyyy......","......ylyy......",".....yllyyy.....",".yyyyyllyyyyyyy.","..yyyllyyyyyyY..","...yyyyyyyyyY...","....yyyyyyyY....","....yyyyyyyY....","...yyyyYYyyyY...","...yyyY..YyyY...","..yyyY....YyyY..","..yyY......YyY..","..yY........YY..","................"],
+pumpkin:["................",".......GG.......","........G.......","...oooOooOooo...","..ooooOooOoooo..",".oonnoOooOonnoo.",".onnnoOooOonnno.",".ooooOOnnOOoooo.",".ooooOooooOoooo.",".onnnnnnnnnnnno.",".oonnonnnnonnoo.","..oooonooonooo..","...oooooooooo...","....OOOOOOOO....","................","................"],
+lock:["................","......ssss......",".....sS..Ss.....",".....s....s.....",".....s....s.....","...yyyyyyyyyy...","...ylllyyyyyY...","...ylyyttyyyY...","...yyyyttyyyY...","...yyyyytyyyY...","...yyyyytyyyY...","...yyyyyyyyyY...","...YYYYYYYYYY...","................","................","................"],
+siren:["................","..y....yy....y..","...y........y...",".......ww.......",".....rrrrrr.....","....rprrrrrr....","y...rprrrrrr...y","....rprrrrRr....","....rrrrrrRr....","...dddddddddd...","...dSSSSSSSSd...","...dddddddddd...","................","................","................","................"],
+medal:["...rr......bb...","....rr....bb....",".....rr..bb.....","......rrbb......",".......rb.......",".....yyyyyy.....","....yllyyyyY....","...yllyyYyyyY...","...ylyyYYyyyY...","...yyyyyYyyyY...","...yyyyyYyyyY...","...yyyyYYYyyY...","....yyyyyyyY....",".....YYYYYY.....","................","................"],
+bandage:["................","..........ee....",".........eeee...","........eeeeee..",".......eeffeee..","......eeffffe...",".....eeffffee...","....eeffffee....","...eeffffee.....","..eeeffee.......","..eeeeee........","...eeee.........","....ee..........","................","................","................"],
+memo:["................","...eeeeeeeee....","...ewwwwwwwe....","...ewSSSSSwe....","...ewwwwwwwe..y.","...ewSSSSwwe.yY.","...ewwwwwwwey...","...ewSSSSSwyY...","...ewwwwwwyYe...","...ewSSSwwTwe...","...ewwwwwwwwe...","...eeeeeeeeee...","................","................","................","................"],
+arm:["................","..........FF....",".........FffF...",".........FffF...","..........FfF...","...........fF...","..FFFF.....fF...",".FffffFF..FfF...",".FfffffffFffF...",".FffffffffffF...","..FfffffffffF...","...FffffffFF....","....FFFFFF......","................","................","................"],
+sparkle:["................","....y...........","....y...........","..yylyy.....l...","....y......lyl..","....y.......l...","................","........y.......","........y.......",".......yly......","......yyllyy....",".......yly......","........y.......","........y.......","................","................"],
+megaphone:["................","................","...........rr...","........rrrpr...","......rrrppprr..","..ssrrrppppprr..","..sSrrpppppprr..","..sSrrpppppprr..","..ssrrrppppprr..","....d.rrrppprr..","....d...rrrpr...","....dd.....rr...","................","................","................","................"],
+popper:["................","..r.....y....b..","....g......i....","......v.........",".b....rr..g.....","...y...........r","......o.yy......","....oyy.........","....oooy..i.....","...oooyy........","...ooyy.........","..oOoy..........","..OOy...........","..O.............","................","................"],
+speaker:["................","................","......s.....c...",".....ss..c...c..","....sSs...c...c.","..sssSs...c...c.","..sSSSs...c...c.","..sSSSs...c...c.","..sssSs...c...c.","....sSs...c...c.",".....ss..c...c..","......s.....c...","................","................","................","................"],
+mute:["................","................","......s.........",".....ss.........","....sSs..r...r..","..sssSs...r.r...","..sSSSs....r....","..sSSSs...r.r...","..sssSs..r...r..","....sSs.........",".....ss.........","......s.........","................","................","................","................"],
+vibrate:["................","....dddddddd....","....dccccccd....","..r.dccccccd.r..",".r..dccccccd..r.","..r.dccccccd.r..",".r..dccccccd..r.","..r.dccccccd.r..","....dccccccd....","....dddddddd....","....ddddwddd....","....dddddddd....","................","................","................","................"],
+phoneoff:["................","....dddddddd....","....dnnnnnnd....","....dnnnnnnd..r.","....dnnnnnnd.r..","....dnnnnnnr....","....dnnnnnrd....","....dnnnnrnd....","....dnnnrnnd....","....dddrdddd....","....ddrdwddd....","....rddddddd....","................","................","................","................"],
+hands:["................","..f...f..f...f..","..f.f.f..f.f.f..","..fff.f..f.fff..","..fffff..fffff..","..ffffff.fffff..","...fffff.ffff...","...fffff.ffff...","....ffff.ffff...","....fff...fff...","....FFF...FFF...","....FFF...FFF...","................","................","................","................"],
+thumb:["................",".......ff.......","......fff.......","......fff.......",".....fff........","..FF.fffffffF...","..FF.ffffffffF..","..FF.FFFFFFFF...","..FF.fffffffF...","..FF.FFFFFFF....","..FF.fffffF.....","..FF..FFFF......","................","................","................","................"],
+hundred:["................","................","................",".rr..rrrr..rrrr.","rrr..r..r..r..r.",".rr..r..r..r..r.",".rr..r..r..r..r.",".rr..r..r..r..r.",".rr..rrrr..rrrr.","................","rrrrrrrrrrrrrrr.","................",".rrrrrrrrrrrrr..","................","................","................"],
+ten:["................",".bbbbbbbbbbbbbb.",".bccccccccccccb.",".bcwwc.cwwwwccb.",".bwwwc.cwccwccb.",".bcwwc.cwccwccb.",".bcwwc.cwccwccb.",".bcwwc.cwccwccb.",".bcwwc.cwccwccb.",".bwwwwccwwwwccb.",".bccccccccccccb.",".bbbbbbbbbbbbbb.","................","................","................","................"],
+cycle:["................",".....gggggg.....","...gggmmmmgg....","..ggm.....gg.g..","..gm.......ggg..",".gg.......gggg..",".gg.............",".gg.............","..........gg....","..gggg.......gg.","..ggg........gg.","..g.gg......mg..","....ggmmmmggg...","......gggggg....","................","................"],
+clipboard:["................","......SSSS......","...TTTSssSTTT...","...TeeeeeeeeT...","...TeSSSSSSeT...","...TeeeeeeeeT...","...TeSSSSSeeT...","...TeeeeeeeeT...","...TeSSSSSSeT...","...TeeeeeeeeT...","...TeSSSeeeeT...","...TeeeeeeeeT...","...TTTTTTTTTT...","................","................","................"],
+chick:["................","................","......ll........",".....yyyy.......","....yyyyyy......","....yynyyyoo....","....yyyyyyo.....","....eYeYeYe.....","...eeeeeeeee....","...eeeeeeeee....","...eeeeeeeee....","....eeeeeee.....",".....eeeee......","................","................","................"],
+columns:["................",".......ss.......","....ssssssss....","..ssssssssssss..","..SSSSSSSSSSSS..","...ss.ss.ss.ss..","...ss.ss.ss.ss..","...ss.ss.ss.ss..","...ss.ss.ss.ss..","...ss.ss.ss.ss..","...ss.ss.ss.ss..","..SSSSSSSSSSSS..",".ssssssssssssss.","................","................","................"],
+coin:["................","................",".....yyyyyy.....","....yllyyyyY....","...yllYYYYyyY...","...ylYyyyyYyY...","...yyYyyyyYyY...","...yyYyyyyYyY...","...yyYyyyyYyY...","...yyYYYYYYyY...","....yyyyyyyY....",".....YYYYYY.....","................","................","................","................"],
+ticket:["................","................","................",".rrrrrrrrrrrrrr.",".rppprrprrrrrrr.","..rprrrprwwwwr..",".rrrrrrprrrrrrr.",".rrrrrrprwwwrr..","..rprrrprrrrrr..",".rppprrprrrrrrr.",".rrrrrrrrrrrrrr.","................","................","................","................","................"],
+comet:["................","................","..o.............","...oo...........","....ooo.........",".....oyyy.......","......yyll......",".o.....yllw.....","..oo...ylwww....","...oooyyllww....","......yyyll.....","........yy......","................","................","................","................"],
+flag:["................","..d.............","..dwwnnwwnnww...","..dwwnnwwnnww...","..dnnwwnnwwnn...","..dnnwwnnwwnn...","..dwwnnwwnnww...","..dwwnnwwnnww...","..d.............","..d.............","..d.............","..d.............",".ddd............","................","................","................"],
+sunrise:["................","................","................","........y.......","...y....y....y..","....y.......y...","......yyyy......","....yyllyyyy....","...yyllyyyyyy...","oooooooooooooooo","OOOOOOOOOOOOOOOO","bbbbbbbbbbbbbbbb","BBBBBBBBBBBBBBBB","................","................","................"],
+scales:["................",".......yy.......",".......yy.......","..yyyyyyyyyyyy..","..y....yy....y..",".y.y...yy...y.y.","y...y..yy..y...y","yyyyy..yy..yyyyy",".yyy...yy...yyy.",".......yy.......","......yyyy......","....yyyyyyyy....","................","................","................","................"],
+moon:["................",".....yyyy.......","....yyy.........","...yyl..........","...yyl..........","..yyl...........","..yyl...........","..yyl...........","..yyyl..........","...yyyl.......y.","...yyyyl.....yy.","....yyyyyyyyyy..",".....yyyyyyyy...","................","................","................"],
+die:["................","................","...wwwwwwwwww...","...wnwwwwwwnw...","...wwwwwwwwww...","...wwwwwwwwww...","...wwwwnnwwww...","...wwwwnnwwww...","...wwwwwwwwww...","...wwwwwwwwww...","...wnwwwwwwnw...","...wwwwwwwwww...","................","................","................","................"],
+boom:["................",".......y........","..y...yoy...y...","...y.yoroy.y....","....yorrroy.....",".yyyorrwrrryyy..","..yorrwwwrroy...","...yorrwrrroy...","..yyyorrrrooyy..",".y...yoroyy...y.",".....y.oy..y....","......y.........","................","................","................","................"],
+chain:["................","................","..ssss..........",".s....s.........",".s..ssss........",".s.s..s.s.......","..ssss..s.......","...s....s.ssss..","....ssss.s....s.","........ssss..s.",".........s....s.","..........ssss..","................","................","................","................"],
+gear:["................",".......ss.......","...ss.ssss.ss...","...ssssssssss...","....ssssssss....","..sssSS..SSsss..","..sssS....Ssss..","..sssS....Ssss..","..sssSS..SSsss..","....ssssssss....","...ssssssssss...","...ss.ssss.ss...",".......ss.......","................","................","................"],
+person:["................",".....kkkkk......","....kkkkkkk.....","....kfffffk.....","....fnfffnf.....","....fffffff.....","....ffFFFff.....",".....fffff......","...bbbbbbbbb....","..bbbbbbbbbbb...","..bbbbbbbbbbb...","..bbbbbbbbbbb...","................","................","................","................"],
+couch:["................","................","................","...vvvvvvvvvv...","...vuuuuuuuuv...","...vuuuuuuuuv...",".vvvvvvvvvvvvvv.",".vuvuuuuuuuuvuv.",".vuvuuuuuuuuvuv.",".vvvvvvvvvvvvvv.",".V............V.","................","................","................","................","................"],
+train:["................","..ddd...........","..ddd...........","..rrrrrrr.......","..rcccrrrrrrrr..","..rcccrrrrrrrr..","..rrrrrrrrrrrr..","..rrrrrrrrrrrr..","..RRRRRRRRRRRR..","..dd.dd..dd.dd..","..dd.dd..dd.dd..","nnnnnnnnnnnnnnnn","................","................","................","................"],
+up:["................",".......gg.......","......gggg......",".....gggggg.....","....gggggggg....","...gggmggggggg..","......gggg......","......gmgg......","......gggg......","......gggg......","......gggg......","......GGGG......","................","................","................","................"],
+palette:["................","................",".....eeeeee.....","...eeeeeeeeee...","..eerreeeeyyee..","..eerreeeeyyee..",".eeeeeeeeeeeee..",".eebbeeeeeeee...",".eebbee....ee...",".eeeeee....eee..","..eeggeeeeeeee..","..eeggeeeeeee...","...eeeeeeeee....","................","................","................"],
+check:["................","................","...gggggggggg...","...gmmmmmmmmg...","...gmmmmmmwmg...","...gmmmmmwwmg...","...gmwmmwwmmg...","...gmwwwwmmmg...","...gmmwwmmmmg...","...gmmmmmmmmg...","...gmmmmmmmmg...","...gggggggggg...","................","................","................","................"],
+snow:["................",".......cc.......","...c...cc...c...","....c..cc..c....",".....c.cc.c.....","......cwwc......",".ccccccwwcccccc.",".ccccccwwcccccc.","......cwwc......",".....c.cc.c.....","....c..cc..c....","...c...cc...c...",".......cc.......","................","................","................"],
+blossom:["................","......ii........",".....iiii.......","..ii.iiii.ii....",".iiii.ii.iiii...",".iiiiiyyiiiii...","..iiiyllyiii....","....iyyyyi......","..iiii.iiiii....",".iiiii.iiiiii...",".iiii...iiii....","..ii.....ii.....","................","................","................","................"],
+firework:["................","....y...I...y...","..y..y..I..y..y.","....y.y.I.y.y...","..I..y.yyy.y..I.",".....yyywyyy....","IIIIIyywwwyyIIII",".....yyywyyy....","..I..y.yyy.y..I.","....y.y.I.y.y...","..y..y..I..y..y.","....y...I...y...","................","................","................","................"],
+target:["................",".....rrrrrr.....","...rrwwwwwwrr...","..rwwrrrrrrwwr..","..rwrrwwwwrrwr..",".rwrwwrrrrwwrwr.",".rwrwrrrrrrwrwr.",".rwrwrr..rrwrwr.",".rwrwrr..rrwrwr.",".rwrwwrrrrwwrwr.","..rwrrwwwwrrwr..","..rwwrrrrrrwwr..","...rrwwwwwwrr...",".....rrrrrr.....","................","................"],
+bat:["................","................","................","......d..d......",".....dddddd.....","dd...dwddwd...dd",".ddddddddddddddd","..dddddddddddd..","...ddd.dd.ddd...","....d......d....","................","................","................","................","................","................"],
+goat:["................","..ss......ss....","...ss....ss.....","....ewwwwe......","...ewwwwwwe.....","..ewnwwwwnwe....","..ewwwwwwwwe....","...ewwppwwe.....","....ewwwwe......",".....ewwe.......",".....esse.......","......ss........","................","................","................","................"],
+};
+// emoji → icon (reusing existing art where it fits)
+const EMO={
+ '⭐':()=>pixIcon('star'),'🏆':()=>pixArt(CUP,'allstar'),'🎃':()=>pixIcon('pumpkin'),'🔒':()=>pixIcon('lock'),'🚨':()=>pixIcon('siren'),'🏀':()=>logoSvg('ball'),
+ '🔥':()=>logoSvg('flame'),'⚡':()=>logoSvg('bolt'),'⚔️':()=>logoSvg('swords'),'⚔':()=>logoSvg('swords'),'👑':()=>logoSvg('crown'),
+ '🛡️':()=>awardPic('iron'),'🛡':()=>awardPic('iron'),'🪑':()=>awardPic('sixth'),'📈':()=>awardPic('improved'),'⏱️':()=>awardPic('closer'),'⏱':()=>awardPic('closer'),
+ '🏅':()=>pixIcon('medal'),'🥇':()=>pixIcon('medal'),'🩹':()=>pixIcon('bandage'),'📝':()=>pixIcon('memo'),'💪':()=>pixIcon('arm'),'✨':()=>pixIcon('sparkle'),
+ '📣':()=>pixIcon('megaphone'),'🎉':()=>pixIcon('popper'),'🎊':()=>pixIcon('popper'),'🔊':()=>pixIcon('speaker'),'🔇':()=>pixIcon('mute'),'📳':()=>pixIcon('vibrate'),'📴':()=>pixIcon('phoneoff'),
+ '🙌':()=>pixIcon('hands'),'👏':()=>pixIcon('hands'),'👍':()=>pixIcon('thumb'),'💯':()=>pixIcon('hundred'),'🔟':()=>pixIcon('ten'),'🔁':()=>pixIcon('cycle'),'🔄':()=>pixIcon('cycle'),
+ '📋':()=>pixIcon('clipboard'),'🐣':()=>pixIcon('chick'),'🏛️':()=>pixIcon('columns'),'🏛':()=>pixIcon('columns'),'🪙':()=>pixIcon('coin'),'🎟️':()=>pixIcon('ticket'),'🎟':()=>pixIcon('ticket'),
+ '☄️':()=>pixIcon('comet'),'☄':()=>pixIcon('comet'),'🏁':()=>pixIcon('flag'),'🌅':()=>pixIcon('sunrise'),'⚖️':()=>pixIcon('scales'),'⚖':()=>pixIcon('scales'),'🌙':()=>pixIcon('moon'),
+ '🎲':()=>pixIcon('die'),'💥':()=>pixIcon('boom'),'⛓️':()=>pixIcon('chain'),'⛓':()=>pixIcon('chain'),'⚙️':()=>pixIcon('gear'),'⚙':()=>pixIcon('gear'),'🧑':()=>pixIcon('person'),
+ '🛋️':()=>pixIcon('couch'),'🛋':()=>pixIcon('couch'),'🚂':()=>pixIcon('train'),'⬆️':()=>pixIcon('up'),'🎨':()=>pixIcon('palette'),'✅':()=>pixIcon('check'),
+ '❄️':()=>pixIcon('snow'),'❄':()=>pixIcon('snow'),'🌸':()=>pixIcon('blossom'),'🎆':()=>pixIcon('firework'),'🎯':()=>pixIcon('target'),'🦇':()=>pixIcon('bat'),'🐐':()=>pixIcon('goat'),
+ '🗑️':()=>pixIcon('bandage')};
+const pixIcon=n=>{const rows=PIXI[n];return gridSvg(rows.map(r=>[...r].map(c=>c==='.'?null:IPAL[c])))};
+const EMO_RE=new RegExp(Object.keys(EMO).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gu');
+const icCache={};
+const pxIcon=e=>{const k=e+(S&&S.oldHeads?'o':'h');return icCache[k]||(icCache[k]=`<i class="pxi">${EMO[e]()}</i>`)};
+// Swap every known emoji in an HTML string for its pixel icon (text only, never inside tags or attributes).
+// Pixel icons as CSS images (for decorations drawn with ::before/::after)
+function cssIcons(){const r=document.documentElement.style,u=svg=>`url("data:image/svg+xml;utf8,${encodeURIComponent(svg.replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" '))}")`;
+  r.setProperty('--icx-bat',u(pixIcon('bat')));r.setProperty('--icx-pumpkin',u(pixIcon('pumpkin')));r.setProperty('--icx-trophy',u(pixArt(CUP,'allstar')))}
+function pix(html){return String(html).split(/(<[^>]*>)/).map(p=>p[0]==='<'?p:p.replace(EMO_RE,pxIcon)).join('')}
 /* ===================== team logos (original pixel art) ===================== */
 const LOGOS=[['ball','Basketball'],['shield','Shield'],['flame','Flame'],['bolt','Bolt'],['mountain','Summit'],['swords','Crossed swords'],['crown','Crown'],['owl','Night owl'],['rocket','Rocket'],['star','Superstar'],['anchor','Anchor']];
 function logoSvg(id){
@@ -1374,7 +1450,7 @@ const myLogo=()=>(S.cos&&S.cos.logo)||'ball';
 const badge=(id,sz=46)=>{if(id==='me')return `<div class="badge logo" style="width:${sz}px;height:${sz}px">${logoSvg(myLogo())}</div>`;const t=team(id);return `<div class="badge" style="background:${t.c};width:${sz}px;height:${sz}px">${esc(t.ab)}</div>`};
 const mini=id=>{if(id==='me')return `<span class="mini logo">${logoSvg(myLogo())}</span>`;const t=team(id);return `<span class="mini" style="background:${t.c}">${esc(t.ab)}</span>`};
 function recordOf(id){const se=curSeason();if(!se)return '';const st=standings(se,gameDate());const x=st.find(r=>r.id===id);return x?`${x.w}–${x.l}`:''}
-function toast(msg){let h=document.getElementById('toasts');if(!h){h=document.createElement('div');h.id='toasts';document.body.appendChild(h)}const el=document.createElement('div');el.className='toast';el.textContent=msg;h.appendChild(el);while(h.children.length>3)h.firstChild.remove();setTimeout(()=>el.remove(),2800)}
+function toast(msg){let h=document.getElementById('toasts');if(!h){h=document.createElement('div');h.id='toasts';document.body.appendChild(h)}const el=document.createElement('div');el.className='toast';el.innerHTML=pix(esc(msg));h.appendChild(el);while(h.children.length>3)h.firstChild.remove();setTimeout(()=>el.remove(),2800)}
 
 
 /* ===================== pixel heads ===================== */
@@ -1686,7 +1762,7 @@ const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color
 let view='today',leagueTab='table',standTab='league',setupStep=0;
 const app=document.getElementById('app');
 function render(){
-  processDays();applyTheme();
+  processDays();applyTheme();if(!window.__icx){window.__icx=1;cssIcons()}
   {const b=document.body,v=(S.cos&&S.cos.pbg)||'classic';[...b.classList].forEach(c=>{if(c.startsWith('pbg-')&&c!=='pbg-'+v)b.classList.remove(c)});b.classList.add('pbg-'+v)}
   const nav=document.getElementById('nav');
   if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
@@ -1695,7 +1771,7 @@ function render(){
   if(view!=='awards'&&lkShown){if(S.seen)lkShown.forEach(x=>S.seen[x]=1);lkShown=null;save()}
   pvBar();
   const nv=view==='profile'?'squad':view==='settings'?'club':view;nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===nv);b.classList.toggle('new',(b.dataset.v==='club'&&(S.achNew||0)>0)||(b.dataset.v==='awards'&&view!=='awards'&&newCount()>0))});
-  app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView,profile:profileView,settings:settingsView})[view]();
+  app.innerHTML=pix(({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView,profile:profileView,settings:settingsView})[view]());
   if(view==='today')gdMoments();
 }
 
@@ -2269,11 +2345,11 @@ function clSetup(){
 function pvBar(){
   let b=document.getElementById('pvbar');if(!PREVIEW){if(b)b.remove();document.body.classList.remove('pv');return}
   if(!b){b=document.createElement('div');b.id='pvbar';document.body.appendChild(b)}document.body.classList.add('pv');
-  if(PREVIEW.mode==='draft'){b.innerHTML=`<div class="sp"><b>📝 MOCK DRAFT</b><div class="small">${monthName(skey(gameDate()))} pre-season · not saved</div></div><button class="btn" data-a="mdClear">Clear squad</button><button class="btn" data-a="pvExit">Exit</button>`;return}
-  if(PREVIEW.mode==='clutch'){b.innerHTML=`<div class="sp"><b>🚨 CLUTCH PREVIEW</b><div class="small">Tap a glowing player to win it · not saved</div></div><button class="btn primary" data-a="clReplay">Replay ↺</button><button class="btn" data-a="pvExit">Exit</button>`;return}
+  if(PREVIEW.mode==='draft'){b.innerHTML=pix(`<div class="sp"><b>📝 MOCK DRAFT</b><div class="small">${monthName(skey(gameDate()))} pre-season · not saved</div></div><button class="btn" data-a="mdClear">Clear squad</button><button class="btn" data-a="pvExit">Exit</button>`);return}
+  if(PREVIEW.mode==='clutch'){b.innerHTML=pix(`<div class="sp"><b>🚨 CLUTCH PREVIEW</b><div class="small">Tap a glowing player to win it · not saved</div></div><button class="btn primary" data-a="clReplay">Replay ↺</button><button class="btn" data-a="pvExit">Exit</button>`);return}
   const t=gameDate(),after=t>HSE.end,{m,r}=hsMe();
   const st=after?(S.hsDone&&S.hsDone.champ==='me'?'🏆 Champions!':'Shootout over'):m?(m.done&&m.winner!=='me'?`Out in the ${HSE.short[r]}`:`${HSE.short[r]} · ${nice(t,{weekday:'short',day:'numeric',month:'short'})}`):'';
-  b.innerHTML=`<div class="sp"><b>🎃 SHOOTOUT PREVIEW</b><div class="small">${st} · not saved</div></div><button class="btn primary" data-a="pvNext">${after?'See bracket':(m&&m.done&&m.winner!=='me')?'Skip to end ▶':'Next day ▶'}</button><button class="btn" data-a="pvExit">Exit</button>`;
+  b.innerHTML=pix(`<div class="sp"><b>🎃 SHOOTOUT PREVIEW</b><div class="small">${st} · not saved</div></div><button class="btn primary" data-a="pvNext">${after?'See bracket':(m&&m.done&&m.winner!=='me')?'Skip to end ▶':'Next day ▶'}</button><button class="btn" data-a="pvExit">Exit</button>`);
 }
 function tourTrophyCard(){
   const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.n==='Halloween Shootout'&&today<=addDays(e.e,14)));
@@ -2617,7 +2693,7 @@ function showReveal(d,done){
 }
 function overlay(html,ms,done){
   const old=document.getElementById('gdov');if(old)old.remove();
-  const o=document.createElement('div');o.id='gdov';o.className='gdov';o.innerHTML=html;document.body.appendChild(o);
+  const o=document.createElement('div');o.id='gdov';o.className='gdov';o.innerHTML=pix(html);document.body.appendChild(o);
   let closed=false;const close=()=>{if(closed)return;closed=true;o.classList.add('out');setTimeout(()=>{o.remove();if(done)done()},350)};
   const tm=setTimeout(close,ms);o.addEventListener('click',()=>{clearTimeout(tm);close()});return o;
 }
@@ -2726,7 +2802,7 @@ document.addEventListener('click',e=>{if(Date.now()-dragEndAt<450){e.stopPropaga
 document.addEventListener('contextmenu',e=>{if(e.target.closest('.pcard,.court .tok,.benchwrap .pl'))e.preventDefault()});
 
 /* ===================== sheets ===================== */
-function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
+function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=pix(`<div class="sheet"><div class="grab"></div>${html}</div>`);s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
 function closeSheet(){const s=document.getElementById('scrim');if(s)s.remove()}
 let signCtx=null;
 function libSheet(ctx){
@@ -2951,7 +3027,7 @@ function celebrate(type,title,sub){
   o.innerHTML=`<div class="cel-txt"><b>${esc(title)}</b>${sub?`<span>${esc(sub)}</span>`:''}</div>`;
   document.body.appendChild(o);sfx('cheer');buzz([40,60,40,60,80]);
   const W=innerWidth,H=innerHeight,R=(a,b)=>a+Math.random()*(b-a);
-  const add=(cls,css,txt)=>{const e=document.createElement('i');e.className=cls;for(const[k,v]of Object.entries(css)){if(k.startsWith('--'))e.style.setProperty(k,v);else e.style[k]=v}if(txt)e.textContent=txt;o.appendChild(e);return e};
+  const add=(cls,css,txt)=>{const e=document.createElement('i');e.className=cls;for(const[k,v]of Object.entries(css)){if(k.startsWith('--'))e.style.setProperty(k,v);else e.style[k]=v}if(txt)e.innerHTML=pix(esc(txt));o.appendChild(e);return e};
   const COLS=['#ef4444','#fbbf24','#22c55e','#3b82f6','#ec4899','#a78bfa','#ff7a1a'];
   if(type==='confetti')for(let i=0;i<70;i++)add('cf',{left:R(0,W)+'px',background:COLS[i%7],animationDelay:R(0,.5)+'s','--x':R(-60,60)+'px','--r':R(360,1080)+'deg',width:R(6,10)+'px',height:R(8,14)+'px'});
   if(type==='buzzer'){add('siren',{});add('horn',{},'BUZZER BEATER');document.getElementById('app').classList.add('shake');setTimeout(()=>document.getElementById('app').classList.remove('shake'),500)}
