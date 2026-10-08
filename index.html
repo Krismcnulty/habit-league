@@ -2073,9 +2073,6 @@ function profileView(){
     <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
     <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
   </div>
-  <div class="sect"><h3 class="cond">Rest days</h3><span class="small muted">Repeats weekly · up to ${INJURY_USES}</span></div>
-  <div class="card"><div class="rdays">${WD.map((w,i)=>`<button class="rday ${(p.restDays||[]).includes(i)?'on':''}" data-a="togRest" data-id="${p.id}" data-v="${i}">${w}</button>`).join('')}</div>
-    <div class="small muted" style="margin-top:8px">${(p.restDays||[]).length?`Rests every ${p.restDays.slice().sort().map(i=>WD[i]).join(', ')}: scores nothing for or against you, and your opponent adjusts.`:'No planned rest days. Pick days this habit takes off each week, like gym rest days.'}</div></div>
   <div class="sect"><h3 class="cond">Stats</h3></div>
   <div class="card statcard"><div class="tabs ptabs">${[['season','This season'],['career','Career']].map(([k,n])=>`<button class="${profTab===k?'on':''}" data-a="profTab" data-v="${k}">${n}</button>`).join('')}</div>
   ${profTab==='career'?(()=>{const c=pCareer(p);return `<div class="stgrid" style="margin-top:8px"><div><b>${c.seasons}</b><span>Season${c.seasons===1?'':'s'}</span></div><div><b>${c.made}</b><span>Makes</span></div><div><b>${c.pct===null?'–':c.pct+'%'}</b><span>All-time</span></div><div><b>${c.best}</b><span>Best streak</span></div></div>`})()
