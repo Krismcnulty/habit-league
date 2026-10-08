@@ -26,7 +26,8 @@
   --r:16px;--well:var(--well);--deep:var(--deep);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{background-image:var(--bgtex,none);background-attachment:fixed}
+html,body{margin:0;background-color:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 body{padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input,select{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
@@ -298,6 +299,8 @@ td.tpos{white-space:nowrap}
 .cogbtn{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:13px;font-weight:800;color:var(--text)}
 .thmgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .thm{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px;border-radius:14px;background:var(--tb);border:2px solid var(--tl);text-align:left;color:#eef2ff}
+.thm{position:relative;background-image:var(--tt)!important}.thm.locked{opacity:.6}.thm.locked .thm-sw{filter:grayscale(.4)}.thm-b{position:absolute;bottom:8px;right:9px;font-style:normal;font-size:14px}
+.thm-sw i:nth-child(3){background:linear-gradient(180deg,var(--ta),var(--ta2))!important}
 .thm.on{border-color:var(--orange);box-shadow:0 0 0 3px rgba(255,122,26,.2)}
 .thm b{font-size:14px;margin-top:6px}.thm small{font-size:11px;color:#9aa3bd;line-height:1.3}
 .thm-sw{display:flex;gap:4px;width:100%}.thm-sw i{flex:1;height:26px;border-radius:7px;background:var(--tp);border:1px solid var(--tl)}.thm-sw i:nth-child(2){background:var(--tp2)}.thm-sw i:nth-child(3){flex:.5;background:linear-gradient(180deg,#ff7a1a,#ffb066);border:0}
@@ -2483,13 +2486,23 @@ const THEMES=[
  ['crimson','Crimson','Dark reds for game night',{bg:'#150709',panel:'#210d11',panel2:'#2c1217',line:'#451c24',muted:'#c0959c',well:'#100507',deep:'#19090c'}],
  ['royale','Royale','Purple for the dynasty years',{bg:'#0f0a1e',panel:'#1a112f',panel2:'#22173d',line:'#35265a',muted:'#a598c8',well:'#0c0818',deep:'#130d25'}],
  ['steel','Steel','Cool greys, no colour cast',{bg:'#0d0f12',panel:'#171a1f',panel2:'#1f232a',line:'#2e333c',muted:'#959ca8',well:'#0a0c0f',deep:'#111317'}],
+ // Premium themes also recolour the accent and add a background texture
+ ['neon','Neon Night','Purple-black with a magenta glow',{bg:'#0c0614',panel:'#170b24',panel2:'#1f1030',line:'#3a1d5c',muted:'#a99cc4',well:'#0a0511',deep:'#120820',ac:'#22d3ee',ac2:'#a5f3fc',tex:'radial-gradient(120% 55% at 50% -10%,rgba(217,70,239,.24),transparent 60%),radial-gradient(80% 40% at 100% 100%,rgba(34,211,238,.10),transparent 60%)'},'prem'],
+ ['gold','Gold Edition','Black with a gold shimmer',{bg:'#0a0906',panel:'#15130d',panel2:'#1d1a11',line:'#3b331c',muted:'#b3a77f',well:'#080705',deep:'#100e09',ac:'#fbbf24',ac2:'#fde68a',tex:'radial-gradient(100% 45% at 50% -10%,rgba(251,191,36,.16),transparent 60%),repeating-linear-gradient(115deg,rgba(251,191,36,.03) 0 2px,transparent 2px 10px)'},'prem'],
+ ['arcade','Arcade','Green-black with scanlines',{bg:'#04100a',panel:'#081a10',panel2:'#0c2316',line:'#14402a',muted:'#86b39a',well:'#030c07',deep:'#06140c',ac:'#84cc16',ac2:'#d9f99d',tex:'repeating-linear-gradient(0deg,rgba(132,204,22,.05) 0 1px,transparent 1px 3px),radial-gradient(100% 50% at 50% -10%,rgba(132,204,22,.12),transparent 60%)'},'prem'],
+ ['sunset','Sunset Strip','Plum fading to dusky orange',{bg:'#160a14',panel:'#22101d',panel2:'#2c1426',line:'#4a2340',muted:'#c39ab4',well:'#10070e',deep:'#1a0b17',ac:'#f472b6',ac2:'#fbcfe8',tex:'linear-gradient(180deg,rgba(126,34,206,.22),rgba(249,115,22,.16))'},'prem'],
+ // Earned: the top club level
+ ['dynasty','Dynasty','Marble and gold for the top club level',{bg:'#0b0a0e',panel:'#16141b',panel2:'#1e1b25',line:'#3a3242',muted:'#b0a6bd',well:'#08070a',deep:'#100e14',ac:'#facc15',ac2:'#fef08a',tex:'repeating-linear-gradient(35deg,rgba(255,255,255,.028) 0 1px,transparent 1px 23px),repeating-linear-gradient(-55deg,rgba(255,255,255,.02) 0 1px,transparent 1px 37px),radial-gradient(100% 45% at 50% -10%,rgba(250,204,21,.15),transparent 60%)'},'earn'],
 ];
-function applyTheme(){const T=(THEMES.find(t=>t[0]===S.theme)||THEMES[0])[3],r=document.documentElement.style;
+const themeOk=t=>!t[4]||S.unlockAll||(t[4]==='prem'?!!S.premium:S.xp>=CAREER[CAREER.length-1][0]);
+function applyTheme(){const t0=THEMES.find(t=>t[0]===S.theme),T=(t0&&themeOk(t0)?t0:THEMES[0])[3],r=document.documentElement.style;
+  r.setProperty('--orange',T.ac||'#ff7a1a');r.setProperty('--orange2',T.ac2||'#ffb066');r.setProperty('--bgtex',T.tex||'none');
   r.setProperty('--bg',T.bg);r.setProperty('--panel',T.panel);r.setProperty('--panel2',T.panel2);r.setProperty('--line',T.line);r.setProperty('--muted',T.muted);r.setProperty('--well',T.well);r.setProperty('--deep',T.deep);
   const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',T.bg)}
 function settingsView(){
   const cur=S.theme||'navy';
-  const themes=THEMES.map(([id,n,d,T])=>`<button class="thm ${cur===id?'on':''}" data-a="setTheme" data-v="${id}" style="--tb:${T.bg};--tp:${T.panel};--tp2:${T.panel2};--tl:${T.line}"><span class="thm-sw"><i></i><i></i><i></i></span><b>${n}</b><small>${d}</small></button>`).join('');
+  const tile=t=>{const [id,n,d,T,tier]=t,ok=themeOk(t);return `<button class="thm ${cur===id&&ok?'on':''} ${ok?'':'locked'} ${tier?'t-'+tier:''}" data-a="setTheme" data-v="${id}" style="--tb:${T.bg};--tp:${T.panel};--tp2:${T.panel2};--tl:${T.line};--ta:${T.ac||'#ff7a1a'};--ta2:${T.ac2||'#ffb066'};--tt:${T.tex||'none'}">${tier?`<i class="thm-b">${tier==='prem'?'⭐':ok?'🏛️':'🔒'}</i>`:''}<span class="thm-sw"><i></i><i></i><i></i></span><b>${n}</b><small>${d}</small></button>`};
+  const themes=THEMES.filter(t=>!t[4]).map(tile).join('')+`</div><div class="small muted" style="margin:12px 2px 6px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:11px">Premium &amp; earned</div><div class="thmgrid">`+THEMES.filter(t=>t[4]).map(tile).join('');
   return `<div class="top"><button class="backbtn" data-a="go" data-v="club">‹ Club</button><h1 class="cond" style="font-size:22px">Settings</h1></div>
   <div class="sect"><h3 class="cond">Appearance</h3><span class="small muted">App theme</span></div>
   <div class="thmgrid">${themes}</div>
@@ -2956,7 +2969,7 @@ const A={
   clubTab(d){clubTab=d.v;render()},
   careerSheet(){sheet(careerSheetHtml())},
   achInfo(d){const a=ACH.find(x=>x.id===d.v);if(!a)return;sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>${achList([a])}`)},
-  setTheme(d){S.theme=d.v;save();render();toast(`🎨 ${THEMES.find(t=>t[0]===d.v)[1]} theme on`)},
+  setTheme(d){const t=THEMES.find(x=>x[0]===d.v);if(t&&!themeOk(t))return toast(t[4]==='prem'?'⭐ Premium theme: turn on the Premium preview in the Locker to use it':`🏛️ Reach the ${CAREER[CAREER.length-1][1]} club level to unlock this theme`);S.theme=d.v;save();render();toast(`🎨 ${THEMES.find(t=>t[0]===d.v)[1]} theme on`)},
   lkPrem(){lkPremOpen=!lkPremOpen;render()},
   lkJump(d){lkTab=d.v;render();const h=document.querySelector('.lkhead');if(h&&h.getBoundingClientRect().top<=0)window.scrollTo({top:h.offsetTop})},
   togglePrem(){S.premium=!S.premium;save();render();toast(S.premium?'⭐ Premium preview on (no payment in the prototype)':'Premium preview off')},
