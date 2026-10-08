@@ -389,6 +389,15 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .ecard .jbig{width:84px}
 .rcol{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none}
 .rcol .posn{font-size:11.5px}
+.hidden{display:none}
+.lookrow{display:flex;justify-content:center;align-items:center;gap:22px}
+.headbtn{position:relative;width:92px;height:92px;border-radius:20px;border:3px solid;background:linear-gradient(180deg,#1f2a4a,#121a33);display:grid;place-items:center;padding:0;box-shadow:0 6px 14px rgba(0,0,0,.35);transition:transform .15s}
+.headbtn svg{width:76px;height:76px;image-rendering:pixelated}
+.headbtn:active{transform:scale(.96)}
+.headbtn .hedit{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);white-space:nowrap;background:var(--orange);color:#1a0d00;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.headbtn.open{box-shadow:0 0 0 3px rgba(255,122,26,.5),0 6px 14px rgba(0,0,0,.35)}
+.headbtn.open .hedit{background:var(--text)}
+.nmrow{display:flex;gap:10px;margin-top:14px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1173,15 +1182,22 @@ function squadView(){
 }
 function playerBest(p){let best=0,c=0;for(const d of Object.keys(S.days).sort()){const D=S.days[d];if(D.inj.includes(p.id))continue;if(isDone(p,D)){c++;if(c>best)best=c}else if(D.locked)c=0}return best}
 const retiredNums=except=>(S.retired||[]).filter(r=>r.id!==except).map(r=>r.num);
+let headOpen=false;
 function jerseyBlock(p){
   const id=ident(p),best=playerBest(p),seasons=p.seasons||0,ok=seasons>=3||best>=100,R=(S.retired||[]).find(r=>r.id===p.id);
+  const H=p.head&&HEADS.find(h=>h.id===p.head);
   const status=R?`<div class="small" style="color:var(--gold)">🏅 Retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`
     :ok?`<button class="btn primary block" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`
     :`<div class="small muted">Retire after 3 seasons (${seasons}/3) or a 100-day streak (best ${best})</div>`;
-  return `<div class="ecard"><div class="ehead">Jersey</div>
-    <div class="row" style="gap:14px;align-items:center"><div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div>
-    <div class="sp" style="min-width:0"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}">
-    <label class="flab" style="margin-top:10px">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" style="width:84px" ${R?'disabled':''}></div></div>
+  return `<div class="ecard"><div class="ehead">Player</div>
+    <div class="lookrow">
+      <button class="headbtn ${headOpen?'open':''}" data-a="toggleHeads" style="border-color:${posById(p.pos).c}" aria-label="Change head">${faceSvg(p)}<span class="hedit">${headOpen?'✕ Close':'✏️ Change'}</span></button>
+      <div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div>
+    </div>
+    <div class="small muted" style="text-align:center;margin:6px 0 0">${H?esc(H.n):'Scouted'} head · tap the face to change it</div>
+    <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
+    <div class="nmrow"><div class="sp"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}"></div>
+      <div style="width:84px"><label class="flab">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" ${R?'disabled':''}></div></div>
     <div style="margin-top:10px">${status}</div></div>`;
 }
 function squadInfo(k){
@@ -1371,7 +1387,6 @@ function playerSheet(id){
   sheet(`<div class="row">${avatar(p)}<div class="sp" style="min-width:0"><h2>${esc(p.name)}</h2><div class="small"><b>${esc(ident(p).name)}</b> · ${posTag(p)}</div></div></div>
   ${statsBlock(p)}
   ${jerseyBlock(p)}
-  <div class="ecard"><div class="ehead">Head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}</div>
   <div class="ecard"><div class="ehead">Habit<span class="small muted" style="font-weight:600;text-transform:none;letter-spacing:0">${info}</span></div>
     <label class="flab">Name</label><input id="pName" maxlength="28" value="${esc(p.name)}">
     <label class="flab" style="margin-top:10px">Steps <span class="muted">· optional, one per line</span></label>
@@ -1423,7 +1438,8 @@ const A={
     if(signCtx.transfer)return doTransfer(p);
     S.squad.push(p);save();closeSheet();render();
   },
-  player(d){playerSheet(d.id)},
+  player(d){headOpen=false;playerSheet(d.id)},
+  toggleHeads(){headOpen=!headOpen;const el=document.getElementById('headpick'),b=document.querySelector('.headbtn');if(el)el.classList.toggle('hidden',!headOpen);if(b){b.classList.toggle('open',headOpen);b.querySelector('.hedit').textContent=headOpen?'✕ Close':'✏️ Change'}if(headOpen&&el)el.scrollIntoView({behavior:'smooth',block:'nearest'})},
   newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;delete p.head;save();render();playerSheet(p.id)},
   setHead(d){const p=S.squad.find(x=>x.id===d.id);if(d.v==='scouted'){delete p.head}else{if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));p.head=d.v}save();render();playerSheet(p.id)},
   look(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const p=S.squad.find(x=>x.id===d.id);p.look={...(p.look||{}),[d.k]:d.v};save();render();playerSheet(p.id)},
