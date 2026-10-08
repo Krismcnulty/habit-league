@@ -1720,7 +1720,7 @@ function squadView(){
   ${edit&&squadReady()?`<button class="btn primary block" style="margin-bottom:4px" data-a="lockin">Lock in squad</button>`:''}
   ${squadLists(edit)}`;
 }
-function playerBest(p){let best=0,c=0;for(const d of Object.keys(S.days).sort()){const D=S.days[d];if(D.inj.includes(p.id)||restD(D))continue;if(isDone(p,D)){c++;if(c>best)best=c}else if(D.locked)c=0}return best}
+function playerBest(p){let best=0,c=0;for(const d of Object.keys(S.days).sort()){const D=S.days[d];if(D.inj.includes(p.id)||restD(D))continue;if(isDone(p,D)){c++;if(c>best)best=c}else if(D.locked)c=0}return Math.max(best,p.testBest||0)}
 const retiredNums=except=>(S.retired||[]).filter(r=>r.id!==except).map(r=>r.num);
 let headOpen=false;
 function jerseyBlock(p){
@@ -2014,7 +2014,7 @@ function clubView(){
     <button class="btn block" data-a="tReveal">📣 Replay the last final buzzer reveal</button>
     <button class="btn block" data-a="tSound">🔊 Play every sound</button>
     <button class="btn block" data-a="tAwards">${S.demoAwards?'🏅 Remove sample player awards':'🏅 Add sample player awards'}</button>
-    <button class="btn block" data-a="fastVet">Make a starter a 3-season veteran</button>
+    <button class="btn block" data-a="fast100">🏅 Give a player a 100-day streak</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
   <button class="btn danger block" style="margin-top:12px" data-a="reset">Reset everything</button>`;
@@ -2443,7 +2443,7 @@ const A={
     if(!confirm(`Retire #${id.num} ${id.name}? Their jersey goes up in the Club rafters for good. They keep playing, and #${id.num} can't be used by anyone else.`))return;
     S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:`${best}-day streak`,rk:pRank(p)});
     p.num=id.num;save();closeSheet();render();celebrate('stamp','RETIRED',`#${id.num} ${id.name}`)},
-  fastVet(){const p=S.squad.find(x=>x.slot==='court');p.seasons=Math.max(3,p.seasons||0);save();render();toast(`${p.name} is now a 3-season veteran`)},
+  fast100(){const R=S.retired||[],p=S.squad.find(x=>x.slot==='court'&&playerBest(x)<100&&!R.some(r=>r.id===x.id))||S.squad.find(x=>playerBest(x)<100&&!R.some(r=>r.id===x.id));if(!p){toast('Every player already has a 100-day streak');return}p.testBest=100;save();render();toast(`${p.name} now has a 100-day streak, so open their profile to retire the jersey`)},
   addStep(){const i=document.getElementById('newStep');const v=i.value.trim();if(!v)return i.focus();if(document.querySelectorAll('.stepin').length>=8)return toast('Up to 8 steps');document.getElementById('stepList').insertAdjacentHTML('beforeend',stepRow(v));i.value='';i.focus()},
   delStep(d,el){el.closest('.steprow').remove()},
   hsPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW};closeSheet();window.HL_NOW=HSE.start+'T19:00:00';view='today';render();scrollTo(0,0);toast('🎃 Preview mode · nothing here is saved')},
