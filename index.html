@@ -1667,7 +1667,7 @@ const HEADS=[
  {id:'king',n:'The King',shape:'square',sk:3,hair:'#1b120c',style:'buzz',band:'none',fx:['crown','beard'],mouth:'grin'},
  {id:'neon',n:'Neon Kid',shape:'narrow',sk:2,hair:'#e8c36a',style:'spiky',band:'#22d3ee',fx:[],mouth:'grin'},
  {id:'warrior',n:'Warrior',shape:'long',sk:1,hair:'#1b120c',style:'topknot',band:'none',fx:['warpaint'],mouth:'flat'},
- {id:'bigfella',n:'Big Fella',shape:'round',sk:5,hair:'#1b120c',style:'bald',band:'none',fx:['goggles'],mouth:'smile'},
+ {id:'bigfella',n:'Big Fella',shape:'square',sk:5,hair:'#1b120c',style:'bald',band:'none',fx:['goggles'],mouth:'grin'},
  {id:'flash',n:'Flash',shape:'narrow',sk:0,hair:'#b4441b',style:'mohawk',band:'#ec4899',fx:['stache'],mouth:'grin'},
  {id:'ghost',n:'Ghost',skin:['#f1f5f9','#cbd5e1'],hair:'#e2e8f0',style:'bald',band:'none',fx:['ghost'],mouth:'flat'},
  {id:'snowman',n:'Snowman',skin:['#f8fafc','#cbd5e1'],hair:'#111827',style:'bald',band:'none',fx:['snowman'],mouth:'none'},
@@ -1725,7 +1725,9 @@ function faceSvgHD(p){
   // afro sits behind the head
   if(style==='afro'){for(let y=0;y<=19;y++)for(let x=2;x<=29;x++){const d=((x-15.5)**2)/(13.5**2)+((y-8.5)**2)/(10**2);if(d<=1)set(x,y,(x*5+y*3)%7===0?hl:(x>22?hd:hair))}}
   // head + ears: five hue-shifted skin tones lit from the top left (cool highlights, warm reddish shadows), a cool rim light on the left edge
-  const T5={hl:hexMix(sk,'#fff4e6',.4),l:hexMix(sk,'#ffe8d0',.18),m:sk,s:hexMix(sh,'#7a2e1a',.2),d:hexMix(sh,'#2a0c06',.45),rim:hexMix(sk,'#dbe7ff',.38)};
+  const lum=(h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .3*v[0]+.59*v[1]+.11*v[2]})(sk),dark=lum<.42;
+  // darker skin gets warm highlights (a cool mix turns it grey)
+  const T5={hl:hexMix(sk,dark?'#f2b47e':'#fff1e0',dark?.34:.4),l:hexMix(sk,dark?'#e0a070':'#ffe6cc',dark?.17:.18),m:sk,s:hexMix(sh,'#7a2e1a',.2),d:hexMix(sh,'#2a0c06',.45),rim:hexMix(sk,dark?'#f0c8a4':'#dbe7ff',dark?.3:.38)};
   const SKIN=new Set(Object.values(T5).concat([sk,sh,lt,lt2,deep]));
   for(let y=6;y<=HDS.end;y++){const h=hdHalf(y);for(let x=0;x<N;x++)if(hdIn(x,y)){const dx=(x+.5-16)/h,dy=(y-14)/11,v=-.6*dx-.28*dy;set(x,y,v>.45?T5.hl:v>.14?T5.l:v>-.3?T5.m:v>-.62?T5.s:T5.d)}
     if(h){if(y>=10&&y<=22)set(16-h,y,T5.rim);set(15+h,y,T5.d)}}
@@ -1754,9 +1756,9 @@ function faceSvgHD(p){
     [[7,4],[10,2],[13,1],[16,1],[19,1],[22,2],[25,4],[5,7],[26,7]].forEach(([cx,cy])=>{for(let y=cy-1;y<=cy+1;y++)for(let x=cx-1;x<=cx+1;x++)if((x-cx)**2+(y-cy)**2<=1.5)set(x,y,tex(x,y))});
     for(let y=11;y<=14;y++){set(5,y,hair);set(6,y,y%2?hl:hair);set(25,y,hd);set(26,y,hd)}
     [[9,3],[12,2],[17,2],[20,3],[8,6],[14,5],[19,6],[11,8],[16,8]].forEach(([x,y])=>set(x,y,hl2))}
-  if(style==='horseshoe'){for(let y=12;y<=18;y++){for(let x=4;x<=6;x++)set(x,y,(x+y)%3===0?hl:hair);for(let x=25;x<=27;x++)set(x,y,hd)}rect(7,12,7,15,hair);rect(24,12,24,15,hd);rect(10,8,13,8,lt2);rect(9,9,11,9,lt);set(22,8,sh)}
+  if(style==='horseshoe'){for(let y=12;y<=18;y++){for(let x=4;x<=6;x++)set(x,y,(x+y)%3===0?hl:hair);for(let x=25;x<=27;x++)set(x,y,hd)}rect(7,12,7,15,hair);rect(24,12,24,15,hd);rect(11,7,13,7,T5.hl);rect(9,8,14,8,T5.hl);rect(9,9,11,9,T5.l);set(21,8,T5.s)}
   if(style==='afro'){for(let y=6;y<=10;y++)for(let x=6;x<=25;x++)if(hdIn(x,y))set(x,y,(x*5+y*3)%7===0?hl:(x>=23?hd:hair));for(let y=11;y<=16;y++){set(6,y,hair);set(25,y,hd)}}
-  if(bald){rect(10,8,13,8,lt2);rect(9,9,11,9,lt);set(22,8,sh)}
+  if(bald){rect(11,7,13,7,T5.hl);rect(9,8,14,8,T5.hl);rect(9,9,11,9,T5.l);rect(12,9,13,9,T5.hl);set(21,8,T5.s);set(22,9,T5.s)}
   // headband
   if(band!=='none'){const bd=hexMix(band,'#000000',.3),bl=hexMix(band,'#ffffff',.35);for(let x=6;x<=25;x++){set(x,9,bl);set(x,10,band);set(x,11,x>=22?bd:band)}set(6,12,band);set(25,12,bd);
     [[26,10,band],[27,10,band],[27,11,bd],[28,11,band],[28,12,bd],[29,12,band],[29,13,bd],[26,11,bd]].forEach(([x,y,c])=>set(x,y,c))}
