@@ -544,6 +544,21 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .trrow b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trrow .sp small{display:block;font-size:12px;color:var(--muted)}
 .trrow .ptsb{white-space:nowrap;font-size:14px;padding:4px 8px}
 .trgo{font-size:12px;font-weight:800;color:var(--orange2);flex:none}
+/* ---- hoop (themed per court) ---- */
+.court .hoop{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;
+  --bb:#f8fafc;--bbe:#0f172a;--bbm:#ff6a00;--rim:#ff6a00;--net:#ffffff;--nd:none;--glow:none}
+.hoop .bb{fill:var(--bb);stroke:var(--bbe);stroke-width:1.5}
+.hoop .bbm{fill:none;stroke:var(--bbm);stroke-width:1.4}
+.hoop .arm{fill:var(--bbe)}
+.hoop .rim{fill:none;stroke:var(--rim);stroke-width:3.2;filter:var(--glow)}
+.hoop .net{fill:none;stroke:var(--net);stroke-width:1.2;stroke-opacity:.9;stroke-dasharray:var(--nd);transform-origin:200px 292px;transform-box:view-box}
+.court-dark .hoop{--bb:#e5e7eb;--bbm:#ef4444;--rim:#ef4444}
+.court-blue .hoop{--bb:#ffffff;--bbe:#1e3a8a;--bbm:#f97316;--rim:#f97316}
+.court-street .hoop{--bb:#9ca3af;--bbe:#374151;--bbm:#4b5563;--rim:#6b7280;--net:#d1d5db;--nd:1.6 1.2}
+.court-neon .hoop{--bb:rgba(34,211,238,.12);--bbe:#22d3ee;--bbm:#f0abfc;--rim:#f0abfc;--net:#67e8f9;--glow:drop-shadow(0 0 3px #e879f9)}
+.court-beach .hoop{--bb:#fde68a;--bbe:#92400e;--bbm:#0ea5e9;--rim:#0ea5e9;--net:#a16207;--nd:2 1}
+.court-spooky .hoop{--bb:#1c0d2b;--bbe:#f97316;--bbm:#a855f7;--rim:#f97316;--net:#e9d5ff;--nd:1 1.5;--glow:drop-shadow(0 0 4px #f97316)}
+.court-playoffs .hoop{--bb:rgba(226,232,240,.85);--bbe:#8a6a12;--bbm:#fbbf24;--rim:#fbbf24;--net:#ffffff;--glow:drop-shadow(0 0 4px #fbbf24)}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1285,6 +1300,12 @@ function coachNote(D,sc,oppLive){
   const need=sc.opp-sc.me+1,one=left.filter(p=>pv(p)>=need).sort((a,b)=>pv(a)-pv(b))[0];
   return{i:'🌙',m:one?`${opp} are done. ${one.name} (${pv(one)} pts) would win it before 4am.`:`${opp} are done. You need ${need} more before 4am.`};
 }
+// Hoop seen from above: backboard, rim and net. Colours come from the court theme (CSS variables).
+const HOOP_SVG=`<svg class="hoop" viewBox="0 0 400 330" aria-hidden="true">
+  <rect class="bb" x="168" y="305" width="64" height="7" rx="2"/><rect class="bbm" x="190" y="306.5" width="20" height="4" rx="1"/>
+  <rect class="arm" x="197" y="298" width="6" height="8"/>
+  <g class="net">${[0,1,2,3,4,5,6,7,8,9].map(i=>{const a=i/10*Math.PI*2;return `<path d="M${(200+10*Math.cos(a)).toFixed(1)} ${(292+10*Math.sin(a)).toFixed(1)}L${(200+5*Math.cos(a+.35)).toFixed(1)} ${(292+5*Math.sin(a+.35)).toFixed(1)}"/>`}).join('')}<circle cx="200" cy="292" r="5"/></g>
+  <circle class="rim" cx="200" cy="292" r="10"/></svg>`;
 function courtView(D){
   const starters=POS.map(pos=>S.squad.find(x=>x.slot==='court'&&x.pos===pos.id)).filter(Boolean);
   const lines=`<svg class="lines" viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="3" stroke-opacity=".9">
@@ -1293,8 +1314,7 @@ function courtView(D){
     <rect x="148" y="196" width="104" height="126"/>
     <circle cx="200" cy="196" r="44"/><path d="M156 196h88"/>
     <path d="M38 322V262A170 170 0 0 1 362 262V322"/>
-    <path d="M178 304h44" stroke-width="4"/><circle cx="200" cy="296" r="9" stroke="#ff7a1a" stroke-opacity="1"/>
-    <path d="M148 240h-8M148 266h-8M252 240h8M252 266h8"/></svg>`;
+    <path d="M148 240h-8M148 266h-8M252 240h8M252 266h8"/></svg>${HOOP_SVG}`;
   const spots=starters.map((p,i)=>{
     const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length:0;
@@ -1309,7 +1329,7 @@ function shoot(id){
   const court=document.querySelector('.court'),tok=court&&court.querySelector(`.tok[data-id="${id}"]`),p=S.squad.find(x=>x.id===id);
   if(!tok||!p)return;
   const cr=court.getBoundingClientRect(),tr=tok.getBoundingClientRect();
-  const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(296/330);
+  const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(292/330);
   const peak=Math.max(30,Math.min(y0,y1)-cr.height*.32),cy=2*peak-(y0+y1)/2,cx=(x0+x1)/2;
   const shotFx=(S.cos&&S.cos.shot)||'classic';const ball=document.createElement('div');ball.className='ballfx '+shotFx;ball.innerHTML=ballSvg();court.appendChild(ball);
   // Slower, bigger shot: arc, then drops through the net and fades. Long enough to see the ball skin.
@@ -1322,7 +1342,7 @@ function shoot(id){
   const a=ball.animate(kf,{duration:1450,easing:'linear'});
   
   let emb=null;if(shotFx==='fire'||shotFx==='lightning')emb=setInterval(()=>{try{const m=new DOMMatrix(getComputedStyle(ball).transform);const e=document.createElement('div');e.className=shotFx==='fire'?'ember':'spark';e.style.left=(m.e+R)+'px';e.style.top=(m.f+R)+'px';court.appendChild(e);setTimeout(()=>e.remove(),500)}catch(_){}},30);
-  setTimeout(()=>{clearInterval(emb);fx('swish '+shotFx);fx('plus','+'+pv(p))},1450*F);
+  setTimeout(()=>{clearInterval(emb);const nt=court.querySelector('.hoop .net');if(nt)nt.animate([{transform:'scale(1)'},{transform:'scale(1.35)'},{transform:'scale(.9)'},{transform:'scale(1)'}],{duration:500});fx('swish '+shotFx);fx('plus','+'+pv(p))},1450*F);
   a.onfinish=()=>{clearInterval(emb);ball.remove();
     if(shotFx==='confetti')for(let i=0;i<16;i++){const c=document.createElement('div');c.className='conf';c.style.left=x1+'px';c.style.top=y1+'px';c.style.background=['#ef4444','#fbbf24','#22c55e','#3b82f6','#ec4899','#a78bfa'][i%6];c.style.setProperty('--dx',(Math.random()*160-80)+'px');c.style.setProperty('--dy',(-40-Math.random()*90)+'px');court.appendChild(c);setTimeout(()=>c.remove(),1000)}};
   setTimeout(()=>ball.remove(),2400);
