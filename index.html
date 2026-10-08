@@ -239,10 +239,10 @@ td.tpos{white-space:nowrap}
 .lkprev{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:8px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),#0f1424)}
 .lp-court{position:relative;margin:0;border-width:2px;border-radius:10px}
 .lp-court svg{position:absolute;inset:0;width:100%;height:100%}
-.lp-logo{position:absolute;left:50%;top:59%;transform:translate(-50%,-50%);width:24px;height:24px;z-index:2}.lp-logo svg{width:100%;height:100%;image-rendering:pixelated}
+.lp-logo{width:40px;height:40px;flex:none}.lp-logo svg{width:100%;height:100%;image-rendering:pixelated}
 .lp-ball{position:absolute;right:16%;bottom:12%;z-index:2}.lp-ball .ball{width:16px;height:16px;margin:0}
 .lp-board.gboard{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:auto;height:20px;font-size:11px;padding:0 6px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.lp-side{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}.lp-row{display:flex;align-items:center;justify-content:center;gap:12px}
+.lp-side{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}.lp-row{display:flex;align-items:center;justify-content:center;gap:10px}
 .lp-jsy svg{width:46px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
 .lp-bench.gbench{width:64px}.lp-bench .pl{height:13px}
 .lp-fx{display:flex;flex-direction:column;gap:4px}.lp-fx span{font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:8px;background:#0c1226;border:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lp-fx small{color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
@@ -2090,8 +2090,8 @@ let lkPremOpen=false;
 function lockerPreview(){
   const C=S.cos||{},board=C.board||'classic',court=C.court||'wood',bench=C.bench||'classic',ball=C.ball||'classic',shot=C.shot||'classic',cel=C.cel||'confetti';
   const nm=(k,v)=>((COS_LISTS[k].find(x=>x[0]===v)||[])[1])||v;
-  return `<div class="lkprev"><div class="lp-court court court-${court}">${COURT_MINI}<span class="lp-logo">${logoSvg(myLogo())}</span><span class="lp-ball">${ballSvg(ball)}</span><span class="gboard sb-${board} lp-board"><b>88</b><i>–</i><b>72</b></span></div>
-    <div class="lp-side"><div class="lp-row"><span class="lp-jsy">${jerseySvg(myKit(),'Player',23)}</span><span class="gbench bench-${bench} lp-bench"><span class="pl"></span><span class="pl"></span></span></div>
+  return `<div class="lkprev"><div class="lp-court court court-${court}">${COURT_MINI}<span class="lp-ball">${ballSvg(ball)}</span><span class="gboard sb-${board} lp-board"><b>88</b><i>–</i><b>72</b></span></div>
+    <div class="lp-side"><div class="lp-row"><span class="lp-logo">${logoSvg(myLogo())}</span><span class="lp-jsy">${jerseySvg(myKit(),'Player',23)}</span><span class="gbench bench-${bench} lp-bench"><span class="pl"></span><span class="pl"></span></span></div>
     <div class="lp-fx"><span><small>Shot</small>${esc(nm('shot',shot))}</span><span><small>Win</small>${esc(nm('cel',cel))}</span></div></div></div>`;
 }
 function awardsView(){
