@@ -1188,7 +1188,7 @@ function jerseyBlock(p){
   const H=p.head&&HEADS.find(h=>h.id===p.head);
   const status=R?`<div class="small" style="color:var(--gold)">🏅 Retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`
     :ok?`<button class="btn primary block" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`
-    :`<div class="small muted">Retire after 3 seasons (${seasons}/3) or a 100-day streak (best ${best})</div>`;
+    :'';
   return `<div class="ecard"><div class="ehead">Player</div>
     <div class="lookrow">
       <button class="headbtn ${headOpen?'open':''}" data-a="toggleHeads" style="border-color:${posById(p.pos).c}" aria-label="Change head">${faceSvg(p)}<span class="hedit">${headOpen?'✕ Close':'✏️ Change'}</span></button>
@@ -1197,7 +1197,7 @@ function jerseyBlock(p){
     <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
     <div class="nmrow"><div class="sp"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}"></div>
       <div style="width:84px"><label class="flab">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" ${R?'disabled':''}></div></div>
-    <div style="margin-top:10px">${status}</div></div>`;
+    ${status?`<div style="margin-top:10px">${status}</div>`:''}</div>`;
 }
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(se.start,t):0;
