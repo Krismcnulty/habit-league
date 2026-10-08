@@ -1313,7 +1313,7 @@ function leagueView(){
   }
   const top=`<div class="top"><h1 class="cond">Standings</h1><span class="small muted">${standTab==='league'&&se?divOf(se).n+' · '+monthName(se.key):'Special events'}</span></div>
   <div class="tabs big">${[['league','🏀 League'],['events','🏆 Tournaments']].map(([k,n])=>`<button class="${standTab===k?'on':''}" data-a="stab" data-v="${k}">${n}</button>`).join('')}</div>`;
-  if(standTab==='events')return top+`<p class="small muted" style="margin:0 4px 10px">3-day knockout tournaments in the break before the playoffs. The league pauses while they're on, and your squad plays as normal.</p>${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
+  if(standTab==='events')return top+tourTrophyCard()+`<p class="small muted" style="margin:0 4px 10px">3-day knockout tournaments in the break before the playoffs. The league pauses while they're on, and your squad plays as normal.</p>${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
   return top+`${trophyCard(se)}${tabs}${body}`;
 }
 
@@ -1545,6 +1545,19 @@ function pvBar(){
   const t=gameDate(),after=t>HSE.end,{m,r}=hsMe();
   const st=after?(S.hsDone&&S.hsDone.champ==='me'?'🏆 Champions!':'Shootout over'):m?(m.done&&m.winner!=='me'?`Out in the ${HSE.short[r]}`:`${HSE.short[r]} · ${nice(t,{weekday:'short',day:'numeric',month:'short'})}`):'';
   b.innerHTML=`<div class="sp"><b>🎃 SHOOTOUT PREVIEW</b><div class="small">${st} · not saved</div></div><button class="btn primary" data-a="pvNext">${after?'See bracket':(m&&m.done&&m.winner!=='me')?'Skip to end ▶':'Next day ▶'}</button><button class="btn" data-a="pvExit">Exit</button>`;
+}
+function tourTrophyCard(){
+  const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.n==='Halloween Shootout'&&today<=addDays(e.e,14)));
+  const stat=e=>{
+    if(e.n!=='Halloween Shootout'||!S.firstStart)return{s:'From '+nice(e.s,{day:'numeric',month:'short'})};
+    if(today<e.s)return{s:'From '+nice(e.s,{day:'numeric',month:'short'})};
+    const {m,r}=hsMe(),D=S.hsDone;
+    if(D)return D.champ==='me'?{s:'Won',w:1}:{s:`${team(D.champ).ab} won`};
+    if(m&&m.done&&m.winner!=='me')return{s:`Out in ${HSE.short[r]}`};
+    return{s:`Live · ${HSE.short[Math.max(0,r)]}`,g:1}};
+  return `<div class="card stakes"><div class="row" style="margin-bottom:4px"><b class="cond sp" style="font-size:13px;color:var(--muted)">Tournament trophies</b><span class="small" style="color:var(--orange2)">8 teams · 3 days</span></div>
+  ${ev.map(e=>{const T=EV_TROPHY[e.n],st=stat(e);
+    return `<div class="trow ${st.w?'won':''}"><span class="tro" style="width:42px;height:42px">${pixArt(T.rows,'allstar',T.pal)}</span><div class="sp"><b>${T.n}</b><div class="small muted">Win the ${e.n}${e.n==='Halloween Shootout'?' · +300 XP':''}</div></div><span class="tstat ${st.w?'w':st.g?'g':''}">${st.s}</span></div>`}).join('')}</div>`;
 }
 function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.n==='Halloween Shootout'&&today<=addDays(e.e,14)));
   const now=ev.filter(e=>today>=e.s||(e.play&&e.s===ev.filter(x=>x.play)[0].s)),up=ev.filter(e=>!now.includes(e));
