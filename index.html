@@ -426,6 +426,22 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .evt small{font-size:10.5px;line-height:1.2;color:var(--muted)}
 .evt .gshot .ball{width:34px;height:34px}
 .evt .gcel{width:44px;height:44px}
+/* ---- Playoffs arena ---- */
+.court-playoffs{background:repeating-linear-gradient(90deg,#3a2a1a 0 22px,#2f2215 22px 23px,#43301d 23px 47px,#281c11 47px 48px);border-color:#d4a017;box-shadow:0 0 0 1px #6b4f0a,0 0 18px rgba(212,160,23,.25)}
+.court-playoffs svg.lines{stroke:#fbbf24}
+.court-playoffs:before{background:radial-gradient(circle at 50% 108%,rgba(251,191,36,.30),transparent 45%),linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.05))}
+.court-playoffs:after{content:"🏆";position:absolute;right:10px;top:6px;font-size:18px;filter:drop-shadow(0 0 6px rgba(251,191,36,.6))}
+.sb-playoffs{background:radial-gradient(120% 120% at 50% 0%,#1f2a44,#05070d 72%)!important;border:2px solid #d4a017!important;box-shadow:0 0 0 1px #6b4f0a,0 0 18px rgba(212,160,23,.3)}
+.sb-playoffs:after{border:0!important;width:auto!important;height:auto!important;inset:auto 12px 12px auto!important;content:"PLAYOFFS";font-size:10px;font-weight:900;letter-spacing:.14em;color:#1a1204;background:linear-gradient(180deg,#fde68a,#d4a017);padding:3px 7px;border-radius:5px!important}
+.sb-playoffs .score{color:#fff;text-shadow:0 0 12px rgba(251,191,36,.55)}
+.sb-playoffs .score .lead{color:#fbbf24}
+.sb-playoffs .phase,.sb-playoffs .clock{color:#fcd34d}
+.bench-playoffs .pl{background:linear-gradient(90deg,rgba(212,160,23,.16),transparent 40%),linear-gradient(180deg,#1b2235,#0a0d16);border:1.5px solid #8a6a12;box-shadow:inset 4px 0 0 #d4a017}
+.bench-playoffs .pl .nm{color:#fff}.bench-playoffs .pl .meta{color:#fcd34d}
+.bench-playoffs .ptsb{background:#0a0d16;border-color:#d4a017;color:#fde68a}
+.bench-playoffs .sect,.bench-playoffs h3{color:#fbbf24}
+.ggrid.frozen{opacity:.45;pointer-events:none;filter:grayscale(.3)}
+.frozen-note{display:inline-block;margin-top:3px;font-size:11.5px;color:var(--muted)}
 /* ---- Halloween Shootout ---- */
 .court-spooky{background:repeating-linear-gradient(90deg,#2a1838 0 22px,#24142f 22px 23px,#2f1b3f 23px 47px,#1f1129 47px 48px);border-color:#f97316}
 .court-spooky svg.lines{stroke:#fb923c}
@@ -436,6 +452,7 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .sb-spooky .score{color:#fed7aa;text-shadow:0 0 10px rgba(249,115,22,.8)}
 .sb-spooky .score .lead{color:#fde047}
 .sb-spooky .phase,.sb-spooky .clock{color:#c084fc}
+.sb-spooky .phase{padding-right:26px}
 .hsbar{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(90deg,#3b0764,#7c2d12);border:1px solid #f97316;cursor:pointer}
 .hsbar>span:first-child{font-size:24px}
 .hsbar b{font-size:13px;letter-spacing:.04em}
@@ -1048,7 +1065,7 @@ function todayView(){
   return `
   <div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Final at 4:00am</span></div>
   ${lastHtml}${pre}
-  <div class="board sb-${hsLive()?'spooky':(S.cos&&S.cos.board)||'classic'}">${(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
+  <div class="board sb-${arenaTheme()||(S.cos&&S.cos.board)||'classic'}">${!arenaTheme()&&(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
     <div class="phase cond">${esc(phase)}</div>
     <div class="teams">
       <div class="tm">${badge('me')}<div class="tmname">${esc(S.team.name)}</div><div class="rec">${myRec}</div></div>
@@ -1059,7 +1076,7 @@ function todayView(){
     <div class="status" style="margin-top:6px">${status2}</div>
   </div>
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
-  <div class="benchwrap bench-${hsLive()?'spooky':(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench · half points','bench',D)}</div>`;
+  <div class="benchwrap bench-${arenaTheme()||(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench · half points','bench',D)}</div>`;
 }
 
 const SPOTS=[[50,22],[17,48],[83,48],[29,79],[71,79]];
@@ -1109,7 +1126,7 @@ function courtView(D){
       <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
       <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
-  return `<div class="court court-${hsLive()?'spooky':(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
+  return `<div class="court court-${arenaTheme()||(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
 }
 function shoot(id){
   try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
@@ -1350,7 +1367,8 @@ function headGrid(p){
   return `<div class="ggrid">${tiles.join('')}</div>`;
 }
 function gearGrid(k,cur){
-  return `<div class="ggrid">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
+  const fz=ARENA.includes(k)&&arenaLocked(),th=arenaTheme();
+  return `${fz?`<span class="frozen-note">🔒 Locked until the new season${th?` · ${th==='spooky'?'Halloween':'Playoff'} theme is on`:''}</span>`:''}<div class="ggrid${fz?' frozen':''}">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
     const pic=k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
@@ -1366,6 +1384,10 @@ const EV_REWARDS={'Halloween Shootout':[['ball','pumpkin'],['logo','owl']],'Wint
 /* ===================== Halloween Shootout ===================== */
 const HSE={start:brkStart('2026-10'),end:addDays(poStart('2026-10'),-1),rounds:['Quarterfinal','Semifinal','Final'],short:['QF','SF','Final'],spans:[[0,0],[1,1],[2,2]]};
 const hsDays=()=>HSE.spans.map(([a,b])=>{const r=[];for(let i=a;i<=b;i++)r.push(addDays(HSE.start,i));return r});
+const ARENA=['board','court','bench'];
+const seasonStage=()=>{if(!S.firstStart)return 'reg';const t=gameDate(),k=t.slice(0,7),ps=poStart(k);if(hsLive())return 'hs';if(t>=ps)return t>addDays(ps,5)?'rest':'po';if(t>=brkStart(k))return 'brk';return 'reg'};
+const arenaTheme=()=>({hs:'spooky',po:'playoffs'})[seasonStage()]||null;
+const arenaLocked=()=>seasonStage()!=='reg';
 const hsLive=()=>{const t=gameDate();return !!S.firstStart&&t>=HSE.start&&t<=HSE.end};
 const hsRating=id=>.52+rng('hsr'+id)()*.28;
 function hsTarget(d,id){const f=hsRating(id)+(rng('hst'+d+id)()-.5)*.24,r=Math.max(0,hsDays().findIndex(x=>x[0]===d));return Math.max(1,Math.round(dayDiv(d).avg*TOUR_RAMP[r]/PAR_SHARE*(1+(f-.66)*KO_SPREAD)))}
@@ -1607,7 +1629,7 @@ const A={
   newLook(d){const p=S.squad.find(x=>x.id===d.id);p.face=Math.random().toString(36).slice(2,8);delete p.look;delete p.head;save();render();playerSheet(p.id)},
   setHead(d){const p=S.squad.find(x=>x.id===d.id);if(d.v==='scouted'){delete p.head}else{if(!cosUnlocked('head',d.v))return toast(lockMsg('head',d.v));p.head=d.v}save();render();playerSheet(p.id)},
   look(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const p=S.squad.find(x=>x.id===d.id);p.look={...(p.look||{}),[d.k]:d.v};save();render();playerSheet(p.id)},
-  cos(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const same=S.cos&&S.cos[d.k]===d.v;S.cos={...(S.cos||{}),[d.k]:d.v};save();render();if(d.k==='cel')celebrate(d.v,same?'PREVIEW':'WIN','96–87')},
+  cos(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));if(ARENA.includes(d.k)&&arenaLocked())return toast('Scoreboard, court and bench are locked until the new season on the 1st');const same=S.cos&&S.cos[d.k]===d.v;S.cos={...(S.cos||{}),[d.k]:d.v};save();render();if(d.k==='cel')celebrate(d.v,same?'PREVIEW':'WIN','96–87')},
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
   promote(d){const p=S.squad.find(x=>x.id===d.id);const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);if(cur)cur.slot='bench';p.slot='court';save();closeSheet();render()},
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
