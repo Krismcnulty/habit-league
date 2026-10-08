@@ -1919,7 +1919,7 @@ function profileView(){
     return `<div class="aw-row ${pos===0?'lead':''}"><span class="aw-ic">${a.i}</span><div class="sp"><b>${a.n}</b><div class="small muted">${a.d}</div></div>${tag}</div>`}).join('');
   const mine=[];for(const k of Object.keys(won).sort().reverse())for(const a of AWARDS)if(won[k][a.id]===p.id)mine.push(`<span class="aw-chip">${a.i} ${a.n} <small>${monthName(k).split(' ')[0].slice(0,3)} ${k.slice(2,4)}</small></span>`);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
-  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></div>
+  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><span class="row" style="gap:6px">${subOptions(p,null).length?`<button class="btn" data-a="subSheet" data-id="${p.id}">⇄ Sub</button>`:''}<button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></span></div>
   <div class="prof" style="--pc:${ps.c}">
     <div class="prof-art"><span class="prof-head">${faceSvg(p)}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
     <div class="prof-name cond">${esc(id.name)}</div>
@@ -2021,36 +2021,32 @@ function sfx(name){
 
 /* ===================== subs ===================== */
 // In-season subs: swap a starter with a bench player of the same category, any time, even mid-game.
-// Points never depend on the role, so subs can't be gamed. A player subbed off can't come back on the same day.
-const subbedOff=(D,id)=>!!(D&&D.subOff&&D.subOff.includes(id));
+// Points never depend on the role, so subs can't be gamed and there's no limit.
+const subbedOff=()=>false; // no re-sub limit: subs are just for ordering your lineup
 function subOptions(p,D){
   if(p.slot==='court')return S.squad.filter(x=>x.slot==='bench'&&x.pos===p.pos&&!subbedOff(D,x.id));
   const st=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);return st&&!subbedOff(D,p.id)?[st]:[];
 }
 function subRow(p,D){
-  const o=subOptions(p,D),off=subbedOff(D,p.id)&&p.slot==='bench';
-  if(off)return `<div class="mvrow off"><span class="mvi">⇄</span><span class="sp"><b>Sub on</b><small>Subbed off today · can come back on tomorrow</small></span></div>`;
+  const o=subOptions(p,D);
   if(!o.length)return p.slot==='court'?`<div class="mvrow off"><span class="mvi">⇄</span><span class="sp"><b>Sub off</b><small>No ${posById(p.pos).n} player on the bench</small></span></div>`:'';
   return `<button class="mvrow" data-a="subSheet" data-id="${p.id}"><span class="mvi">⇄</span><span class="sp"><b>${p.slot==='court'?'Sub off':'Sub on'}</b><small>${p.slot==='court'?`Bring on a ${posById(p.pos).n} player from the bench`:`Replaces ${esc(o[0].name)} in the starting five`}</small></span><span class="mvc">›</span></button>`;
 }
 function subSheet(id){
   const p=S.squad.find(x=>x.id===id);if(!p)return;const D=ensureDay(gameDate());
-  if(canEditSquad())return playerSheet(id);
   const starter=p.slot==='court'?p:S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);
   const opts=p.slot==='court'?subOptions(p,D):[p];
   const row=x=>`<button class="trrow" data-a="doSub" data-out="${starter.id}" data-in="${x.id}">${avatar(x)}<span class="mjs">${jerseySvg(myKit(),ident(x).name,ident(x).num)}</span><span class="sp" style="min-width:0"><b>${esc(x.name)}</b><small>${esc(x.lvl)}${isDone(x,D)?' · ✓ done today':''}</small></span>${pts(x)}<span class="trgo">Sub on ›</span></button>`;
-  const blocked=S.squad.filter(x=>x.slot==='bench'&&x.pos===starter.pos&&subbedOff(D,x.id));
-  sheet(`<h2>⇄ Sub off ${esc(starter.name)}</h2><p class="small muted" style="margin:0 0 10px">Swap with a ${posById(starter.pos).n} player from the bench. Points don't change, only who's on the court. ${esc(starter.name)} can't come back on until tomorrow.</p>
+  sheet(`<h2>⇄ Sub off ${esc(starter.name)}</h2><p class="small muted" style="margin:0 0 10px">Swap with a ${posById(starter.pos).n} player from the bench. Points don't change, only who's on the court. Tip: you can also hold and drag cards on the Squad screen.</p>
     ${opts.length?opts.map(row).join(''):`<p class="muted">No ${posById(starter.pos).n} players available on the bench.</p>`}
-    ${blocked.length?`<p class="small muted" style="margin-top:6px">Subbed off earlier today: ${blocked.map(x=>esc(x.name)).join(', ')}</p>`:''}`);
+`);
 }
 
 // Drag to sub (Squad screen): hold a player card, drag it onto a player in the same category in the other group, let go to swap.
 function swapPlayers(a,b){
   if(a.slot===b.slot)return;if(a.pos!==b.pos)return toast(`Swap with a ${posById(a.pos).n} player`);
-  const out=a.slot==='court'?a:b,inn=a.slot==='court'?b:a,live=S.firstStart&&!canEditSquad(),D=live?ensureDay(gameDate()):null;
-  if(live&&subbedOff(D,inn.id))return toast(`${inn.name} was subbed off today · back tomorrow`);
-  out.slot='bench';inn.slot='court';if(live)D.subOff=[...(D.subOff||[]),out.id];
+  const out=a.slot==='court'?a:b,inn=a.slot==='court'?b:a;
+  out.slot='bench';inn.slot='court';
   save();render();sfx('whistle');buzz(30);toast(`⇄ ${inn.name} on for ${out.name}`);
 }
 let drag=null,dragEndAt=0;
@@ -2118,7 +2114,8 @@ function playerSheet(id){
     if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="mvrow" data-a="promote" data-id="${p.id}"><span class="mvi">⬆️</span><span class="sp"><b>Move to starting five</b><small>${cur?`Swaps places with ${esc(cur.name)}`:`Starts at ${posById(p.pos).n}`}</small></span><span class="mvc">›</span></button>`}
     else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="mvrow" data-a="bench" data-id="${p.id}"><span class="mvi">⬇️</span><span class="sp"><b>Move to bench</b><small>Still scores full points</small></span><span class="mvc">›</span></button>`;
     a+=`<button class="mvrow danger" data-a="release" data-id="${p.id}"><span class="mvi">✖️</span><span class="sp"><b>Release player</b><small>Frees up this spot</small></span><span class="mvc">›</span></button>`;
-  }else if(transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
+  }else a+=subRow(p,D);
+  if(!edit&&transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
   if(S.firstStart&&se&&t>=se.start){
     if(inj)a+=`<button class="mvrow" data-a="uninjure" data-id="${p.id}"><span class="mvi">↩️</span><span class="sp"><b>Bring back from injury list</b><small>Plays again today</small></span><span class="mvc">›</span></button>`;
     else if(D&&!isDone(p,D))a+=se.injLeft>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${se.injLeft} of ${INJURY_USES} left this season · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>No injury rests left this season</small></span></div>`;
@@ -2189,8 +2186,7 @@ const A={
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
   subSheet(d){subSheet(d.id)},
   doSub(d){const out=S.squad.find(x=>x.id===d.out),inn=S.squad.find(x=>x.id===d.in);if(!out||!inn||out.pos!==inn.pos)return;const D=ensureDay(gameDate());
-    if(subbedOff(D,inn.id))return toast(`${inn.name} was subbed off today`);
-    out.slot='bench';inn.slot='court';D.subOff=[...(D.subOff||[]),out.id];save();closeSheet();render();sfx('whistle');buzz(30);toast(`⇄ ${inn.name} on for ${out.name}`)},
+    out.slot='bench';inn.slot='court';save();closeSheet();render();sfx('whistle');buzz(30);toast(`⇄ ${inn.name} on for ${out.name}`)},
   promote(d){const p=S.squad.find(x=>x.id===d.id);const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);if(cur)cur.slot='bench';p.slot='court';save();closeSheet();render()},
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
   release(d){if(!confirm('Release this player?'))return;S.squad=S.squad.filter(x=>x.id!==d.id);save();closeSheet();render()},
