@@ -367,6 +367,11 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .bench-neon .pl .nm{color:#f5d0fe;text-shadow:0 0 6px rgba(217,70,239,.7)}.bench-neon .pl .meta{color:#67e8f9}
 .bench-velvet .pl{background:radial-gradient(circle at 25% 20%,#7c3aed,#3b0764 70%);border:1px solid #a78bfa;box-shadow:inset 0 2px 0 rgba(255,255,255,.12)}
 .bench-velvet .pl .meta{color:#ddd6fe}
+.bench-spooky .pl{background:radial-gradient(90% 140% at 100% 100%,rgba(249,115,22,.22),transparent 55%),linear-gradient(180deg,#2a1838,#120818);border:1.5px solid #f97316;box-shadow:0 0 10px rgba(249,115,22,.25),inset 0 0 14px rgba(124,58,237,.25)}
+.bench-spooky .pl:before{content:"";position:absolute;left:0;top:0;width:26px;height:26px;opacity:.5;pointer-events:none;background:repeating-radial-gradient(circle at 0 0,transparent 0 6px,#e9d5ff 6px 7px),conic-gradient(from 90deg at 0 0,#e9d5ff 0 1deg,transparent 1deg 30deg,#e9d5ff 30deg 31deg,transparent 31deg 60deg,#e9d5ff 60deg 61deg,transparent 61deg);-webkit-mask:radial-gradient(circle at 0 0,#000 0 25px,transparent 26px);mask:radial-gradient(circle at 0 0,#000 0 25px,transparent 26px);border-top-left-radius:14px}
+.bench-spooky .pl .nm{color:#fed7aa}.bench-spooky .pl .meta{color:#c084fc}
+.bench-spooky .ptsb{background:#1a0b26;border-color:#f97316;color:#fdba74}
+.bench-spooky .sect,.bench-spooky h3{color:#fb923c}
 .gbench{display:flex;flex-direction:column;gap:4px;width:46px;padding:2px 0}
 .gbench .pl{position:relative;display:block;height:13px;min-height:0;padding:0!important;border-radius:4px;margin:0!important}
 .gbench .pl:before{top:3px;bottom:3px;left:3px;width:4px}
@@ -1054,7 +1059,7 @@ function todayView(){
     <div class="status" style="margin-top:6px">${status2}</div>
   </div>
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
-  <div class="benchwrap bench-${(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench · half points','bench',D)}</div>`;
+  <div class="benchwrap bench-${hsLive()?'spooky':(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench · half points','bench',D)}</div>`;
 }
 
 const SPOTS=[[50,22],[17,48],[83,48],[29,79],[71,79]];
