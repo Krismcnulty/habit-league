@@ -729,6 +729,9 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .lvcard .lv-bar i::after{content:"";position:absolute;right:0;top:0;bottom:0;width:6px;border-radius:99px;background:#fff;opacity:.8;animation:lvtip 1.2s ease-in-out infinite}
 @keyframes lvtip{50%{opacity:.25}}
 .lvcard .lv-need b{color:var(--nc)}
+:is(.lvcard,.retire.retired):is(.r-vet,.r-legend,.r-goat){position:relative;overflow:hidden}
+:is(.lvcard,.retire.retired):is(.r-vet,.r-legend,.r-goat)::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.08) 50%,transparent 65%);transform:translateX(-100%);animation:lvshine 4.5s ease-in-out infinite;pointer-events:none}
+@keyframes lvshine{60%,100%{transform:translateX(100%)}}
 .lvcard.max{border-color:#facc15;animation:rtglow 1.8s ease-in-out infinite}
 .lv-top{display:flex;align-items:center;gap:8px}.lv-now,.lv-next{display:flex;align-items:center;gap:10px;flex:1;min-width:0}.lv-next{justify-content:flex-start;text-align:right;flex-direction:row-reverse}
 .lv-arrow{color:var(--muted);font-weight:900}
