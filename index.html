@@ -1533,9 +1533,7 @@ function poBracket(se,t){
 }
 function hsCardBody(today,e,part){
   if(!S.firstStart)return '';
-  if(today<e.s)return part==='bracket'?'':`<div class="small" style="margin-top:8px;color:var(--green)">Free in the prototype · starts automatically on ${nice(e.s,{weekday:'long',day:'numeric',month:'short'})}</div>
-    <div class="small muted" style="margin-top:4px">8 teams, one game a day: quarterfinal, semifinal, final. The league pauses for these 3 days. Reach the semis to win the Night owl logo.</div>
-    <button class="btn block" style="margin-top:8px" data-a="hsPreview">▶ Preview the Shootout</button>`;
+  if(today<e.s)return part==='bracket'?'':`<button class="btn block" style="margin-top:12px" data-a="hsPreview">▶ Preview the Shootout</button>`;
   const D=S.hsDone;const head=D?(D.champ==='me'?'<div class="small" style="margin-top:8px;color:var(--gold)">🏆 You won the Halloween Shootout!</div>':`<div class="small muted" style="margin-top:8px">🏆 ${esc(team(D.champ).city+' '+team(D.champ).n)} won the Shootout</div>`):'<div class="small" style="margin-top:8px;color:var(--green)">Live now · the league is paused while it\'s on</div>';
   return part==='bracket'?hsBracket():head;
 }
