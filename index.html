@@ -2537,7 +2537,7 @@ const evFor=key=>EVENTS.find(e=>e.k===key&&e.play&&(EV_FREE||S.premium));
 function atmSwatch(v,cls=''){const t=THEMES.find(x=>x[0]===v)||THEMES[0],T=t[3];return `<span class="gatm ${cls}" style="--tb:${T.bg};--tp:${T.panel};--tp2:${T.panel2};--tl:${T.line};--ta:${T.ac||'#ff7a1a'};--ta2:${T.ac2||'#ffb066'};--tt:${T.tex||'none'}"><i></i><i></i><i></i></span>`}
 function itemPreview(k,v){
   if(k==='atm')return `<span class="dprev" style="display:grid;place-items:center;border:0">${atmSwatch(v,'big')}</span>`;
-  if(k==='pbg')return `<span class="dprev gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`;
+  if(k==='pbg')return `<span class="dprev gpbg pbg-${v}"></span>`;
   if(k==='logo')return `<span class="dprev" style="background:var(--well);display:grid;place-items:center">${logoSvg(v)}</span>`;
   if(k==='bench')return `<span class="dprev" style="display:grid;place-items:center;background:var(--well)">${`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`}</span>`;
   if(k==='kit')return `<span class="dprev" style="display:grid;place-items:center;background:var(--well)">${`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`}</span>`;
@@ -2550,7 +2550,7 @@ function itemPreview(k,v){
   return `<span class="dprev" style="background:var(--pbg);display:grid;place-items:center">${faceSvg({id:'x',head:v})}</span>`;
 }
 function rewardPic(k,v){
-  if(k==='pbg')return `<span class="rwp gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`;
+  if(k==='pbg')return `<span class="rwp gpbg pbg-${v}"></span>`;
   if(k==='atm')return `<span class="rwp" style="background:none">${atmSwatch(v)}</span>`;
   if(k==='bench')return `<span class="rwp" style="background:none">${`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`}</span>`;
   if(k==='kit')return `<span class="rwp">${jerseySvg(v,'',23)}</span>`;
@@ -2589,7 +2589,7 @@ function headGrid(p){
 function gearGrid(k,cur){
   const fz=ARENA.includes(k)&&arenaLocked(),th=arenaTheme();
   return `${fz?`<span class="frozen-note">🔒 Locked until the new season${th?` · ${th==='spooky'?'Halloween':'Playoff'} theme is on`:''}</span>`:''}<div class="ggrid${fz?' frozen':''}">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok||hidPack(k,v))return '';
-    const pic=k==='atm'?atmSwatch(v):k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='snd'?`<span class="gsnd s-${v}">${pixIcon(SND_ICON[v])}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='atm'?atmSwatch(v):k==='pbg'?`<span class="gpbg pbg-${v}"></span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='snd'?`<span class="gsnd s-${v}">${pixIcon(SND_ICON[v])}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile rr-${rarity(k,v)} ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'🛍️':packOf(k,v)?'🛍️':EV_ONLY[k+':'+v]?EV_ICON[EV_ONLY[k+':'+v]]:'🔒'}</i>`:''}${isNew(k,v)?'<i class="gnew">NEW</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 const fit16=a=>a.map(r=>(r+'................').slice(0,16));
