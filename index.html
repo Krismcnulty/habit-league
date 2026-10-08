@@ -719,14 +719,11 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .prof-rank{margin-top:10px;display:flex;justify-content:center}
 .lvcard{position:relative;overflow:hidden;padding:14px 14px 12px;margin-bottom:12px;border-radius:16px;border:1px solid color-mix(in srgb,var(--rc) 45%,#1e293b);
   background:radial-gradient(90% 140% at 0% 0%,color-mix(in srgb,var(--rc) 26%,transparent),transparent 60%),radial-gradient(70% 120% at 100% 100%,color-mix(in srgb,var(--nc) 14%,transparent),transparent 60%),linear-gradient(180deg,#1b1a2e,#0f1020)}
-.lvcard::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.07) 50%,transparent 65%);transform:translateX(-100%);animation:lvshine 4.5s ease-in-out infinite;pointer-events:none}
-@keyframes lvshine{60%,100%{transform:translateX(100%)}}
-.lvcard .lv-now .rkb.lvb{width:44px;height:44px;font-size:21px;box-shadow:0 0 14px color-mix(in srgb,var(--rc) 70%,transparent);animation:rtfloat 2.4s ease-in-out infinite}
+.lvcard .lv-now .rkb.lvb{width:44px;height:44px;font-size:21px;box-shadow:0 0 14px color-mix(in srgb,var(--rc) 70%,transparent)}
 .lvcard .lv-n{font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:24px;letter-spacing:.04em;line-height:1}
 .lvcard .lv-now .lv-n{color:var(--rc);text-shadow:0 0 12px color-mix(in srgb,var(--rc) 55%,transparent)}
 .lvcard .lv-k{color:var(--rc)}.lvcard .lv-next .lv-k{color:var(--muted)}
-.lvcard .lv-arrow{color:var(--nc);font-size:18px;animation:lvnudge 1.4s ease-in-out infinite}
-@keyframes lvnudge{50%{transform:translateX(4px)}}
+.lvcard .lv-arrow{color:var(--nc);font-size:18px}
 .lvcard .lv-bar{height:10px;border-color:color-mix(in srgb,var(--nc) 35%,#1e293b)}
 .lvcard .lv-bar i{background:linear-gradient(90deg,var(--rc),var(--nc));box-shadow:0 0 10px color-mix(in srgb,var(--nc) 70%,transparent);position:relative}
 .lvcard .lv-bar i::after{content:"";position:absolute;right:0;top:0;bottom:0;width:6px;border-radius:99px;background:#fff;opacity:.8;animation:lvtip 1.2s ease-in-out infinite}
