@@ -235,6 +235,7 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .ach .pbar i{display:block;height:100%;background:var(--orange)}
 .ach.got .pbar i{background:var(--gold)}
 nav button{position:relative}
+nav button.newq:after{content:"";position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--orange);border:2px solid var(--bg)}
 nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px);width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid var(--bg)}
 .score .lead2{color:#fca5a5}
 .clock{text-align:center;font-size:11px;color:var(--muted);margin-top:10px}
@@ -1162,7 +1163,7 @@ body.pv main{padding-top:70px}
 /* nav */
 nav{position:fixed;z-index:10;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 96%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
-nav button{flex:1;max-width:140px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;font-size:11px;font-weight:700;color:var(--muted)}
+nav button{flex:1;min-width:0;max-width:140px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 1px;font-size:10.5px;white-space:nowrap;font-weight:700;color:var(--muted)}
 nav button.on{color:var(--orange)}
 nav svg{width:24px;height:24px}
 /* sheet */
@@ -1201,6 +1202,7 @@ details summary{cursor:pointer;font-weight:700}
   <button data-a="go" data-v="squad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.3 0 4 1.4 4.5 4"/></svg>Squad</button>
   <button data-a="go" data-v="league"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Standings</button>
   <button data-a="go" data-v="awards"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 3h2a2 2 0 0 0 4 0h2l4 3-2 4-2-1v12H8V9L6 10 4 6z"/></svg>Locker</button>
+  <button data-a="go" data-v="store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 8h14l-1.2 12.5H6.2z"/><path d="M9 10V6.5a3 3 0 0 1 6 0V10"/></svg>Store</button>
   <button data-a="go" data-v="club"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"/></svg>Club</button>
 </nav>
 <input type="file" id="restoreFile" accept="application/json,.json" hidden>
@@ -2015,11 +2017,11 @@ const newCount=ks=>allGear().filter(([k,v])=>(!ks||ks.includes(k))&&isNew(k,v)).
 function lockSheet(k,v){
   const r=rarity(k,v),nm=cosName(k,v),bar=(n,g,l)=>`<div class="ls-bar"><i style="width:${Math.min(100,n/g*100)}%"></i></div><div class="ls-pl">${l||`${n.toLocaleString('en-GB')} / ${g.toLocaleString('en-GB')}`}</div>`;
   let how='',prog='',more='',btn='';
-  if(packOf(k,v)){const P=packOf(k,v),Cn=colOf(P.col),on=Cn.id===activeCol().id;how=on?`Part of the <b>${P.n}</b> pack in the Store: ${P.items.length} items for ${gbp(packPrice(P.price))}.`:`Part of the <b>${P.n}</b> pack in the ${Cn.n}${/Collection$/.test(Cn.n)?'':' collection'}. It's ${Cn.when.split(' · ')[1]}.`;btn=on?'':'';if(!on&&inShop(k,v))how+=` It's also in today's <b>Item Shop</b> for ${gbp(shopPrice(k,v))}.`;if(on||inShop(k,v))btn=`<button class="btn primary block" style="margin-top:12px" data-a="toStore">🛍️ View in the Store</button>`;const o=P.items.filter(([a,b])=>!(a===k&&b===v));more=`<div class="rssec">Also in the pack</div><div class="ls-more">${o.map(([rk,rv])=>`<div>${rewardPic(rk,rv)}<small>${cosName(rk,rv)}</small></div>`).join('')}</div>`}
+  if(packOf(k,v)){const P=packOf(k,v),Cn=colOf(P.col),on=Cn.id===activeCol().id;how=on?`Part of the <b>${P.n}</b> pack in the Store: ${P.items.length} items for ${gbp(packPrice(P.price))}.`:`Part of the <b>${P.n}</b> pack in the ${Cn.n}${/Collection$/.test(Cn.n)?'':' collection'}. It's ${Cn.when.split(' · ')[1]}.`;btn=on?'':'';if(!on&&inShop(k,v))how+=` It's also in today's <b>Item Shop</b> for ${gbp(shopPrice(k,v))}.`;const o=P.items.filter(([a,b])=>!(a===k&&b===v));more=`<div class="rssec">Also in the pack</div><div class="ls-more">${o.map(([rk,rv])=>`<div>${rewardPic(rk,rv)}<small>${cosName(rk,rv)}</small></div>`).join('')}</div>`}
   else if(k==='atm'&&v==='dynasty'){const T=ATM_TOP();how=`Reach the <b>${T[1]}</b> club level (${T[0].toLocaleString('en-GB')} XP).`;prog=bar(S.xp,T[0],`${S.xp.toLocaleString('en-GB')} / ${T[0].toLocaleString('en-GB')} XP`)}
   else if(k==='pbg'&&RANK_BG[v]!=null){const R=PRANKS[RANK_BG[v]],best=Math.max(0,...S.squad.map(careerMakes));how=`Get any player to <b>${RSYM[RANK_BG[v]]} ${R.n}</b> (${R.at} career makes).`;prog=bar(best,R.at,`${best} / ${R.at} makes · your best player`)}
   else if(EV_ONLY[k+':'+v]){const e=EVENTS.find(x=>x.n===EV_ONLY[k+':'+v]);how=`Win the <b>${EV_ONLY[k+':'+v]}</b>${e?` (${nice(e.s,{day:'numeric',month:'short'})} – ${nice(e.e,{day:'numeric',month:'short'})})`:''}. Event-only: it can't be bought.`}
-  else if(isPrem(k,v)){if(inShop(k,v)){how=`In today's <b>Item Shop</b> for ${gbp(shopPrice(k,v))}.`;btn=`<button class="btn primary block" style="margin-top:12px" data-a="toStore">🛍️ View in the Store</button>`}else how='Comes and goes in the Item Shop. New items every day.'}
+  else if(isPrem(k,v)){if(inShop(k,v)){how=`In today's <b>Item Shop</b> for ${gbp(shopPrice(k,v))}.`}else how='Comes and goes in the Item Shop. New items every day.'}
   else{const a=lockAch(k,v),st=stats(),val=Math.min(a.v(st),a.goal);how=`Earn the <b>${a.i} ${a.n}</b> achievement: ${a.d}.`;prog=a.goal>1?bar(val,a.goal):'<div class="ls-pl">Not done yet</div>';
     const o=a.rw.filter(([rk,rv])=>!(rk===k&&rv===v));if(o.length)more=`<div class="rssec">Also unlocks</div><div class="ls-more">${o.map(([rk,rv])=>`<div>${rewardPic(rk,rv)}<small>${cosName(rk,rv)}</small></div>`).join('')}</div>`}
   sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>
@@ -2076,8 +2078,8 @@ function render(){
   checkAch();checkRanks();if(view==='club')S.achNew=0;initSeen();
   if(view!=='awards'&&lkShown){if(S.seen)lkShown.forEach(x=>S.seen[x]=1);lkShown=null;save()}
   pvBar();
-  const nv=view==='profile'?'squad':view==='settings'?'club':view;nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===nv);b.classList.toggle('new',(b.dataset.v==='club'&&(S.achNew||0)>0)||(b.dataset.v==='awards'&&view!=='awards'&&newCount()>0))});
-  app.innerHTML=pix(({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView,profile:profileView,settings:settingsView})[view]());
+  const nv=view==='profile'?'squad':view==='settings'?'club':view;nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===nv);b.classList.toggle('new',(b.dataset.v==='club'&&(S.achNew||0)>0)||(b.dataset.v==='awards'&&view!=='awards'&&newCount()>0));b.classList.toggle('newq',b.dataset.v==='store'&&view!=='store'&&S.storeSeen!==storeKey())});
+  app.innerHTML=pix(({today:todayView,league:leagueView,squad:squadView,awards:awardsView,store:storePage,club:clubView,profile:profileView,settings:settingsView})[view]());
   if(view==='today')gdMoments();
 }
 
@@ -2690,7 +2692,7 @@ function evCard(ev,today){
 // Locker: collection counts per category (premium items only count once you can see them).
 function gearVisible(k){const L=k==='head'?HEADS.map(h=>[h.id,h.n]):COS_LISTS[k];return L.filter(([v])=>!(isPrem(k,v)&&!cosUnlocked(k,v))&&!hidPack(k,v))}
 function gearCount(k){const L=gearVisible(k);return [L.filter(([v])=>cosUnlocked(k,v)).length,L.length]}
-let lkTab='team';
+let lkTab='team'; // Team / Arena / Effects
 function lockerPreview(){
   const C=S.cos||{},board=C.board||'classic',court=C.court||'wood',bench=C.bench||'classic',ball=C.ball||'classic',shot=C.shot||'classic',cel=C.cel||'confetti';
   const nm=(k,v)=>((COS_LISTS[k].find(x=>x[0]===v)||[])[1])||v;
@@ -2704,7 +2706,7 @@ function awardsView(){
   const KS=['atm','logo','kit','pbg','head','board','court','bench','ball','shot','cel','snd'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
   const gh=(k,t,d)=>{const [h,n]=gearCount(k);return `<div class="gh"><b>${t}</b><span class="gcount ${h===n?'full':''}">${h}/${n}</span></div>${d?`<div class="small muted">${d}</div>`:''}`};
   return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">${have} / ${all} collected</span></div>
-  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['atm','board','court','bench']],['fx','Effects',['ball','shot','cel','snd']],['store','🛍️ Store',[]]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
+  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['atm','board','court','bench']],['fx','Effects',['ball','shot','cel','snd']]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
   ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
@@ -2724,7 +2726,7 @@ function awardsView(){
     <div>${gh('shot','Shot style')}${gearGrid('shot',C.shot||'classic')}</div>
     <div>${gh('cel','Win celebration','Plays when you see a win, or score a perfect game. Tap your current one to preview it.')}${gearGrid('cel',C.cel||'confetti')}</div>
     <div>${gh('snd','Sound pack','The swish, whistle and crowd you hear on Gameday. Tap one to hear it.')}${gearGrid('snd',C.snd||'arena')}</div>
-  </div>`:''}${lkTab==='store'?storeView():''}`;
+  </div>`:''}`;
 }
 function storeView(){
   const tile=([k,v])=>{const ok=cosUnlocked(k,v);return `<button class="pk-item ${ok?'own':''}" data-a="${k==='head'?'headInfo':'cos'}" data-k="${k}" data-v="${v}">${itemPreview(k,v)}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small></button>`};
@@ -2735,6 +2737,11 @@ function storeView(){
       <div class="pk-grid">${p.items.map(tile).join('')}</div></div>`}).join('')}
     ${all?'':`<button class="pack bundle" data-a="buyPack" data-v="${C.bundle.id}"><div class="sp"><b>${C.ic[0]} Get all three packs</b><small>Every ${C.sh} item in one go · save ${gbp(packPrice(full)-packPrice(C.bundle.price))}</small></div><span class="btn primary">${gbp(packPrice(C.bundle.price))}</span></button>`}
     <p class="small muted" style="margin:10px 2px 0">Packs are yours to keep and never change how you score. Prototype: no payment is taken.</p></div>${itemShopHtml()}`;
+}
+// Store tab: the featured collection and the daily Item Shop. A dot shows on the tab when either has changed since your last visit.
+const storeKey=()=>activeCol().id+'|'+shopWeek();
+function storePage(){if(S.storeSeen!==storeKey()){S.storeSeen=storeKey();save()}
+  return `<div class="top"><h1 class="cond">Store</h1></div>${storeView()}`;
 }
 function itemShopHtml(){
   const h=Math.max(1,Math.ceil((parse(addDays(gameDate(),1)).getTime()+4*3600e3-nowMs())/3600e3));
@@ -3385,7 +3392,7 @@ const A={
     const wait=COLLECTIONS.filter(c=>c.rot&&!vaulted(c)).map(c=>{const e=S.colEnded&&S.colEnded[c.id];return `<li><b>${esc(c.n)}</b>: ${c.id===activeCol().id?'in the Store now':e?`joins in ${VAULT_DAYS-diffDays(e,gameDate())} days`:'joins 90 days after it first leaves the Store'}</li>`}).join('');
     sheet(`<div class="rshead"><h2>Item Shop pool</h2><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div><p class="small muted" style="margin:6px 0 4px">${pool.length} items the daily shop picks from. Today's four are highlighted.</p>${secs}${wait?`<div class="rssec">Waiting in the vault</div><ul class="small" style="margin:4px 0 0;padding-left:18px">${wait}</ul>`:''}`)},
   tShop(){S.shopShift=(S.shopShift||0)+1;save();render();toast('🛍️ Item Shop rotated to tomorrow\'s picks')},
-  toStore(){closeSheet();lkTab='store';view='awards';render();scrollTo(0,0)},
+  toStore(){closeSheet();view='store';render();scrollTo(0,0)},
   buyPack(d){const B=bundleCol(d.v),P=B?{n:B.n,price:B.bundle.price,items:B.packs.flatMap(p=>p.items)}:PACKS.find(p=>p.id===d.v);if(!P)return;
     sheet(`<div class="rshead"><h2>${P.n}</h2><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div><p class="small muted" style="margin:6px 0 10px">${P.items.length} items, yours to keep.</p>
     <div class="ls-more">${P.items.map(([k,v])=>`<div>${rewardPic(k,v)}<small>${cosName(k,v)}</small></div>`).join('')}</div>
