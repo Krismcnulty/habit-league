@@ -1286,7 +1286,7 @@ function trophyStatus(se,t){
 }
 function trophyCard(se){
   if(!se)return '';const tv=divOf(se);
-  return `<div class="card stakes"><div class="row" style="margin-bottom:4px"><b class="cond sp" style="font-size:13px;color:var(--muted)">Trophies at stake</b><span class="small" style="color:var(--orange2)">${tv.n} · ${TIER_METAL[tv.id]}</span></div>
+  return `<div class="card stakes"><div class="row" style="margin-bottom:4px"><b class="cond sp" style="font-size:13px;color:var(--muted)">Season trophies</b><span class="small" style="color:var(--orange2)">${tv.n} · ${TIER_METAL[tv.id]}</span></div>
   ${Object.keys(TROPHIES).map(t=>{const st=trophyStatus(se,t);
     return `<div class="trow ${st.won?'won':''}">${trophyImg(t,42,tv.id)}<div class="sp"><b>${t}</b><div class="small muted">${TROPHIES[t].how}${t==='League Champions'?` · +${Math.round(500*tv.xp)} XP`:''}</div></div><span class="tstat ${st.won?'w':st.good?'g':''}">${st.s}</span></div>`}).join('')}</div>`;
 }
