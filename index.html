@@ -1305,7 +1305,7 @@ function leagueView(){
   }
   const top=`<div class="top"><h1 class="cond">Standings</h1><span class="small muted">${standTab==='league'&&se?divOf(se).n+' · '+monthName(se.key):'Special events'}</span></div>
   <div class="tabs big">${[['league','🏀 League'],['events','🏆 Tournaments']].map(([k,n])=>`<button class="${standTab===k?'on':''}" data-a="stab" data-v="${k}">${n}</button>`).join('')}</div>`;
-  if(standTab==='events')return top+`<p class="small muted" style="margin:0 4px 10px">Short competitions that run alongside your league. Your squad plays both at once: no extra habits needed.</p>${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
+  if(standTab==='events')return top+`<p class="small muted" style="margin:0 4px 10px">3-day knockout tournaments in the break before the playoffs. The league pauses while they're on, and your squad plays as normal.</p>${eventsList()}<p class="small muted" style="margin:10px 4px"><span style="color:var(--gold)">⭐ Premium</span> · Friend leagues will live here too.</p>`;
   return top+`${trophyCard(se)}${tabs}${body}`;
 }
 
@@ -1526,6 +1526,10 @@ function pvBar(){
   b.innerHTML=`<div class="sp"><b>🎃 SHOOTOUT PREVIEW</b><div class="small">${st} · not saved</div></div><button class="btn primary" data-a="pvNext">${after?'See bracket':(m&&m.done&&m.winner!=='me')?'Skip to end ▶':'Next day ▶'}</button><button class="btn" data-a="pvExit">Exit</button>`;
 }
 function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.n==='Halloween Shootout'&&today<=addDays(e.e,14)));
+  const now=ev.filter(e=>today>=e.s||(e.play&&e.s===ev.filter(x=>x.play)[0].s)),up=ev.filter(e=>!now.includes(e));
+  return (now.length?evCard(now,today):'')+(up.length?`<div class="sect"><h3 class="cond">Upcoming</h3></div>${evCard(up,today)}`:'');
+}
+function evCard(ev,today){
   return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
     const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small></div>`)).join('');
     return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
