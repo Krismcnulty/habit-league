@@ -387,6 +387,8 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .ecard .ggrid{margin-top:0}
 .ecard .btn+.btn,.ecard .lvls+.btn{margin-top:8px}
 .ecard .jbig{width:84px}
+.rcol{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none}
+.rcol .posn{font-size:11.5px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1154,7 +1156,7 @@ function statsBlock(p){
   return `<div class="stgrid"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Season</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>
   <div class="form">Last 7: ${st.form.map(x=>`<i class="${x}" title="${{y:'Scored',n:'Missed',i:'Rested',t:'Today'}[x]}"></i>`).join('')}</div>`;
 }
-function squadRow(p){const st=S.firstStart&&pStats(p);return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<div class="sp"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${ident(p).name} · ${posTag(p)} · ${esc(p.lvl)}${st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''}</div></div>${pts(p)}</div>`}
+function squadRow(p){const st=S.firstStart&&pStats(p);return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}${st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''}</div></div><div class="rcol">${pts(p)}${posTag(p)}</div></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
