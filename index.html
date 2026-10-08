@@ -592,6 +592,8 @@ function recDiv(){const m=fullMax()*.7;let r=DIVS[0];for(const d of DIVS)if(d.av
 const prevKey=key=>skey(addDays(key+'-01',-1));
 // Your level: opponents average PAR_SHARE of your squad's max, snapshotted when the season's squad locks.
 const PAR_SHARE=.75;
+// Knockout ramps: opponents get tougher each round (share of your squad's starting max), with tighter variation.
+const PO_RAMP=[.78,.82,.85],TOUR_RAMP=[.80,.83,.86],KO_SPREAD=.4;
 const tierFor=par=>par<62?DIVS[0]:par<100?DIVS[1]:par<145?DIVS[2]:DIVS[3];
 function parOf(se){return se&&se.par?se.par:Math.round(fullMax()*PAR_SHARE)}
 function divOf(se){const par=parOf(se);return{...tierFor(par),avg:par,provisional:!(se&&se.par)}}
@@ -635,7 +637,7 @@ function standings(se,upto){
   return list;
 }
 // Playoff series: 2 days, decided by the total points over both (no dead games).
-function poScore(se,d,id){const f=rating(se,id)+(rng(se.key+d+id+'po')()-.5)*.24+.03;return Math.round(dayDiv(d).avg*(1+(f-.66)*.8))}
+function poScore(se,d,id,r){const f=rating(se,id)+(rng(se.key+d+id+'po')()-.5)*.24;return Math.round(dayDiv(d).avg*PO_RAMP[r]/PAR_SHARE*(1+(f-.66)*KO_SPREAD))}
 function bracket(se,upto){
   if(!se.seeds)return null;
   const ps=poStart(se.key),sd=se.seeds;
@@ -649,7 +651,7 @@ function bracket(se,upto){
       const d=addDays(ps,r*2+g);if(d>=upto)break;
       for(const s of rounds[r]){
         if(s.a==='me'||s.b==='me'){const D=S.days[d];if(!D||!D.locked||D.ph!=='po')continue;const A=s.a==='me';s.wa+=A?D.me:D.opp;s.wb+=A?D.opp:D.me;s.games.push({d,me:D.me,opp:D.opp})}
-        else{s.wa+=poScore(se,d,s.a);s.wb+=poScore(se,d,s.b);s.games.push({d})}
+        else{s.wa+=poScore(se,d,s.a,r);s.wb+=poScore(se,d,s.b,r);s.games.push({d})}
         if(s.games.length===2)s.winner=s.wa>s.wb?s.a:s.wb>s.wa?s.b:(s.a==='me'||s.b==='me'?'me':s.a);
       }
     }
@@ -671,7 +673,7 @@ function ensureDay(d){
       if(!se.seeds)se.seeds=standings(se,ps).slice(0,8).map(x=>x.id);
       const off=diffDays(ps,d),rd=Math.floor(off/2);const b=bracket(se,d);
       const s=(b.rounds[rd]||[]).find(x=>!x.winner&&(x.a==='me'||x.b==='me'));
-      if(s){D.ph='po';D.rd=rd;D.g=s.games.length+1;D.oppId=s.a==='me'?s.b:s.a;D.ser=s.a==='me'?[s.wa,s.wb]:[s.wb,s.wa];bump=.03}
+      if(s){D.ph='po';D.rd=rd;D.g=s.games.length+1;D.oppId=s.a==='me'?s.b:s.a;D.ser=s.a==='me'?[s.wa,s.wb]:[s.wb,s.wa]}
       else friendly();
     }
   }
@@ -682,7 +684,8 @@ const pv=p=>Math.round(SHOTS[p.shot].pts*(p.slot==='court'?1:.5));
 function isDone(p,D){const v=D.t[p.id];return p.steps&&p.steps.length?Array.isArray(v)&&p.steps.every((_,i)=>v[i]):v===true}
 function score(D){let me=0,max=0,full=0;for(const p of S.squad){const v=pv(p);full+=v;if(D.inj.includes(p.id))continue;max+=v;if(isDone(p,D))me+=v}
   if(D.ph==='brk')return{me,max,opp:D.hsOpp&&full?Math.round(hsTarget(D.d,D.hsOpp)*max/full):0};
-  const dv=dayDiv(D.d);return{me,max,opp:max&&full?Math.round(dv.avg*(1+(D.f-.66)*.8)*(max/full)):0}}
+  const dv=dayDiv(D.d),po=D.ph==='po',mul=po?PO_RAMP[D.rd]/PAR_SHARE:1,k=po?KO_SPREAD:.8;
+  return{me,max,opp:max&&full?Math.round(dv.avg*mul*(1+(D.f-.66)*k)*(max/full)):0}}
 function lockDay(d){
   const D0=ensureDay(d);
   if(D0.ph==='brk'){const opp=D0.ev?hsOppOn(d):null;if(opp){D0.hsOpp=opp;D0.oppId=opp}const sc0=score(D0);D0.me=sc0.me;D0.max=sc0.max;D0.locked=true;
@@ -1281,7 +1284,7 @@ function jerseyBlock(p){
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(se.start,t):0;
   const body={
-    level:`<h2>${dv.n} level</h2><p>Opponents average <b>${dv.avg} pts</b> a day, which is ${Math.round(PAR_SHARE*100)}% of your squad's ${dv.provisional?'':'starting '}max (${dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE)} pts).${dv.provisional?' It gets set when your squad locks.':' It stays fixed all season.'}</p><p>Sign harder players and you get ahead of it. Higher levels earn more XP (×${dv.xp} at ${dv.n}).</p>`,
+    level:`<h2>${dv.n} level</h2><p>Opponents average <b>${dv.avg} pts</b> a day, which is ${Math.round(PAR_SHARE*100)}% of your squad's ${dv.provisional?'':'starting '}max (${dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE)} pts).${dv.provisional?' It gets set when your squad locks.':' It stays fixed all season.'}</p><p>Knockouts get tougher each round: playoff opponents average 78%, 82% then 85% of your max, and tournament opponents 80%, 83% then 86%.</p><p>Sign harder players and you get ahead of it. Higher levels earn more XP (×${dv.xp} at ${dv.n}).</p>`,
     pre:`<h2>Pre-season</h2><p>Change anything until you lock in. Your squad and level lock automatically after the first game of the season.</p>`,
     transfer:`<h2>Transfer window</h2><p>Open for <b>${left} more day${left===1?'':'s'}</b>. You get one swap: tap a player, sell, and sign someone of the same difficulty or harder.</p><p>Your opponents' level stays the same, so a harder signing helps you win.</p>`,
     locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&se.transferUsed?' and your transfer is used':''}. You can still rename players, edit their steps, change their look, or rest them on the injury list.</p>`,
@@ -1360,7 +1363,7 @@ const HSE={start:brkStart('2026-10'),end:addDays(poStart('2026-10'),-1),rounds:[
 const hsDays=()=>HSE.spans.map(([a,b])=>{const r=[];for(let i=a;i<=b;i++)r.push(addDays(HSE.start,i));return r});
 const hsLive=()=>{const t=gameDate();return !!S.firstStart&&t>=HSE.start&&t<=HSE.end};
 const hsRating=id=>.52+rng('hsr'+id)()*.28;
-function hsTarget(d,id){const f=hsRating(id)+(rng('hst'+d+id)()-.5)*.24;return Math.max(1,Math.round(dayDiv(d).avg*(1+(f-.66)*.8)))}
+function hsTarget(d,id){const f=hsRating(id)+(rng('hst'+d+id)()-.5)*.24,r=Math.max(0,hsDays().findIndex(x=>x[0]===d));return Math.max(1,Math.round(dayDiv(d).avg*TOUR_RAMP[r]/PAR_SHARE*(1+(f-.66)*KO_SPREAD)))}
 function hsMine(d,today){if(d>today)return 0;const D=S.days[d];if(!D)return 0;return D.locked?D.me:score(D).me}
 function hsOpp(d,id,today,mine){if(d>today)return 0;let v=hsTarget(d,id);if(mine){const D=S.days[d];if(D){const mx=D.locked?D.max:score(D).max,full=fullMax();if(full)v=Math.round(v*mx/full)}}if(d===today)v=Math.round(v*oppProgress(d));return v}
 function shootout(){
