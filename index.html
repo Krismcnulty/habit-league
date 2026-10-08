@@ -1959,7 +1959,7 @@ function shopPool(){const out=RESERVED.filter(([k,v])=>!packOf(k,v));for(const c
 const fromVault=(k,v)=>{const P=packOf(k,v);return !!P&&vaulted(colOf(P.col))&&!isSig(colOf(P.col),k,v)};
 const CAT_RAR={atm:'leg',cel:'leg',snd:'leg',head:'epic',kit:'epic',court:'epic',board:'epic',shot:'epic',bench:'rare',logo:'rare',pbg:'rare',ball:'rare'};
 const shopRar=(k,v)=>SHOP_RAR[k+':'+v]||CAT_RAR[k]||'epic';
-function shopItems(){const pool=shopPool(),r=rng('shop'+shopWeek()),a=pool.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,4)}
+function shopItems(){const pool=shopPool(),r=rng('shop'+shopWeek()),a=pool.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}const pick=a.slice(0,4);if(!pick.some(x=>x[0]==='head')){const h=a.find(x=>x[0]==='head');if(h)pick[3]=h}return pick} // always at least one player head
 const inShop=(k,v)=>shopItems().some(([a,b])=>a===k&&b===v);
 const shopPrice=(k,v)=>SHOP_PRICE[shopRar(k,v)];
 const owned=(k,v)=>!!(S.owned&&(S.owned[k+':'+v]||(k==='snd'&&v==='haunted'&&S.owned['cel:boo']&&S.owned['ball:candy'])));
