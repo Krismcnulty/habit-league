@@ -1765,6 +1765,7 @@ function clSetup(){
 function pvBar(){
   let b=document.getElementById('pvbar');if(!PREVIEW){if(b)b.remove();document.body.classList.remove('pv');return}
   if(!b){b=document.createElement('div');b.id='pvbar';document.body.appendChild(b)}document.body.classList.add('pv');
+  if(PREVIEW.mode==='draft'){b.innerHTML=`<div class="sp"><b>📝 MOCK DRAFT</b><div class="small">${monthName(skey(gameDate()))} pre-season · not saved</div></div><button class="btn" data-a="mdClear">Clear squad</button><button class="btn" data-a="pvExit">Exit</button>`;return}
   if(PREVIEW.mode==='clutch'){b.innerHTML=`<div class="sp"><b>🚨 CLUTCH PREVIEW</b><div class="small">Tap a glowing player to win it · not saved</div></div><button class="btn primary" data-a="clReplay">Replay ↺</button><button class="btn" data-a="pvExit">Exit</button>`;return}
   const t=gameDate(),after=t>HSE.end,{m,r}=hsMe();
   const st=after?(S.hsDone&&S.hsDone.champ==='me'?'🏆 Champions!':'Shootout over'):m?(m.done&&m.winner!=='me'?`Out in the ${HSE.short[r]}`:`${HSE.short[r]} · ${nice(t,{weekday:'short',day:'numeric',month:'short'})}`):'';
@@ -1852,6 +1853,7 @@ function clubView(){
     <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
     <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button>
     <button class="btn block" data-a="hsPreview">🎃 Fast-forward through the Halloween Shootout</button>
+    <button class="btn block" data-a="mdPreview">📝 Mock draft (next season's squad selection)</button>
     <button class="btn block" data-a="clPreview">🚨 Simulate clutch time</button>
     <button class="btn block" data-a="tIntro">🏀 Replay today's tip-off intro</button>
     <button class="btn block" data-a="tReveal">📣 Replay the last final buzzer reveal</button>
@@ -2252,13 +2254,16 @@ const A={
   tIntro(){view='today';render();scrollTo(0,0);const D=S.days[gameDate()];if(!D||D.off||D.locked||(D.ph==='brk'&&!D.ev))return toast('No game today to introduce');maybeIntro(true)},
   tReveal(){const ds=Object.keys(S.days).filter(d=>S.days[d].locked&&S.days[d].res).sort();if(!ds.length)return toast('No finished games yet');view='today';render();scrollTo(0,0);showReveal(ds[ds.length-1])},
   tSound(){actx();if(!sndOn())return toast('Sound is off: turn it on above');['whistle','swish','tick','cheer','ooh'].forEach((n,i)=>setTimeout(()=>{sfx(n);toast('🔊 '+n)},i*1300));buzz([40,60,40])},
+  mdPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'draft'};closeSheet();
+    const nk=nextKey(skey(gameDate()));window.HL_NOW=nk+'-01T06:00:00';view='squad';render();scrollTo(0,0);toast(`📝 Mock draft for ${monthName(nk)} · nothing here is saved`)},
+  mdClear(){if(!confirm('Release every player and draft from scratch? (Mock only)'))return;S.squad=[];render();scrollTo(0,0)},
   clPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'clutch'};closeSheet();clSetup();view='today';render();scrollTo(0,0);toast('🚨 Clutch preview · nothing here is saved')},
   clReplay(){clSetup();render();scrollTo(0,0)},
   pvNext(){const t=gameDate();if(t>HSE.end){standTab='events';view='league';render();scrollTo(0,0);return}
     const out=(()=>{const {m}=hsMe();return m&&m.done&&m.winner!=='me'})();if(out){window.HL_NOW=addDays(HSE.end,1)+'T09:00:00';render();scrollTo(0,0);return}
     const D=ensureDay(t);if(score(D).me===0){const rate=.75+Math.random()*.25;for(const p of S.squad)if(!D.inj.includes(p.id)&&Math.random()<rate)D.t[p.id]=p.steps&&p.steps.length?p.steps.map(()=>true):true}
     window.HL_NOW=addDays(t,1)+'T19:00:00';render();scrollTo(0,0)},
-  pvExit(){if(!PREVIEW)return;const wasCl=PREVIEW.mode==='clutch';S=JSON.parse(PREVIEW.bak);if(PREVIEW.now===undefined)delete window.HL_NOW;else window.HL_NOW=PREVIEW.now;PREVIEW=null;const b=document.getElementById('pvbar');if(b)b.remove();document.querySelectorAll('.celeb').forEach(e=>e.remove());view=wasCl?'club':'league';if(!wasCl)standTab='events';render();scrollTo(0,0);toast('Back to your real league')},
+  pvExit(){if(!PREVIEW)return;const wasCl=PREVIEW.mode==='clutch'||PREVIEW.mode==='draft';S=JSON.parse(PREVIEW.bak);if(PREVIEW.now===undefined)delete window.HL_NOW;else window.HL_NOW=PREVIEW.now;PREVIEW=null;const b=document.getElementById('pvbar');if(b)b.remove();document.querySelectorAll('.celeb').forEach(e=>e.remove());view=wasCl?'club':'league';if(!wasCl)standTab='events';render();scrollTo(0,0);toast('Back to your real league')},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
