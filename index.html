@@ -1451,8 +1451,32 @@ function faceSvgHD(p){
   if(fx.shades){rect(7,14,24,14,ink);rect(8,15,13,17,'#1f2937');rect(18,15,23,17,'#1f2937');rect(14,15,17,15,ink);set(9,15,'#9ca3af');set(10,15,'#6b7280');set(19,15,'#9ca3af');set(20,15,'#6b7280');rect(8,18,13,18,ink);rect(18,18,23,18,ink)}
   if(fx.goggles){rect(4,15,27,16,'#f97316');rect(4,17,27,17,'#c2410c');[8,18].forEach(x0=>{rect(x0,13,x0+5,13,ink);rect(x0,18,x0+5,18,ink);rect(x0,14,x0,17,ink);rect(x0+5,14,x0+5,17,ink);rect(x0+1,14,x0+4,17,'#7dd3fc');rect(x0+2,15,x0+3,16,'#0c4a6e');set(x0+1,14,'#e0f2fe')})}
   if(fx.warpaint){rect(8,18,12,18,'#dc2626');rect(9,19,11,19,'#dc2626');rect(19,18,23,18,'#dc2626');rect(20,19,22,19,'#dc2626')}
-  if(fx.zombie){const bag='#4d6b3a',st='#3b2a1a';rect(9,17,12,18,bag);rect(19,17,22,18,bag);set(10,15,'#b91c1c');set(11,15,'#b91c1c');set(20,15,'#b91c1c');set(21,15,'#b91c1c');
-    for(let y=7;y<=12;y++)set(21,y,st);[8,10].forEach(y=>{set(20,y,st);set(22,y,st)});rect(8,21,9,22,'#a3c585');set(10,23,'#a3c585');set(23,20,'#5f7f45')}
+  if(fx.zombie){ // hand-drawn zombie: ragged hair, one droopy eye, forehead scar with stitches, rot spots, broken grin
+    const D2=hexMix(sk,'#000000',.38),mould=hexMix(sk,'#ffffff',.28),bru='#5b4a6e',st='#2b1d12',scar='#b98585',eyeY='#e9e4b8',red='#ef4444',glow='#fca5a5',H=hair,Hh=hexMix(hair,'#ffffff',.18);
+    // ragged hair: clear generic hair, then clumps with a bald patch
+    for(let y=0;y<=12;y++)for(let x=0;x<N;x++){const c=get(x,y);if(c&&(c===hair||c===hl||c===hl2||c===hd))set(x,y,hdIn(x,y)?sk:null)}
+    [[7,4,10,9],[11,2,14,8],[15,3,17,7],[22,3,25,10],[6,8,7,12],[24,9,25,13]].forEach(([a,b,c,d])=>rect(a,b,c,d,H));
+    [[8,3],[12,1],[13,1],[16,2],[23,2],[25,2],[10,3],[6,7]].forEach(([x,y])=>set(x,y,H));
+    [[8,5],[12,3],[16,4],[23,5],[9,7]].forEach(([x,y])=>set(x,y,Hh));
+    rect(8,10,9,12,H);set(10,11,H);set(9,13,H); // strands over the forehead
+    rect(18,5,21,8,sk);set(19,6,mould);set(20,7,D2); // bald patch
+    // forehead scar with stitches
+    [[17,8],[18,9],[19,10],[20,11],[21,12]].forEach(([x,y])=>set(x,y,scar));[[17,7],[19,9],[21,11]].forEach(([x,y])=>{set(x,y,st);set(x+1,y+2,st)});
+    // eyes: left wide and staring, right droopy
+    rect(9,13,12,13,hd);rect(19,14,22,14,hd);
+    rect(9,15,12,17,eyeY);rect(10,15,11,16,red);set(10,15,glow);rect(9,18,12,18,bru);rect(8,17,8,18,bru);
+    rect(19,15,22,15,sk);rect(19,16,22,17,eyeY);rect(20,16,21,17,red);set(20,16,glow);rect(19,15,22,15,D2);rect(19,18,22,19,bru);
+    // sunken nose: just nostrils
+    rect(15,15,17,18,sk);set(16,17,sh);set(15,19,'#1d0f08');set(17,19,'#1d0f08');set(16,19,sh);
+    // cheek stitches and rot spots
+    for(let y=19;y<=23;y++)set(23,y,scar);[19,21,23].forEach(y=>{set(22,y,st);set(24,y,st)});
+    [[8,21],[9,22],[8,22],[21,25],[12,26]].forEach(([x,y])=>set(x,y,D2));[[9,21],[13,10],[22,24]].forEach(([x,y])=>set(x,y,mould));
+    // broken grin: dark mouth, gum, uneven teeth with a gap
+    rect(11,22,20,24,'#2a0a0a');rect(12,22,19,22,'#7f1d1d');
+    [11,12,14,16,17,19].forEach(x=>set(x,23,'#e7e2c0'));[13,15,18].forEach(x=>set(x,24,'#d6cfa4'));set(20,23,'#e7e2c0');
+    set(19,25,'#cfe7b8'); // drool
+    // torn left ear
+    set(4,17,null);set(5,17,D2);set(26,15,D2)}
   if(fx.crown){HD_CROWN.forEach((row,y)=>[...row].forEach((c,x)=>{if(HD_CROWN_C[c])set(x,y-1,HD_CROWN_C[c])}))}
   // outline
   const out=G.map(r=>r.slice());
