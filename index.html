@@ -455,6 +455,20 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .form .fW{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.45)}
 .form .fL{background:rgba(240,82,82,.15);color:var(--red);border:1px solid rgba(240,82,82,.4)}
 .form i:last-child{box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+/* ---- themed tournament cards ---- */
+.evc{padding:2px 14px;margin-bottom:12px;--ea:var(--orange2);--eb:var(--line);--et:var(--panel2)}
+.evc .ach{border-top:0}
+.evc .ach b.sp{color:var(--ea)}
+.evc .ach .ic,.evc .evt .rwp{background:var(--et);border-color:var(--eb)}
+.evc .evt .rwp.tro2{border-color:var(--ea)}
+.evc .evsoon{margin-top:6px;color:var(--ea)}
+.ev-hw{background:radial-gradient(130% 90% at 100% 0%,rgba(249,115,22,.22),transparent 55%),linear-gradient(180deg,#2a1440,#120818);border-color:#f97316;--ea:#fb923c;--eb:#5b2a80;--et:#1c0d2b}
+.ev-wc{background:radial-gradient(130% 90% at 100% 0%,rgba(186,230,253,.18),transparent 55%),linear-gradient(180deg,#123354,#08182b);border-color:#7dd3fc;--ea:#bae6fd;--eb:#1f4e79;--et:#0b2340}
+.ev-ny{background:radial-gradient(60% 50% at 85% 10%,rgba(244,114,182,.22),transparent 70%),radial-gradient(50% 40% at 10% 0%,rgba(251,191,36,.16),transparent 70%),linear-gradient(180deg,#1c1840,#0a0820);border-color:#fbbf24;--ea:#fcd34d;--eb:#3b2f6b;--et:#151133}
+.ev-ss{background:radial-gradient(130% 90% at 100% 0%,rgba(249,168,212,.22),transparent 55%),linear-gradient(180deg,#3a1a35,#160b18);border-color:#f9a8d4;--ea:#f9a8d4;--eb:#5e2f55;--et:#24101f}
+.ev-ss .evt .req{color:#86efac}
+.evc .bracket{margin-top:0}
+.ev-hw .btn{background:#2a1238;border-color:#f97316;color:#fed7aa}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1570,10 +1584,10 @@ function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.
   return (now.length?evCard(now,today):'')+(up.length?`<div class="sect"><h3 class="cond">Upcoming</h3></div>${evCard(up,today)}`:'');
 }
 function evCard(ev,today){
-  return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
+  return `${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
     const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small><em class="req">Winner</em></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small><em class="req ${EV_REQ[k+':'+v]?'semi':''}">${EV_REQ[k+':'+v]||'Winner'}</em></div>`)).join('');
-    return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
-      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):`<div class="small" style="margin-top:6px;color:var(--orange2)">Coming soon in the prototype</div>`}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}`}).join('')}</div>`;
+    return `<div class="card evc ev-${{'Halloween Shootout':'hw','Winter Classic':'wc','New Year Cup':'ny','Spring Slam':'ss'}[e.n]||'x'}"><div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
+      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):`<div class="small evsoon">Coming soon in the prototype</div>`}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}</div>`}).join('')}`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
