@@ -95,8 +95,8 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .gatm{display:flex;gap:2px;width:44px;height:34px;padding:4px;border-radius:8px;background:var(--tb);background-image:var(--tt);border:1px solid var(--tl)}.gatm i{flex:1;border-radius:3px;background:var(--tp);border:1px solid var(--tl)}.gatm i:nth-child(2){background:var(--tp2)}.gatm i:nth-child(3){flex:.6;background:linear-gradient(180deg,var(--ta),var(--ta2));border:0}
 .gatm.big{width:76px;height:56px;gap:4px;padding:7px}.gtile.locked .gatm{opacity:.45;filter:grayscale(.4)}
 .setrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--text);font:inherit}.setrow b{display:block;font-size:14px}.setrow small{font-size:12px}
-.court-haunted{background:radial-gradient(90% 40% at 30% 100%,rgba(167,243,208,.16),transparent 70%),radial-gradient(70% 35% at 80% 90%,rgba(196,181,253,.14),transparent 70%),repeating-linear-gradient(90deg,#1c2420 0 22px,#18201c 22px 23px,#202a25 23px 47px,#141b17 47px 48px);border-color:#84cc16}
-.court-haunted svg.lines{stroke:#bbf7d0;stroke-opacity:.6}
+.court.court-haunted{background:radial-gradient(60% 30% at 82% 12%,rgba(254,249,195,.35),rgba(254,249,195,.08) 40%,transparent 70%),radial-gradient(100% 35% at 25% 100%,rgba(167,243,208,.32),transparent 70%),radial-gradient(80% 30% at 85% 95%,rgba(196,181,253,.3),transparent 70%),radial-gradient(70% 22% at 50% 55%,rgba(203,213,225,.14),transparent 70%),repeating-linear-gradient(90deg,#1c2420 0 22px,#18201c 22px 23px,#202a25 23px 47px,#141b17 47px 48px);border-color:#84cc16}
+.court.court-haunted svg.lines{stroke:#bbf7d0;stroke-opacity:.6}
 .sb-tomb{background:linear-gradient(180deg,#6b7280,#374151 60%,#1f2937)!important;border:3px solid #111827!important;border-radius:40px 40px 10px 10px!important;box-shadow:inset 0 3px 0 rgba(255,255,255,.18),0 6px 14px rgba(0,0,0,.5)}
 .sb-tomb .score,.sb-tomb.gboard{font-family:Creepster,cursive;color:#a3e635;text-shadow:0 2px 0 #3f6212,0 0 10px rgba(163,230,53,.6)}
 .sb-tomb.gboard{border-radius:16px 16px 6px 6px!important}
@@ -1682,7 +1682,7 @@ const KITDEF={home:{n:'Home',b:'#ff7a1a',t:'#ffffff',num:'#ffffff',pat:'plain'},
  retro:{n:'Retro',b:'#facc15',t:'#7c2d12',num:'#7c2d12',pat:'retro'},pinstripe:{n:'Pinstripe',b:'#1e3a8a',t:'#e2e8f0',num:'#ffffff',pat:'pin'},
  legend:{n:'Legend',b:'#0b0b0b',t:'#d4a017',num:'#d4a017',pat:'panels'},neon:{n:'Neon',b:'#140726',t:'#22d3ee',num:'#f0abfc',pat:'panels'},
  sunset:{n:'Sunset',b:'#f97316',t:'#db2777',num:'#ffffff',pat:'grad'},galaxy:{n:'Galaxy',b:'#312e81',t:'#c4b5fd',num:'#ffffff',pat:'galaxy'},
- witch:{n:"Witch's Brew",b:'#3b0764',t:'#a3e635',num:'#bef264',pat:'panels'}};
+ witch:{n:"Witch's Brew",b:'#3b0764',t:'#a3e635',num:'#bef264',pat:'witch',font:'Creepster,cursive'}};
 const KITS=Object.entries(KITDEF).map(([k,v])=>[k,v.n]);
 KITDEF.scout={n:'Unsigned',b:'#64748b',t:'#e2e8f0',num:'#f8fafc',pat:'plain'}; // generic jersey for players not yet on your team (added after KITS so it isn't a cosmetic)
 const myKit=()=>(S.cos&&S.cos.kit)||'home';
@@ -1693,14 +1693,23 @@ function jerseySvg(kit,name,num){
   if(K.pat==='galaxy'){defs=`<radialGradient id="${id}g" cx=".4" cy=".35" r=".9"><stop offset="0" stop-color="#7c3aed"/><stop offset=".6" stop-color="${K.b}"/><stop offset="1" stop-color="#0b0b2a"/></radialGradient>`;fill=`url(#${id}g)`;deco=[[24,44],[70,30],[80,70],[30,90],[60,96],[18,70]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.3" fill="#fff"/>`).join('')}
   if(K.pat==='pin')for(let x=12;x<92;x+=7)deco+=`<path d="M${x} 0V110" stroke="${K.t}" stroke-opacity=".35" stroke-width="1.2"/>`;
   if(K.pat==='panels')deco=`<path d="M8 34Q14 33 18 30L18 108 8 104Z M92 34Q86 33 82 30L82 108 92 104Z" fill="${K.t}"/>`;
+  if(K.pat==='witch'){defs=`<radialGradient id="${id}g" cx=".5" cy=".25" r=".9"><stop offset="0" stop-color="#6d28d9"/><stop offset=".6" stop-color="#3b0764"/><stop offset="1" stop-color="#1e0536"/></radialGradient>`;fill=`url(#${id}g)`;
+    const web=(cx,cy,sx,sy)=>{const R=[0,22,45,68,90].map(a=>{const r=a*Math.PI/180;return [cx+sx*Math.cos(r)*30,cy+sy*Math.sin(r)*30]});
+      return `<g fill="none" stroke="rgba(233,213,255,.55)" stroke-width=".8">${R.map(([x,y])=>`<path d="M${cx} ${cy}L${x.toFixed(1)} ${y.toFixed(1)}"/>`).join('')}${[9,17,25].map(d=>`<path d="${R.map(([x,y],i)=>{const t=d/30;return (i?'Q':'M')+(i?`${(cx+(R[i-1][0]-cx)*t*.55+(x-cx)*t*.55).toFixed(1)} ${(cy+(R[i-1][1]-cy)*t*.55+(y-cy)*t*.55).toFixed(1)} `:'')+`${(cx+(x-cx)*t).toFixed(1)} ${(cy+(y-cy)*t).toFixed(1)}`}).join(' ')}"/>`).join('')}</g>`};
+    const bat=(x,y,k)=>`<path transform="translate(${x} ${y}) scale(${k})" d="M0 0q3-3 5 0q1-3 2-1q1-2 2 1q2-3 5 0q-3 0-4 3q-2-1-3 1q-1-2-3-1q-1-3-4-3z" fill="#1e0536" stroke="#a3e635" stroke-width=".5"/>`;
+    deco=`<path d="M8 34Q14 33 18 30L18 108 8 104Z M92 34Q86 33 82 30L82 108 92 104Z" fill="#14532d"/><path d="M8 34Q14 33 18 30L18 108 8 104Z M92 34Q86 33 82 30L82 108 92 104Z" fill="none" stroke="#a3e635" stroke-width="1"/>`
+      +web(8,104,1,-1)+web(92,34,-1,1)
+      +`<path d="M8 98C14 94 18 101 23 97S33 93 38 99 49 95 54 98 64 93 69 98 79 94 84 99 90 95 92 97L92 110 8 110Z" fill="#84cc16"/><circle cx="23" cy="103" r="2.2" fill="#84cc16"/><circle cx="54" cy="104" r="2.6" fill="#84cc16"/><circle cx="76" cy="103" r="1.8" fill="#84cc16"/>`
+      +`<path d="M66 31V47" stroke="rgba(233,213,255,.7)" stroke-width=".7"/><g transform="translate(66 50)"><path d="M-5 -3l3 1M-5 0h3M-5 3l3-1M5 -3l-3 1M5 0h-3M5 3l-3-1" stroke="#0f0518" stroke-width="1"/><ellipse rx="2.6" ry="3.2" fill="#0f0518"/><circle cy="-3.6" r="1.7" fill="#0f0518"/><circle cx="-.6" cy="-3.8" r=".4" fill="#ef4444"/><circle cx=".6" cy="-3.8" r=".4" fill="#ef4444"/></g>`
+      +bat(26,22,.9)+bat(40,14,.7)}
   if(K.pat==='retro')deco=`<path d="M0 90h100v4H0zM0 97h100v3H0z" fill="${K.t}"/>`;
   const label=(name||'').replace(/^[A-Z]\.\s*/,'').toUpperCase().slice(0,11);
   return `<svg viewBox="0 0 100 110" class="jsy"><defs>${defs}<clipPath id="${id}c"><path d="${shirt}"/></clipPath></defs>
    <path d="${shirt}" fill="${fill}"/><g clip-path="url(#${id}c)">${deco}</g>
    <path d="M30 6Q50 15 70 6M22 8Q20 28 8 34M78 8Q80 28 92 34" fill="none" stroke="${K.t}" stroke-width="4" stroke-linecap="round"/>
    <path d="${shirt}" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1.5"/>
-   <text x="50" y="36" text-anchor="middle" font-family="Arial Narrow,system-ui,sans-serif" font-weight="800" font-size="${label.length>8?7.5:9}" letter-spacing=".5" fill="${K.num}">${esc(label)}</text>
-   <text x="50" y="82" text-anchor="middle" font-family="Arial Narrow,system-ui,sans-serif" font-weight="900" font-size="40" fill="${K.num}" stroke="${K.pat==='plain'&&kit==='away'?'#0b1020':K.t}" stroke-width="${kit==='home'?0:1.2}" paint-order="stroke">${num}</text></svg>`;
+   <text x="50" y="36" text-anchor="middle" font-family="${K.font||'Arial Narrow,system-ui,sans-serif'}" font-weight="800" font-size="${label.length>8?7.5:9}" letter-spacing=".5" fill="${K.num}">${esc(label)}</text>
+   <text x="50" y="82" text-anchor="middle" font-family="${K.font||'Arial Narrow,system-ui,sans-serif'}" font-weight="${K.font?400:900}" font-size="${K.font?44:40}" fill="${K.num}" stroke="${K.pat==='witch'?'#1e0536':K.pat==='plain'&&kit==='away'?'#0b1020':K.t}" stroke-width="${kit==='home'?0:K.font?2.5:1.2}" paint-order="stroke">${num}</text></svg>`;
 }
 const BENCHES=[['classic','Classic'],['wood','Wooden bench'],['courtside','Courtside'],['locker','Locker room'],['vip','VIP'],['neon','Neon'],['velvet','Velvet'],['coffin','Coffin']];
 // Player backgrounds: team-wide fill behind every player's head (the border keeps the position colour).
@@ -1750,7 +1759,7 @@ const PACKS=[
 const PACK_BUNDLE={id:'hw-all',n:'Halloween Collection',price:3.99};
 const packOf=(k,v)=>PACKS.find(p=>p.items.some(([a,b])=>a===k&&b===v));
 const packOwned=p=>p.items.every(([k,v])=>owned(k,v));
-const packPrice=x=>S.premium?Math.round(x*.75*100)/100:x;
+const packPrice=x=>x;
 const gbp=x=>'£'+x.toFixed(2);
 function cosUnlocked(k,v){if(S.unlockAll)return true;if(owned(k,v))return true;if(packOf(k,v))return false;if(k==='atm'&&v==='dynasty')return S.xp>=ATM_TOP()[0];if(k==='pbg'&&RANK_BG[v]!=null)return topRank()>=RANK_BG[v];if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
 // Rarity: how hard an item is to get. Common = free, Rare = achievements, Epic = harder achievements, events, premium and Veteran/Legend backgrounds, Legendary = the very top.
@@ -2452,15 +2461,6 @@ function awardsView(){
   const KS=['atm','logo','kit','pbg','head','board','court','bench','ball','shot','cel'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
   const gh=(k,t,d)=>{const [h,n]=gearCount(k);return `<div class="gh"><b>${t}</b><span class="gcount ${h===n?'full':''}">${h}/${n}</span></div>${d?`<div class="small muted">${d}</div>`:''}`};
   return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">${have} / ${all} collected</span></div>
-  <button class="prembar ${P?'on':''}" data-a="lkPrem"><span class="pb-k">⭐ Premium</span><span class="sp pb-t">This week: ${drop.map(([k,v])=>cosName(k,v)).join(', ')}</span><span class="pb-d">${days}d ${lkPremOpen?'▴':'▾'}</span></button>
-  ${lkPremOpen?`  <div class="card prem ${P?'on':''}" style="margin-top:8px">
-    <div class="row"><div class="sp"><b class="cond" style="font-size:18px">⭐ Premium</b><div class="small muted">${P?'Preview on · no payments in the prototype':'Preview what subscribers get · no payment needed'}</div></div>
-      <button class="switch ${P?'on':''}" data-a="togglePrem" aria-label="Premium preview"><i></i></button></div>
-    <div class="sect" style="margin-top:12px"><h3 class="cond">This week's drop</h3><span class="small muted">new items in ${days} day${days===1?'':'s'}</span></div>
-    <div class="drops">${drop.map(([k,v])=>{const own=owned(k,v);return `<div class="drop">${itemPreview(k,v)}<b>${cosName(k,v)}</b><span class="small muted">${COS_NAMES[k]}</span>
-      <button class="btn ${own?'':'primary'}" style="padding:6px 10px;font-size:13px" data-a="claim" data-k="${k}" data-v="${v}" ${own?'disabled':''}>${own?'Owned':P?'Claim':'⭐ Premium'}</button></div>`}).join('')}</div>
-    ${P?'':`<ul class="perks"><li><b>25% off</b> every Store pack</li><li><b>Weekly drops</b> of kits, courts, looks and shot effects</li><li><b>Friend leagues</b>: host as many as you like</li><li><b>Deeper stats</b>: full history, heatmaps, trends</li><li><b>Cloud sync</b> and automatic backups</li></ul><div class="small muted">Never more scoring power: premium only changes looks and adds ways to play.</div>`}
-  </div>`:''}
   <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['atm','board','court','bench']],['fx','Effects',['ball','shot','cel']],['store','🛍️ Store',[]]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
   ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
@@ -2490,7 +2490,7 @@ function storeView(){
     ${PACKS.map(p=>{const own=packOwned(p);return `<div class="pack ${own?'own':''}"><div class="pk-h"><div class="sp"><b>${p.n}</b><small>${p.d}</small></div>${own?'<span class="pk-own">✓ Owned</span>':`<button class="btn primary pk-buy" data-a="buyPack" data-v="${p.id}">${gbp(packPrice(p.price))}</button>`}</div>
       <div class="pk-grid">${p.items.map(tile).join('')}</div></div>`}).join('')}
     ${all?'':`<button class="pack bundle" data-a="buyPack" data-v="${PACK_BUNDLE.id}"><div class="sp"><b>🎃 Get all three packs</b><small>Every Halloween item in one go · save ${gbp(packPrice(full)-packPrice(PACK_BUNDLE.price))}</small></div><span class="btn primary">${gbp(packPrice(PACK_BUNDLE.price))}</span></button>`}
-    <p class="small muted" style="margin:10px 2px 0">Packs are yours to keep and never change how you score. ${S.premium?'⭐ Premium price: 25% off.':'⭐ Premium members get 25% off.'} Prototype: no payment is taken.</p></div>`;
+    <p class="small muted" style="margin:10px 2px 0">Packs are yours to keep and never change how you score. Prototype: no payment is taken.</p></div>`;
 }
 let clubTab='overview';
 // Club records, all worked out from saved games.
