@@ -358,6 +358,9 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .banners{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .banner2{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 6px 20px;background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-top:4px solid var(--gold);clip-path:polygon(0 0,100% 0,100% 92%,50% 100%,0 92%)}
 .banner2 .jsy{width:64px;margin-bottom:6px}
+.banner2.r-pro{border-top-color:#3b82f6}.banner2.r-allstar{border-top-color:#fbbf24}.banner2.r-vet{border-top-color:#f472b6;background:linear-gradient(180deg,#2a1a33,#0f172a)}.banner2.r-legend{border-top-color:#22d3ee;background:linear-gradient(180deg,#0e2a33,#0f172a)}.banner2.r-goat{border-top-color:#facc15;background:linear-gradient(180deg,#3a2f0a,#0f172a);box-shadow:inset 0 0 18px rgba(250,204,21,.25)}
+.banner2 em{font-style:normal;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin:3px 0 1px;color:#cbd5e1}
+.banner2.r-pro em{color:#93c5fd}.banner2.r-allstar em{color:#fbbf24}.banner2.r-vet em{color:#f472b6}.banner2.r-legend em{color:#22d3ee}.banner2.r-goat em{color:#facc15}
 .banner2 b{font-size:12px}.banner2 span{font-size:10.5px;color:var(--muted);line-height:1.3}
 /* ---- bench styles ---- */
 .benchwrap .pl{position:relative}
@@ -686,6 +689,11 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .rt-btn{margin-top:10px;width:100%;background:linear-gradient(180deg,#fde68a,#fbbf24 50%,#d97706);border:0;color:#1a1000;font-weight:900;letter-spacing:.02em}
 .retire.retired{border-color:var(--gold);background:radial-gradient(120% 140% at 0% 0%,rgba(251,191,36,.22),transparent 60%),linear-gradient(180deg,#1e1a10,#0f0d08)}
 .retire.retired b{color:#fde68a}
+.rt-tier{display:flex;align-items:center;gap:6px;margin:2px 0 6px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.retire.r-rookie,.retire.r-pro{--rc:#60a5fa}.retire.r-allstar{--rc:#fbbf24}.retire.r-vet{--rc:#f472b6}.retire.r-legend{--rc:#22d3ee}.retire.r-goat{--rc:#facc15}
+.retire.retired[class*=r-],.retire.ready[class*=r-]{border-color:var(--rc);background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--rc) 22%,transparent),transparent 60%),linear-gradient(180deg,#1b1a2e,#0f1020)}
+.retire[class*=r-] .rt-k{color:var(--rc)}
+.retire.retired.r-goat{animation:rtglow 1.8s ease-in-out infinite}
 .statcard{padding:8px}.statcard .stgrid{margin-top:8px!important}.statcard .stgrid div{background:var(--panel2)}
 .prank{display:inline-block;margin-left:6px;font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;vertical-align:2px;border:1px solid}
 .prank.r-rookie{color:#cbd5e1;border-color:#475569;background:rgba(148,163,184,.10)}
@@ -1979,7 +1987,7 @@ function clubView(){
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
   <div class="sect"><h3 class="cond">Trophy cabinet</h3></div><div class="card" style="padding:4px 14px">${tro||'<p class="muted">Empty for now. Win the league or top the regular season.</p>'}</div>
   <div class="sect"><h3 class="cond">Rafters</h3><span class="small muted">Retired jerseys</span></div>
-  <div class="card rafters">${(S.retired||[]).length?`<div class="banners">${S.retired.map(r=>`<div class="banner2">${jerseySvg(r.kit,r.name,r.num)}<b>${esc(r.name)}</b><span>${esc(r.habit)}</span><span>${esc(r.why)}</span></div>`).join('')}</div>`:'<p class="muted small" style="margin:0">Hit a 100-day streak on a player to retire their jersey here.</p>'}</div>
+  <div class="card rafters">${(S.retired||[]).length?`<div class="banners">${S.retired.map(r=>{const k=bannerRank(r);return `<div class="banner2 r-${PRANKS[k].id}">${jerseySvg(r.kit,r.name,r.num)}<b>${esc(r.name)}</b><span>${esc(r.habit)}</span><em>${k?RSYM[k]+' ':''}${PRANKS[k].n}</em><span>${esc(r.why)}</span></div>`}).join('')}</div>`:'<p class="muted small" style="margin:0">Hit a 100-day streak on a player to retire their jersey here.</p>'}</div>
   <div class="sect"><h3 class="cond">Achievements</h3><span class="small muted">${ACH.filter(a=>S.ach&&S.ach[a.id]).length}/${ACH.length} · rewards show in the Locker</span></div><div class="card" style="padding:12px 14px 0">${achSummary()}</div>
   <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
   <div class="sect"><h3 class="cond">Sound &amp; vibration</h3></div>
@@ -2081,12 +2089,17 @@ function pCareer(p){
   const bk=Object.keys(bym).sort((a,b)=>bym[b]-bym[a])[0];
   return{seasons:(p.seasons||0)+1,att,made,pct:att?Math.round(made/att*100):null,best:playerBest(p),pts:made*pv(p),bestMonth:bk?monthName(bk):null,bestMade:bk?bym[bk]:0};
 }
+// Banner tier = the player's rank; it keeps upgrading while a retired player keeps playing.
+function bannerRank(r){const p=S.squad.find(x=>x.id===r.id);return Math.max(r.rk||0,p?pRank(p):0)}
+function rankChip(r){return `<span class="prank big r-${PRANKS[r].id}">${r?`<i class="rk-sym">${RSYM[r]}</i>`:''}${PRANKS[r].n}</span>`}
 function retireBlock(p){
   const id=ident(p),best=playerBest(p),cur=streak(p),R=(S.retired||[]).find(r=>r.id===p.id),ok=best>=100,pct=Math.min(100,best);
+  const rk=R?bannerRank(R):pRank(p),RK=PRANKS[rk],nx=PRANKS[rk+1],m=careerMakes(p);
   const jsy=`<div class="rt-jsy">${jerseySvg(myKit(),id.name,id.num)}</div>`;
-  if(R)return `<div class="retire retired">${jsy}<div class="sp"><div class="rt-k">Jersey retired</div><b>#${id.num} ${esc(id.name)}</b><small>Hangs in the Club rafters since ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})}</small></div></div>`;
-  if(ok)return `<div class="retire ready">${jsy}<div class="sp"><div class="rt-k">🏅 Legend status unlocked</div><b>100-day streak!</b><small>Hang #${id.num} in the rafters forever.</small><button class="btn rt-btn" data-a="retire" data-id="${p.id}">Retire jersey #${id.num}</button></div></div>`;
-  return `<div class="retire">${jsy}<div class="sp"><div class="rt-k">Road to the rafters</div><b>${best} / 100 days</b><div class="rt-bar"><i style="width:${pct}%"></i></div><small>${cur>=2?`🔥 ${cur}-day streak now · `:''}Hit a 100-day streak to retire #${id.num} forever.</small></div></div>`;
+  const up=nx?`Upgrades to ${nx.n} at ${nx.at} makes (${m} now)`:'The highest banner in the game';
+  if(R)return `<div class="retire retired r-${RK.id}">${jsy}<div class="sp"><div class="rt-k">Jersey retired · since ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})}</div><b>#${id.num} ${esc(id.name)}</b><div class="rt-tier">${rankChip(rk)}<span>banner</span></div><small>${up}</small></div></div>`;
+  if(ok)return `<div class="retire ready r-${RK.id}">${jsy}<div class="sp"><div class="rt-k">🏅 Rafters unlocked</div><b>100-day streak!</b><div class="rt-tier"><span>Hangs as</span>${rankChip(rk)}<span>banner</span></div><small>They keep playing after, and the banner upgrades as they rank up.</small><button class="btn rt-btn" data-a="retire" data-id="${p.id}">Retire jersey #${id.num}</button></div></div>`;
+  return `<div class="retire">${jsy}<div class="sp"><div class="rt-k">Road to the rafters</div><b>${best} / 100 days</b><div class="rt-bar"><i style="width:${pct}%"></i></div><small>${cur>=2?`🔥 ${cur}-day streak now · `:''}Hit a 100-day streak to retire #${id.num}. The banner matches their rank.</small></div></div>`;
 }
 function profileView(){
   const p=S.squad.find(x=>x.id===profId);if(!p){view='squad';return squadView()}
@@ -2428,7 +2441,7 @@ const A={
   unlockAll(){S.unlockAll=!S.unlockAll;save();render();toast(S.unlockAll?'All cosmetics unlocked for testing':'Cosmetics re-locked')},
   retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;if((S.retired||[]).some(r=>r.id===p.id)||playerBest(p)<100)return;const id=ident(p),best=playerBest(p);
     if(!confirm(`Retire #${id.num} ${id.name}? Their jersey goes up in the Club rafters for good. They keep playing, and #${id.num} can't be used by anyone else.`))return;
-    S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:`${best}-day streak`});
+    S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:`${best}-day streak`,rk:pRank(p)});
     p.num=id.num;save();closeSheet();render();celebrate('stamp','RETIRED',`#${id.num} ${id.name}`)},
   fastVet(){const p=S.squad.find(x=>x.slot==='court');p.seasons=Math.max(3,p.seasons||0);save();render();toast(`${p.name} is now a 3-season veteran`)},
   addStep(){const i=document.getElementById('newStep');const v=i.value.trim();if(!v)return i.focus();if(document.querySelectorAll('.stepin').length>=8)return toast('Up to 8 steps');document.getElementById('stepList').insertAdjacentHTML('beforeend',stepRow(v));i.value='';i.focus()},
