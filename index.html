@@ -1605,16 +1605,15 @@ function pStatus(p,f,sk){const played=f.filter(x=>x!=='i'),made=played.filter(x=
 function squadRow(p){
   const f=S.firstStart?pForm(p):[],sk=S.firstStart?streak(p):0,stt=pStatus(p,f,sk);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
-  const tr=S.firstStart&&(canEditSquad()||transferOpen())?`<button class="ptrade" data-a="transfer" data-id="${p.id}">⇄ Trade</button>`:'';
   const dots=f.length?`<span class="pform">${f.map(x=>`<i class="${x}"></i>`).join('')}</span>`:'';
-  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}${(p.restDays||[]).length?` · <span class="rmeta">🩹 ${p.restDays.slice().sort().map(i=>WD[i]).join(' ')}</span>`:''}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${tr||posTag(p)}</div></div>`}
+  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}${(p.restDays||[]).length?` · <span class="rmeta">🩹 ${p.restDays.slice().sort().map(i=>WD[i]).join(' ')}</span>`:''}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${posTag(p)}</div></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
   const left=se?TRANSFER_DAYS-diffDays(regStart(se),t):0,inj=S.squad.reduce((n,p)=>n+restsLeft(p.id,t),0),preLeft=se&&t<regStart(se)?diffDays(t,regStart(se)):0;
   const tile=(v,ic,lab,val,sub,cls='')=>`<button class="stile ${cls}" data-a="sinfo" data-v="${v}"><span class="st-lab"><i>${ic}</i>${lab}</span><b class="st-val">${val}</b><span class="st-sub">${sub}</span></button>`;
   const lvl=tile('level','🏀','Level',dv.n,`Opp ~${dv.avg} pts`,'lv-'+dv.id);
-  const tr=edit?tile('pre','📝','Trades',preLeft?'Unlimited':'Open',preLeft?`${preLeft} day${preLeft===1?'':'s'} of pre-season`:'Edit freely','on')
+  const tr=edit?tile('pre','📝','Trades',preLeft?'Unlimited':'Open',preLeft?`${preLeft} day${preLeft===1?'':'s'} · tap to trade`:'Tap to trade','on').replace('data-a="sinfo" data-v="pre"','data-a="trWindow"')
     :transferOpen()?tile('transfer','🔁','Trade',`${left} day${left===1?'':'s'}`,'Tap to swap','on').replace('data-a="sinfo" data-v="transfer"','data-a="trWindow"')
     :tile('locked','🔒','Trade',se&&se.transferUsed?'Used':'Closed','Next season');
   const rs=tile('injury','🩹','Rests',`${INJURY_USES} a week`,'Per player','');
@@ -2264,9 +2263,9 @@ const A={
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
   release(d){if(!confirm('Release this player?'))return;S.squad=S.squad.filter(x=>x.id!==d.id);save();closeSheet();render()},
   transfer(d){libSheet({transfer:d.id,free:canEditSquad()})},
-  trWindow(){if(!transferOpen())return squadInfo('locked');const se=curSeason(),left=TRANSFER_DAYS-diffDays(regStart(se),gameDate());
+  trWindow(){const free=canEditSquad();if(!free&&!transferOpen())return squadInfo('locked');const se=curSeason(),left=TRANSFER_DAYS-diffDays(regStart(se),gameDate()),preLeft=se&&gameDate()<regStart(se)?diffDays(gameDate(),regStart(se)):0;
     const row=p=>`<button class="trrow" data-a="transfer" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><span class="sp" style="min-width:0"><b>${esc(p.name)}</b><small>${esc(p.lvl)}</small></span>${pts(p)}<span class="trgo">Swap ›</span></button>`;
-    sheet(`<h2>🔁 Trade window</h2><p class="small muted" style="margin:0 0 4px">${left} day${left===1?'':'s'} left · 1 swap this season. Pick the player to sell, then choose their replacement. The new player must be the same difficulty or harder.</p>
+    sheet(`<h2>🔁 ${free?'Pre-season trades':'Trade window'}</h2><p class="small muted" style="margin:0 0 4px">${free?`Unlimited trades${preLeft?` for ${preLeft} more day${preLeft===1?'':'s'}`:''}. Pick a player to swap out, then any habit to replace them. The squad you finish pre-season with is locked in for the regular season.`:`${left} day${left===1?'':'s'} left · 1 swap this season. Pick the player to sell, then choose their replacement. The new player must be the same difficulty or harder.`}</p>
       <div class="sect"><h3 class="cond">1 · Choose a player to swap out</h3></div>
       <div class="sect" style="margin-top:6px"><h3 class="cond" style="font-size:12px">Starting five</h3></div>${S.squad.filter(p=>p.slot==='court').map(row).join('')}
       <div class="sect" style="margin-top:10px"><h3 class="cond" style="font-size:12px">Bench</h3></div>${S.squad.filter(p=>p.slot==='bench').map(row).join('')}`)},
