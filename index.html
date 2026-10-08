@@ -643,6 +643,10 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .rday small{font-size:9.5px;font-weight:700;color:var(--muted);margin-top:3px}
 .rday.on{background:rgba(96,165,250,.16);border-color:#60a5fa;color:#bfdbfe}.rday.on small{color:#93c5fd}
 .rmeta{color:#93c5fd;font-size:11.5px}
+.trhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.trhead h2{margin:0 0 6px;font-size:18.5px;line-height:1.2}
+.trdl{flex:none;text-align:right;font-size:13px;font-weight:800;color:var(--orange2);line-height:1.15;padding-top:2px}
+.trdl small{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -2270,7 +2274,8 @@ const A={
   transfer(d){libSheet({transfer:d.id,free:canEditSquad()})},
   trWindow(){const free=canEditSquad();if(!free&&!transferOpen())return squadInfo('locked');const se=curSeason(),left=TRANSFER_DAYS-diffDays(regStart(se),gameDate()),preLeft=se&&gameDate()<regStart(se)?diffDays(gameDate(),regStart(se)):0;
     const row=p=>`<button class="trrow" data-a="transfer" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><span class="sp" style="min-width:0"><b>${esc(p.name)}</b><small>${esc(p.lvl)}</small></span>${pts(p)}<span class="trgo">Swap ›</span></button>`;
-    sheet(`<h2>🔁 ${free?'Pre-season trades':'Trade window'}</h2><p class="small muted" style="margin:0 0 4px">${free?`Unlimited trades${preLeft?` for ${preLeft} more day${preLeft===1?'':'s'}`:''}. Pick a player to swap out, then any habit to replace them. The squad you finish pre-season with is locked in for the regular season.`:`${tradesLeft(se)} of ${REG_TRADES} trades left · deadline ${nice(tradeDeadline(se),{weekday:'short',day:'numeric',month:'short'})}. Pick the player to sell, then choose their replacement. The new player must be the same difficulty or harder.`}</p>
+    const until=free?addDays(regStart(se),-1):tradeDeadline(se);
+    sheet(`<div class="trhead"><h2>Trade Window - ${free?'Pre-season':'Regular Season'}</h2><span class="trdl"><small>${free?'Ends':'Deadline'}</small>${nice(until,{weekday:'short',day:'numeric',month:'short'})}</span></div><p class="small muted" style="margin:0 0 4px">${free?`Unlimited trades. Pick a player to swap out, then any habit to replace them. The squad you finish pre-season with is locked in for the regular season.`:`${tradesLeft(se)} of ${REG_TRADES} trades left. Pick the player to sell, then choose their replacement. The new player must be the same difficulty or harder.`}</p>
       <div class="sect"><h3 class="cond">1 · Choose a player to swap out</h3></div>
       <div class="sect" style="margin-top:6px"><h3 class="cond" style="font-size:12px">Starting five</h3></div>${S.squad.filter(p=>p.slot==='court').map(row).join('')}
       <div class="sect" style="margin-top:10px"><h3 class="cond" style="font-size:12px">Bench</h3></div>${S.squad.filter(p=>p.slot==='bench').map(row).join('')}`)},
