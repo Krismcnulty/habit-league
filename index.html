@@ -658,9 +658,15 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .trhead h2{margin:0;font-size:20px;line-height:1.2}
 .trdl{font-size:13px;font-weight:800;color:var(--orange2);margin-top:3px}
 .trdl small{display:block;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.rsheet{margin-top:10px}
+.rsheet{margin-top:6px}
+.rshead{display:flex;align-items:center;justify-content:space-between}.rshead h2{margin:0}
+.rsx{width:32px;height:32px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:14px;font-weight:800;display:grid;place-items:center}
+.rsinfo{margin:10px 0 4px;padding:10px 12px;border-radius:12px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.3);font-size:13px;color:#bfdbfe}
+.rsinfo b{color:#fff}.rsinfo span{display:block;margin-top:3px;font-size:11.5px;color:var(--muted)}
+.rssec{margin:12px 0 2px;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rday.today{border:2px solid #fff;box-shadow:0 0 0 2px rgba(255,255,255,.12)}
 .rsrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
-.rsrow:first-child{border-top:0}
+.rsrow:first-child,.rssec+.rsrow{border-top:0}
 .rsname{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;margin-bottom:5px}
 .rsname b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rsname span{flex:none;font-size:11.5px;font-weight:700}
 .rdays.sm{gap:4px}.rdays.sm .rday{padding:6px 0;font-size:11.5px;border-radius:8px}
@@ -1791,12 +1797,14 @@ function squadInfo(k){
     pre:`<h2>Pre-season</h2><p>The first ${PRE_DAYS} days of each season are exhibition games: they don't count towards the table, so use them to try out players and habits.</p><p>Trades are unlimited: tap <b>Trade</b> on any player to swap in a different habit. The squad you finish pre-season with is locked in for the regular season, along with your level. After that you get ${REG_TRADES} trades up to the trade deadline at the end of the regular season, and none in the tournament or playoffs.</p>`,
     transfer:`<h2>Trades</h2><p>You have <b>${tradesLeft(se)} of ${REG_TRADES} trades</b> left this regular season. The trade deadline is <b>${nice(tradeDeadline(se),{weekday:'long',day:'numeric',month:'short'})}</b>; after that your squad is frozen for the tournament and playoffs (subs and rest days still work).</p><p>Sell a player and sign someone of the same difficulty or harder. Your opponents' level stays the same, so a harder signing helps you win.</p>`,
     locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&t>tradeDeadline(se)?': the trade deadline has passed, so there are no trades in the tournament or playoffs':se&&!tradesLeft(se)?' and both trades are used':''}. You can still sub players, rest them, rename them, edit their steps or change their look.</p>`,
-    injury:`<h2>Rest days</h2><p class="small muted" style="margin:0">Up to ${INJURY_USES} a week per player. A rested player doesn't count for or against you. Set rests before ${(TIPOFF_H+12)%12||12}pm.</p>
-      <div class="rsheet">${S.squad.map(p=>`<div class="rsrow">${avatar(p)}<div class="sp" style="min-width:0"><div class="rsname"><b>${esc(p.name)}</b>${restToday(p)}</div>
-        <div class="rdays sm">${WD.map((w,i)=>`<button class="rday ${(p.restDays||[]).includes(i)?'on':''}" data-a="togRest" data-id="${p.id}" data-v="${i}">${w.slice(0,1)}</button>`).join('')}</div></div></div>`).join('')}</div>
-      `,
+    injury:(()=>{const wd=weekday(gameDate()),row=p=>`<div class="rsrow">${avatar(p)}<div class="sp" style="min-width:0"><div class="rsname"><b>${esc(p.name)}</b></div>
+        <div class="rdays sm">${WD.map((w,i)=>`<button class="rday ${(p.restDays||[]).includes(i)?'on':''} ${i===wd?'today':''}" data-a="togRest" data-id="${p.id}" data-v="${i}" aria-label="${w}${i===wd?' (today)':''}">${w.slice(0,1)}</button>`).join('')}</div></div></div>`;
+      const st=S.squad.filter(p=>p.slot==='court'),bn=S.squad.filter(p=>p.slot!=='court');
+      return `<div class="rshead"><h2>Rest days</h2><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>
+      <div class="rsinfo"><b>${INJURY_USES} rest days</b> per player each week<span>Rested players don't count for or against you. Set before ${(TIPOFF_H+12)%12||12}pm. Today is outlined.</span></div>
+      <div class="rsheet"><div class="rssec">Starting five</div>${st.map(row).join('')}${bn.length?`<div class="rssec">Bench</div>${bn.map(row).join('')}`:''}</div>`})(),
   }[k];
-  sheet(`<div class="small" style="line-height:1.5">${body}</div><button class="btn block" style="margin-top:8px" data-a="closeSheet">Got it</button>`);
+  sheet(`<div class="small" style="line-height:1.5">${body}</div>${k==='injury'?'':'<button class="btn block" style="margin-top:8px" data-a="closeSheet">Got it</button>'}`);
 }
 
 
