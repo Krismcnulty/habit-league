@@ -522,13 +522,14 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 /* ---- player profile ---- */
 .backbtn{background:none;border:0;color:var(--orange2);font-weight:800;font-size:16px;padding:6px 0}
 .prof{position:relative;text-align:center;padding:16px 14px 14px;border-radius:20px;border:1px solid var(--line);background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--pc) 28%,transparent),transparent 70%),linear-gradient(180deg,#151d33,#0e1426)}
-.prof-art{display:flex;justify-content:center;align-items:flex-end;gap:6px;margin-bottom:8px}
+.prof-art{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:8px}
 .prof-head{width:104px;height:104px;border-radius:24px;border:3px solid var(--pc);background:#0b1020;padding:8px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
 .prof-head svg{width:100%;height:100%}
-.prof-jsy{width:74px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.prof-jsy{width:95px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 .prof-name{font-size:26px;line-height:1.1}
 .prof-habit{font-size:14px;margin-top:2px;color:var(--muted)}
 .prof-tags{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px}
+.prof-tags .prank.big{padding:2px 8px;font-size:10.5px}
 .ptag.pos{border:1px solid;background:rgba(0,0,0,.2)}
 .ptag.slot{color:var(--text);background:rgba(11,16,32,.6);border:1px solid var(--line)}
 .grid30{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
@@ -2190,8 +2191,7 @@ function profileView(){
     <div class="prof-art"><span class="prof-head">${faceSvg(p)}${pRank(p)?`<i class="rkb big r-${PRANKS[pRank(p)].id}">${RSYM[pRank(p)]}</i>`:''}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
     <div class="prof-name cond">${esc(p.name)}</div>
     <div class="prof-habit">${esc(p.lvl)}</div>
-    <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
-    <div class="prof-rank">${rankChip(pRank(p))}</div>
+    <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${rankChip(pRank(p))}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
   </div>
   <div class="sect"><h3 class="cond">Stats</h3></div>
   <div class="card statcard"><div class="tabs ptabs">${[['season','This season'],['career','Career']].map(([k,n])=>`<button class="${profTab===k?'on':''}" data-a="profTab" data-v="${k}">${n}</button>`).join('')}</div>
