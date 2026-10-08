@@ -125,8 +125,8 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .tag .pn b.shot-layup{color:#cbd5e1}
 .tag .pn{display:block;font-size:10px;font-weight:600;color:#aab3cf;overflow:hidden;text-overflow:ellipsis}
 .tag .fire{font-size:10.5px}
-.ballfx{position:absolute;left:0;top:0;width:24px;height:24px;z-index:5;pointer-events:none;filter:drop-shadow(0 6px 4px rgba(0,0,0,.35))}
-.ballfx .ball{width:24px;height:24px;margin:0;display:block}
+.ballfx{position:absolute;left:0;top:0;width:34px;height:34px;z-index:5;pointer-events:none;filter:drop-shadow(0 6px 4px rgba(0,0,0,.35))}
+.ballfx .ball{width:34px;height:34px;margin:0;display:block}
 .swish{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;border:3px solid #ff7a1a;z-index:4;pointer-events:none;animation:swish .55s ease-out forwards}
 @keyframes swish{from{transform:scale(.6);opacity:1}to{transform:scale(2.6);opacity:0}}
 .plus{position:absolute;z-index:6;pointer-events:none;font-weight:900;font-size:20px;color:#fff;text-shadow:0 2px 0 #b45309,0 0 10px rgba(255,122,26,.8);transform:translate(-50%,-50%);animation:plus 1s ease-out forwards}
@@ -1310,18 +1310,27 @@ function shoot(id){
   if(!tok||!p)return;
   const cr=court.getBoundingClientRect(),tr=tok.getBoundingClientRect();
   const x0=tr.left+tr.width/2-cr.left,y0=tr.top+tr.height/2-cr.top,x1=cr.width*.5,y1=cr.height*(296/330);
-  const peak=Math.min(y0,y1)-cr.height*.32,cy=2*peak-(y0+y1)/2,cx=(x0+x1)/2;
+  const peak=Math.max(30,Math.min(y0,y1)-cr.height*.32),cy=2*peak-(y0+y1)/2,cx=(x0+x1)/2;
   const shotFx=(S.cos&&S.cos.shot)||'classic';const ball=document.createElement('div');ball.className='ballfx '+shotFx;ball.innerHTML=ballSvg();court.appendChild(ball);
-  const kf=[],N=18;
+  // Slower, bigger shot: arc (68%) -> drops through the net -> two small bounces -> fades. Long enough to see the ball skin.
+  const kf=[],N=30,R=17,F=.68,at=(x,y,r,sc,o,off)=>kf.push({transform:`translate(${x-R}px,${y-R}px) rotate(${r}deg) scale(${sc})`,opacity:o,offset:off});
   for(let i=0;i<=N;i++){const t=i/N,u=1-t;const x=u*u*x0+2*u*t*cx+t*t*x1,y=u*u*y0+2*u*t*cy+t*t*y1;
-    kf.push({transform:`translate(${x-12}px,${y-12}px) rotate(${t*600}deg) scale(${1.15-.45*t})`,opacity:1,offset:t*.86})}
-  kf.push({transform:`translate(${x1-12}px,${y1+10-12}px) rotate(640deg) scale(.55)`,opacity:0,offset:1});
+    const sc=1+.35*Math.sin(Math.PI*t)-.35*t; // grows toward the apex, shrinks into the hoop
+    at(x,y,t*540,sc,1,t*F)}
+  at(x1,y1+16,600,.62,1,F+.08);            // through the net
+  at(x1+6,y1+4,640,.62,1,F+.15);           // first bounce
+  at(x1+10,y1+18,670,.6,1,F+.21);
+  at(x1+13,y1+11,690,.6,1,F+.26);          // second, smaller bounce
+  at(x1+15,y1+18,705,.58,1,F+.3);
+  at(x1+16,y1+18,710,.58,0,1);
   const fx=(cls,html)=>{const el=document.createElement('div');el.className=cls;el.style.left=x1+'px';el.style.top=y1+'px';if(html)el.textContent=html;court.appendChild(el);setTimeout(()=>el.remove(),1100)};
-  const a=ball.animate(kf,{duration:850,easing:'linear'});
-  let emb=null;if(shotFx==='fire'||shotFx==='lightning')emb=setInterval(()=>{try{const m=new DOMMatrix(getComputedStyle(ball).transform);const e=document.createElement('div');e.className=shotFx==='fire'?'ember':'spark';e.style.left=(m.e+12)+'px';e.style.top=(m.f+12)+'px';court.appendChild(e);setTimeout(()=>e.remove(),500)}catch(_){}},30);
-  a.onfinish=()=>{clearInterval(emb);ball.remove();fx('swish '+shotFx);fx('plus','+'+pv(p));
+  const a=ball.animate(kf,{duration:1700,easing:'linear'});
+  
+  let emb=null;if(shotFx==='fire'||shotFx==='lightning')emb=setInterval(()=>{try{const m=new DOMMatrix(getComputedStyle(ball).transform);const e=document.createElement('div');e.className=shotFx==='fire'?'ember':'spark';e.style.left=(m.e+R)+'px';e.style.top=(m.f+R)+'px';court.appendChild(e);setTimeout(()=>e.remove(),500)}catch(_){}},30);
+  setTimeout(()=>{clearInterval(emb);fx('swish '+shotFx);fx('plus','+'+pv(p))},1700*F);
+  a.onfinish=()=>{clearInterval(emb);ball.remove();
     if(shotFx==='confetti')for(let i=0;i<16;i++){const c=document.createElement('div');c.className='conf';c.style.left=x1+'px';c.style.top=y1+'px';c.style.background=['#ef4444','#fbbf24','#22c55e','#3b82f6','#ec4899','#a78bfa'][i%6];c.style.setProperty('--dx',(Math.random()*160-80)+'px');c.style.setProperty('--dy',(-40-Math.random()*90)+'px');court.appendChild(c);setTimeout(()=>c.remove(),1000)}};
-  setTimeout(()=>ball.remove(),1500);
+  setTimeout(()=>ball.remove(),2400);
 }
 function stepsSheet(id){
   const p=S.squad.find(x=>x.id===id),D=ensureDay(gameDate());const v=D.t[p.id]||[];
