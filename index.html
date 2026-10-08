@@ -429,6 +429,8 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .evt .rwp{width:52px;height:52px;border-radius:12px;border:1px solid var(--line)}
 .evt .rwp svg{width:44px;height:44px}
 .evt .rwp.tro2{border-color:rgba(251,191,36,.6);background:radial-gradient(circle,rgba(251,191,36,.18),#0f1630 70%)}
+.evt .req{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);margin-top:-1px}
+.evt .req.semi{color:#c084fc}
 .evt small{font-size:10.5px;line-height:1.2;color:var(--muted)}
 .evt .gshot .ball{width:34px;height:34px}
 .evt .gcel{width:44px;height:44px}
@@ -1453,6 +1455,7 @@ const EV_TROPHY={
  'New Year Cup':{n:'Firework Cup',rows:CUP,pal:{b:'#ec4899',k:'#fde047'}},
  'Spring Slam':{n:'Blossom Medal',rows:fit16(["..rr.......bb...","...rr.....bb....","....rr...bb.....",".....rr.bb......","......rbb.......",".....yyyyyy.....","....yyyyyyyy....","...yyyppppyyy...","...yyppyyppyy...","...yypyiiypyy...","...yyppyyppyy...","...yyyppppyyy...","....yyyyyyyy....",".....yyyyyy.....","................","................"]),pal:{r:'#ec4899',b:'#22c55e',y:'#fbbf24',p:'#f472b6',i:'#fef3c7'}},
 };
+const EV_REQ={'logo:owl':'Semis'};
 const EV_REWARDS={'Halloween Shootout':[['ball','pumpkin'],['logo','owl']],'Winter Classic':[['court','neon'],['shot','lightning']],'New Year Cup':[['cel','goldrain'],['logo','star']],'Spring Slam':[['shot','confetti'],['kit','sunset']]};
 
 /* ===================== Halloween Shootout ===================== */
@@ -1563,7 +1566,7 @@ function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.
 }
 function evCard(ev,today){
   return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
-    const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small></div>`)).join('');
+    const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small><em class="req">Winner</em></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small><em class="req ${EV_REQ[k+':'+v]?'semi':''}">${EV_REQ[k+':'+v]||'Winner'}</em></div>`)).join('');
     return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
       <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):`<div class="small" style="margin-top:6px;color:var(--orange2)">Coming soon in the prototype</div>`}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}`}).join('')}</div>`;
 }
