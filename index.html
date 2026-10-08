@@ -2067,7 +2067,7 @@ function pastAwards(){
   return S.awards;
 }
 // Player ranks by career makes, never going down; separate from retiring a jersey.
-const PRANKS=[{id:'rookie',n:'Rookie',at:0,c:'#94a3b8'},{id:'pro',n:'Pro',at:25,c:'#60a5fa'},{id:'allstar',n:'All-Star',at:100,c:'#fbbf24'},{id:'vet',n:'Veteran',at:250,c:'#f472b6'},{id:'legend',n:'Legend',at:500,c:'#22d3ee'},{id:'goat',n:'G.O.A.T.',at:1000,c:'#fde047'}];
+const PRANKS=[{id:'rookie',n:'Rookie',at:0,c:'#94a3b8'},{id:'pro',n:'Pro',at:20,c:'#60a5fa'},{id:'allstar',n:'All-Star',at:60,c:'#fbbf24'},{id:'vet',n:'Veteran',at:150,c:'#f472b6'},{id:'legend',n:'Legend',at:300,c:'#22d3ee'},{id:'goat',n:'G.O.A.T.',at:500,c:'#fde047'}];
 function careerMakes(p){const today=gameDate();let n=0;for(const d in S.days){if(d>today)continue;if(p.signedAt&&d<p.signedAt)continue;const D=S.days[d];if(D.locked&&!restD(D)&&!D.inj.includes(p.id)&&isDone(p,D))n++}return n}
 function pRank(p){const m=careerMakes(p);let r=0;PRANKS.forEach((x,i)=>{if(m>=x.at)r=i});return r}
 const RSYM=['','▲','★','♛','◆','🐐'];
