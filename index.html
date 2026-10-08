@@ -898,11 +898,12 @@ const HEADS=[
  {id:'warrior',n:'Warrior',sk:1,hair:'#1b120c',style:'topknot',band:'none',fx:['warpaint'],mouth:'flat'},
  {id:'bigfella',n:'Big Fella',sk:5,hair:'#1b120c',style:'bald',band:'none',fx:['goggles'],mouth:'smile'},
  {id:'flash',n:'Flash',sk:0,hair:'#b4441b',style:'mohawk',band:'#ec4899',fx:['stache'],mouth:'grin'},
+ {id:'zombie',n:'Zombie',skin:['#8fbf6a','#6a9a4e'],hair:'#2b2f22',style:'spiky',band:'none',fx:['zombie'],mouth:'zgrin'},
 ];
 const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
 function faceParams(p){
   const H=p.head&&HEADS.find(h=>h.id===p.head);
-  if(H){const[sk,sh]=SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx}}
+  if(H){const[sk,sh]=H.skin||SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx}}
   const r=rng('face'+(p.face||p.id));const pick=a=>a[Math.floor(r()*a.length)];
   const [sk,sh]=pick(SKINS),hair=pick(HAIRS);
   let style=pick(['short','short','bald','flat','afro','mohawk','buzz','curly']);
@@ -942,11 +943,14 @@ function faceSvg(p){
   if(fx.goggles){for(let x=4;x<=11;x++){set(x,7,ink);set(x,9,ink)}[4,7,8,11].forEach(x=>set(x,8,ink));[5,6,9,10].forEach(x=>set(x,8,'#7dd3fc'));set(6,8,'#0c4a6e');set(9,8,'#0c4a6e');set(3,8,'#f97316');set(12,8,'#f97316');set(2,8,'#f97316');set(13,8,'#f97316')}
   if(fx.warpaint){[4,5,10,11].forEach(x=>set(x,10,'#dc2626'));[4,11].forEach(x=>set(x,9,'#dc2626'))}
   if(fx.shades){for(let x=4;x<=11;x++){set(x,7,ink);set(x,8,'#1f2937')}[4,5,6,7,8,9,10,11].forEach(x=>{if(x!==7&&x!==8)set(x,9,'#1f2937')});set(7,8,ink);set(8,8,ink);set(5,8,'#9ca3af');set(9,8,'#9ca3af')}
+  if(fx.zombie){const bag='#4d6b3a',st='#3b2a1a';[4,5,6,9,10,11].forEach(x=>set(x,9,bag));set(4,8,bag);set(11,8,bag);set(6,8,'#b91c1c');set(9,8,'#b91c1c');set(5,8,'#f1f5d8');set(10,8,'#f1f5d8');
+    for(let y=4;y<=7;y++)set(10,y,st);[9,11].forEach(x=>{set(x,4,st);set(x,6,st)});set(4,11,'#a3c585');set(5,12,'#a3c585')}
   set(7,9,sh);set(7,10,sh);set(8,10,sh);
   if(fx.beard){for(let y=10;y<=14;y++)for(let x=3;x<=12;x++)if(inHead(x,y)&&(y>=12||x<=4||x>=11))set(x,y,hair);for(let x=5;x<=10;x++)set(x,11,hair)}
   if(fx.stache)for(let x=5;x<=10;x++)set(x,11,hair);
   if(mouth==='flat')for(let x=6;x<=9;x++)set(x,12,ink);
   if(mouth==='smile'){for(let x=6;x<=9;x++)set(x,12,ink);if(!fx.stache&&!fx.beard){set(5,11,ink);set(10,11,ink)}}
+  if(mouth==='zgrin'){for(let x=5;x<=10;x++)set(x,12,x%2?'#e7e5c8':ink);set(6,13,'#7f1d1d');set(9,13,'#7f1d1d')}
   if(mouth==='grin'){for(let x=6;x<=9;x++)set(x,12,'#ffffff');set(5,12,ink);set(10,12,ink)}
   const out=G.map(r=>r.slice());
   for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
@@ -1016,8 +1020,9 @@ function weekIdx(){return Math.floor(diffDays(DROP_EPOCH,gameDate())/7)}
 function weeklyDrop(){const w=weekIdx();return[0,1,2].map(i=>PREM_POOL[(w*3+i)%PREM_POOL.length])}
 const nextDrop=()=>addDays(DROP_EPOCH,(weekIdx()+1)*7);
 const inDrop=(k,v)=>weeklyDrop().some(([a,b])=>a===k&&b===v);
-function cosUnlocked(k,v){if(S.unlockAll)return true;if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
-function lockMsg(k,v){if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
+const EV_ONLY={'head:zombie':'Halloween Shootout'};
+function cosUnlocked(k,v){if(S.unlockAll)return true;if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
+function lockMsg(k,v){if(EV_ONLY[k+':'+v])return `🎃 Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
   const today=gameDate(),days=Object.keys(S.days).sort();
   let wins=0,run=0,bestWinRun=0,lossRun=0,comeback=0,perfect=0;
@@ -1456,7 +1461,7 @@ const EV_TROPHY={
  'Spring Slam':{n:'Blossom Medal',rows:fit16(["..rr.......bb...","...rr.....bb....","....rr...bb.....",".....rr.bb......","......rbb.......",".....yyyyyy.....","....yyyyyyyy....","...yyyppppyyy...","...yyppyyppyy...","...yypyiiypyy...","...yyppyyppyy...","...yyyppppyyy...","....yyyyyyyy....",".....yyyyyy.....","................","................"]),pal:{r:'#ec4899',b:'#22c55e',y:'#fbbf24',p:'#f472b6',i:'#fef3c7'}},
 };
 const EV_REQ={'logo:owl':'Semis'};
-const EV_REWARDS={'Halloween Shootout':[['ball','pumpkin'],['logo','owl']],'Winter Classic':[['court','neon'],['shot','lightning']],'New Year Cup':[['cel','goldrain'],['logo','star']],'Spring Slam':[['shot','confetti'],['kit','sunset']]};
+const EV_REWARDS={'Halloween Shootout':[['head','zombie'],['ball','pumpkin'],['logo','owl']],'Winter Classic':[['court','neon'],['shot','lightning']],'New Year Cup':[['cel','goldrain'],['logo','star']],'Spring Slam':[['shot','confetti'],['kit','sunset']]};
 
 /* ===================== Halloween Shootout ===================== */
 const HSE={start:brkStart('2026-10'),end:addDays(poStart('2026-10'),-1),rounds:['Quarterfinal','Semifinal','Final'],short:['QF','SF','Final'],spans:[[0,0],[1,1],[2,2]]};
@@ -1494,7 +1499,7 @@ function hsMe(){const sh=shootout();let cur=null,ri=-1;sh.rounds.forEach((ms,r)=
 function hsFinish(){
   if(S.hsDone)return;const {sh,m,r}=hsMe();const fin=sh.rounds[2]&&sh.rounds[2][0];
   const champ=fin&&fin.winner,reached=m?(m.winner==='me'?r+1:r):0;S.hsDone={champ,reached};S.owned=S.owned||{};
-  if(champ==='me'){S.trophies.push({t:'Pumpkin Trophy',ev:'Halloween Shootout',k:'2026-10'});S.owned['ball:pumpkin']=true;S.owned['logo:owl']=true;S.xp+=300}
+  if(champ==='me'){S.trophies.push({t:'Pumpkin Trophy',ev:'Halloween Shootout',k:'2026-10'});S.owned['head:zombie']=true;S.owned['ball:pumpkin']=true;S.owned['logo:owl']=true;S.xp+=300}
   else if(reached>=1)S.owned['logo:owl']=true;
 }
 function hsStrip(){
@@ -1596,7 +1601,7 @@ function awardsView(){
     <div><b>Win celebration</b><div class="small muted">Plays when you see a win, or score a perfect game. Tap your current one to preview it.</div>${gearGrid('cel',C.cel||'confetti')}</div>
     <div><b>Player heads</b><div class="small muted">Give unlocked heads to players in the Squad tab.</div>
       <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
-        return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
+        return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':EV_ONLY['head:'+h.id]?'🎃':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
   </div>`;
 }
 function clubView(){
