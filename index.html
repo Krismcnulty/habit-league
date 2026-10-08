@@ -46,6 +46,12 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .btn:disabled{opacity:.4}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
 .av{width:46px;height:46px;flex:none;border-radius:12px;background:linear-gradient(180deg,#1f2a4a,#121a33);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.shn{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
+.shn::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:60%;transform:translateX(-160%) skewX(-18deg);animation:shnsweep 3.6s ease-in-out infinite;animation-delay:var(--sd,0s)}
+.shn.r-vet::after{background:linear-gradient(90deg,transparent,rgba(244,114,182,.45),rgba(255,255,255,.35),transparent)}
+.shn.r-legend::after{background:linear-gradient(90deg,transparent,rgba(34,211,238,.5),rgba(255,255,255,.45),transparent)}
+.shn.r-goat::after{background:linear-gradient(90deg,transparent,rgba(250,204,21,.6),rgba(255,255,255,.6),transparent);animation-duration:2.6s}
+@keyframes shnsweep{55%,100%{transform:translateX(260%) skewX(-18deg)}}
 .av svg{width:40px;height:40px;image-rendering:pixelated;display:block}
 .posn{font-weight:700}
 .pos{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:#0f1630;color:var(--orange2);border:1px solid var(--line);min-width:38px;text-align:center}
@@ -846,7 +852,7 @@ body.pv main{padding-top:70px}
 .restcard p{margin:0 0 10px;color:var(--muted)}
 .restic{font-size:48px}
 /* nav */
-nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+nav{position:fixed;z-index:10;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
 nav button{flex:1;max-width:140px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;font-size:11px;font-weight:700;color:var(--muted)}
 nav button.on{color:var(--orange)}
@@ -1394,7 +1400,9 @@ function chips(k,cur,act,extra=''){
 }
 const SURNAMES=['Mercer','Okafor','Reyes','Dlamini','Kowalski','Brennan','Achebe','Lindqvist','Moreau','Tanaka','Haddad','Novak','Quinn','Osei','Varga','Castillo','Fitzgerald','Mensah','Petrov','Sato','Abara','Delaney','Kruger','Ruiz','Nakamura','Boateng','Ivers','Morrow','Calloway','Duarte','Keane','Adeyemi','Larsen','Romero','Whitlock','Okoro','Bianchi','Thorne','Vance','Holloway','McAteer','Gallagher','Doherty','Sheridan'];
 function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.floor(r()*19)];const gen=`${ini}. ${SURNAMES[Math.floor(r()*SURNAMES.length)]}`;const n0=Math.floor(r()*100);return{name:p.pname||gen,num:p.num!=null?p.num:n0}}
-const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p)}</span>`};
+// Shimmer over the head for Veteran, Legend and G.O.A.T. players (staggered so they don't sweep in sync).
+const shine=p=>{const r=pRank(p);if(r<3)return '';const d=([...String(p.id)].reduce((a,c)=>a+c.charCodeAt(0),0)%40)/10;return `<span class="shn r-${PRANKS[r].id}" style="--sd:${d}s"></span>`};
+const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p)}${shine(p)}</span>`};
 const pts=p=>`<span class="ptsb shot-${p.shot}">${pv(p)}<small> pts</small></span>`;
 const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
 
@@ -1567,7 +1575,7 @@ function courtView(D,cs){
     const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length:0;
     return `<div class="spot ${cs&&cs.rem.has(p.id)?'need':''}" style="left:${x}%;top:${y}%">
-      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
+      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}${shine(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
       <div class="tag">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
   return `<div class="court court-${arenaTheme()||(S.cos&&S.cos.court)||'wood'} ${cs?'clutch':''}">${lines}${cs?'<div class="spotdim"></div>':''}${spots}</div>`;
