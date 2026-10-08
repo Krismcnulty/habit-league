@@ -785,6 +785,10 @@ const SHOT_ORDER=['layup','jumper','three','dunk'];
 const POS=[{id:'fitness',n:'Fitness',a:'FIT',c:'#ef4444'},{id:'mind',n:'Mind',a:'MND',c:'#a78bfa'},{id:'routine',n:'Routine',a:'RTN',c:'#2dd4bf'},{id:'home',n:'Home',a:'HOM',c:'#fbbf24'},{id:'money',n:'Money',a:'MNY',c:'#22c55e'}];
 const posById=id=>POS.find(p=>p.id===id);
 const CUSTOM_SHOT='jumper', MAX_CUSTOM=2, BENCH_SIZE=5, INJURY_USES=3, TRANSFER_DAYS=7;
+// Rest days: each player can rest up to INJURY_USES days per week (Mon–Sun). Good for habits that aren't daily, like the gym.
+const weekStart=d=>{const dt=parse(d),wd=(dt.getDay()+6)%7;return addDays(d,-wd)};
+const restsUsed=(id,d)=>{const w=weekStart(d||gameDate());let n=0;for(let i=0;i<7;i++){const D=S.days[addDays(w,i)];if(D&&D.inj&&D.inj.includes(id))n++}return n};
+const restsLeft=(id,d)=>Math.max(0,INJURY_USES-restsUsed(id,d));
 const L=(l,shot)=>({l,shot});
 // Rookies: habits new to the league this season. Add to this list as new habits/players arrive each season.
 const ROOKIES=new Set(['protein','podcast','screen','plan','budget']);
@@ -1298,7 +1302,7 @@ function setupView(){
   return `
   <div class="top"><h1 class="cond">Tip-off</h1><button class="small muted" data-a="setupBack1">Back</button></div>
   <div class="card stack">
-    <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one trade in the first ${TRANSFER_DAYS} days</b> and the <b>injury list</b> (${INJURY_USES} rest days a season). Renaming and editing steps are always allowed.</p>
+    <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one trade in the first ${TRANSFER_DAYS} days</b> and <b>rest days</b> (each player can rest up to ${INJURY_USES} days a week). Renaming and editing steps are always allowed.</p>
     <p class="muted small" style="margin:0">Results lock at 4am. The playoffs run over the last days of each month: top 8, each round decided by a 2-day points total, then a rest day to close the season.</p>
     ${levelRow(null)}
     ${short?`<div class="banner small">It's too late in ${monthName(skey(t))} for a regular season, so you'll play friendlies until the new season starts on ${nice(addDays(monthEnd(skey(t)),1),{day:'numeric',month:'long'})}.</div>
@@ -1588,13 +1592,13 @@ function squadRow(p){
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
-  const left=se?TRANSFER_DAYS-diffDays(regStart(se),t):0,inj=se?se.injLeft:INJURY_USES,preLeft=se&&t<regStart(se)?diffDays(t,regStart(se)):0;
+  const left=se?TRANSFER_DAYS-diffDays(regStart(se),t):0,inj=S.squad.reduce((n,p)=>n+restsLeft(p.id,t),0),preLeft=se&&t<regStart(se)?diffDays(t,regStart(se)):0;
   const tile=(v,ic,lab,val,sub,cls='')=>`<button class="stile ${cls}" data-a="sinfo" data-v="${v}"><span class="st-lab"><i>${ic}</i>${lab}</span><b class="st-val">${val}</b><span class="st-sub">${sub}</span></button>`;
   const lvl=tile('level','🏀','Level',dv.n,`Opp ~${dv.avg} pts`,'lv-'+dv.id);
   const tr=edit?tile('pre','📝','Trades',preLeft?'Unlimited':'Open',preLeft?`${preLeft} day${preLeft===1?'':'s'} of pre-season`:'Edit freely','on')
     :transferOpen()?tile('transfer','🔁','Trade',`${left} day${left===1?'':'s'}`,'Tap to swap','on').replace('data-a="sinfo" data-v="transfer"','data-a="trWindow"')
     :tile('locked','🔒','Trade',se&&se.transferUsed?'Used':'Closed','Next season');
-  const rs=tile('injury','🩹','Rests',`${inj} left`,'This season',inj?'':'empty');
+  const rs=tile('injury','🩹','Rests',`${INJURY_USES} a week`,'Per player','');
   const chips=[lvl,tr,rs];
   const K=KITDEF[myKit()]||KITDEF.home;
   return `<div class="top"><h1 class="cond">Squad</h1></div>
@@ -1633,7 +1637,8 @@ function squadInfo(k){
     pre:`<h2>Pre-season</h2><p>The first ${PRE_DAYS} days of each season are exhibition games: they don't count towards the table, so use them to try out players and habits.</p><p>Trades are unlimited: tap <b>Trade</b> on any player to swap in a different habit. The squad you finish pre-season with is locked in for the regular season, along with your level. After that you get one trade in the first ${TRANSFER_DAYS} days.</p>`,
     transfer:`<h2>Trade window</h2><p>Open for <b>${left} more day${left===1?'':'s'}</b>. You get one swap: tap a player, sell, and sign someone of the same difficulty or harder.</p><p>Your opponents' level stays the same, so a harder signing helps you win.</p>`,
     locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&se.transferUsed?' and your trade is used':''}. You can still rename players, edit their steps, change their look, or rest them on the injury list.</p>`,
-    injury:`<h2>Injury list</h2><p><b>${se?se.injLeft:INJURY_USES} rest day${se&&se.injLeft===1?'':'s'}</b> left this season. Tap a player and choose Rest today: they score nothing for or against you, and your opponent's score drops to match.</p>`,
+    injury:`<h2>Rest days</h2><p>Each player can rest up to <b>${INJURY_USES} days a week</b> (Monday to Sunday). Handy for habits that aren't daily, like the gym. Tap a player and choose Rest today: they score nothing for or against you, and your opponent's score drops to match.</p>
+      <div class="card" style="padding:4px 12px;margin-top:10px">${S.squad.map(p=>`<div class="res">${avatar(p)}<div class="sp">${esc(p.name)}</div><b style="color:${restsLeft(p.id)?'var(--text)':'var(--red)'}">${restsLeft(p.id)} left</b></div>`).join('')}</div>`,
   }[k];
   sheet(`<div class="small" style="line-height:1.5">${body}</div><button class="btn block" style="margin-top:8px" data-a="closeSheet">Got it</button>`);
 }
@@ -2164,7 +2169,7 @@ function playerSheet(id){
   if(!edit&&transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(regStart(se),t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
   if(S.firstStart&&se&&t>=se.start){
     if(inj)a+=`<button class="mvrow" data-a="uninjure" data-id="${p.id}"><span class="mvi">↩️</span><span class="sp"><b>Bring back from injury list</b><small>Plays again today</small></span><span class="mvc">›</span></button>`;
-    else if(D&&!isDone(p,D))a+=se.injLeft>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${se.injLeft} of ${INJURY_USES} left this season · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>No injury rests left this season</small></span></div>`;
+    else if(D&&!isDone(p,D))a+=restsLeft(p.id,t)>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${restsLeft(p.id,t)} of ${INJURY_USES} left this week · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>Rested ${INJURY_USES} times this week · back to full rest on Monday</small></span></div>`;
   }
   const info=`${p.slot==='court'?'Starter':'Bench'} · ${esc(p.lvl)} · ${pv(p)} pts${p.custom?' · custom':''}${p.seasons?` · ${p.seasons} season${p.seasons>1?'s':''}`:''}`;
   sheet(`<div class="row">${avatar(p)}<div class="sp" style="min-width:0"><h2>${esc(p.name)}</h2><div class="small"><b>${esc(ident(p).name)}</b> · ${posTag(p)}</div></div></div>
@@ -2243,8 +2248,8 @@ const A={
       <div class="sect"><h3 class="cond">1 · Choose a player to swap out</h3></div>
       <div class="sect" style="margin-top:6px"><h3 class="cond" style="font-size:12px">Starting five</h3></div>${S.squad.filter(p=>p.slot==='court').map(row).join('')}
       <div class="sect" style="margin-top:10px"><h3 class="cond" style="font-size:12px">Bench</h3></div>${S.squad.filter(p=>p.slot==='bench').map(row).join('')}`)},
-  injure(d){const se=curSeason(),D=ensureDay(gameDate());if(se.injLeft<1)return;D.inj.push(d.id);se.injLeft--;save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
-  uninjure(d){const se=curSeason(),D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);se.injLeft++;save();closeSheet();render()},
+  injure(d){const D=ensureDay(gameDate());if(restsLeft(d.id)<1||D.inj.includes(d.id))return;D.inj.push(d.id);save();closeSheet();render();toast('Resting today. Your opponent adjusts.')},
+  uninjure(d){const D=ensureDay(gameDate());D.inj=D.inj.filter(x=>x!==d.id);save();closeSheet();render()},
   savePlayer(d){const p=S.squad.find(x=>x.id===d.id);const n=document.getElementById('pName').value.trim();if(n)p.name=n;
     const ne=document.getElementById('pNum');if(ne&&!ne.disabled&&ne.value!==''){const v=Math.max(0,Math.min(99,parseInt(ne.value,10)||0));if(retiredNums(p.id).includes(v))toast(`#${v} is retired, so pick another number`);else if(v!==ident(p).num)p.num=v}
     const pn=document.getElementById('pPlayer').value.trim();if(pn&&pn!==ident({id:p.id}).name)p.pname=pn;else if(!pn)delete p.pname;
