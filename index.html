@@ -663,6 +663,13 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .rtd.on{background:rgba(96,165,250,.18);border-color:#60a5fa;color:#bfdbfe}
 .rtd.off{background:none;border-color:transparent;padding-right:0}
+.tshelf-card{padding:12px 10px 0;background:linear-gradient(180deg,var(--panel),#0f1424)}
+.tshelf{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 6px}
+.tshelf-t{display:flex;flex-direction:column;align-items:center;text-align:center;padding:4px 2px 12px;position:relative}
+.tshelf-t:after{content:"";position:absolute;left:-3px;right:-3px;bottom:4px;height:5px;border-radius:2px;background:linear-gradient(180deg,#7a4e2a,#4a2c14);box-shadow:0 3px 6px rgba(0,0,0,.4)}
+.tshelf-cup svg{width:46px;height:46px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+.tshelf-t b{font-size:12px;margin-top:3px;line-height:1.15}.tshelf-t small{font-size:10.5px;color:var(--muted)}
+.retire-done{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.4);color:#fde68a;font-size:13px;font-weight:700}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1677,7 +1684,7 @@ function jerseyBlock(p){
     <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
     <div class="nmrow"><div class="sp"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}"></div>
       <div style="width:84px"><label class="flab">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" ${R?'disabled':''}></div></div>
-    ${status?`<div style="margin-top:10px">${status}</div>`:''}</div>`;
+</div>`;
 }
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(regStart(se),t):0;
@@ -1977,11 +1984,11 @@ function ballSvg(skin){
 /* ===================== player profile + monthly awards ===================== */
 let profId=null;
 const AWARDS=[
- {id:'mvp',i:'👑',n:'MVP',d:'Most points scored'},
- {id:'iron',i:'🛡️',n:'Iron Man',d:'Longest streak of the month'},
- {id:'sixth',i:'🪑',n:'Sixth Man',d:'Most points from the bench'},
- {id:'improved',i:'📈',n:'Most Improved',d:'Biggest jump in completion vs last month'},
- {id:'closer',i:'🚨',n:'Closer',d:'Most points scored in clutch time'},
+ {id:'mvp',i:'👑',n:'MVP',d:'Most points scored',pal:{g:'#fbbf24',h:'#fef3c7',d:'#b45309'}},
+ {id:'iron',i:'🛡️',n:'Iron Man',d:'Longest streak of the month',pal:{g:'#94a3b8',h:'#f1f5f9',d:'#475569'}},
+ {id:'sixth',i:'🪑',n:'Sixth Man',d:'Most points from the bench',pal:{g:'#2dd4bf',h:'#ccfbf1',d:'#0f766e'}},
+ {id:'improved',i:'📈',n:'Most Improved',d:'Biggest jump in completion vs last month',pal:{g:'#4ade80',h:'#dcfce7',d:'#15803d'}},
+ {id:'closer',i:'🚨',n:'Closer',d:'Most points scored in clutch time',pal:{g:'#f87171',h:'#fee2e2',d:'#b91c1c'}},
 ];
 function monthLines(key,upto){
   const start=key+'-01',end=monthEnd(key),out={};
@@ -2010,6 +2017,19 @@ function pastAwards(){
     const r=awardRace(k,addDays(monthEnd(k),1));S.awards[k]=Object.fromEntries(AWARDS.map(a=>[a.id,r[a.id][0]||null]))}
   return S.awards;
 }
+function pCareer(p){
+  const today=gameDate(),bym={};let att=0,made=0;
+  for(const d of Object.keys(S.days).sort()){if(d>today)break;if(p.signedAt&&d<p.signedAt)continue;const D=S.days[d];if(!D.locked||restD(D)||D.inj.includes(p.id))continue;
+    att++;const ok=isDone(p,D);if(ok){made++;const k=skey(d);bym[k]=(bym[k]||0)+1}}
+  const bk=Object.keys(bym).sort((a,b)=>bym[b]-bym[a])[0];
+  return{seasons:(p.seasons||0)+1,att,made,pct:att?Math.round(made/att*100):null,best:playerBest(p),pts:made*pv(p),bestMonth:bk?monthName(bk):null,bestMade:bk?bym[bk]:0};
+}
+function retireBlock(p){
+  const id=ident(p),best=playerBest(p),R=(S.retired||[]).find(r=>r.id===p.id),ok=(p.seasons||0)>=3||best>=100;
+  if(R)return `<div class="retire-done">🏅 #${id.num} retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`;
+  if(ok)return `<button class="btn primary block" style="margin-top:10px" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`;
+  return `<div class="small muted" style="margin:6px 2px 0">Retire their jersey after 3 seasons or a 100-day streak.</div>`;
+}
 function profileView(){
   const p=S.squad.find(x=>x.id===profId);if(!p){view='squad';return squadView()}
   const id=ident(p),ps=posById(p.pos),t=gameDate(),f=pForm(p),sk=streak(p),stt=pStatus(p,f,sk),st=pStats(p);
@@ -2022,7 +2042,7 @@ function profileView(){
   const raceRows=AWARDS.map(a=>{const r=race[a.id],pos=r.indexOf(p.id);
     const tag=pos===0?'<span class="aw-pos lead">Leading</span>':pos>0?`<span class="aw-pos">${pos+1}${['st','nd','rd'][pos]||'th'}</span>`:'<span class="aw-pos no">–</span>';
     return `<div class="aw-row ${pos===0?'lead':''}"><span class="aw-ic">${a.i}</span><div class="sp"><b>${a.n}</b><div class="small muted">${a.d}</div></div>${tag}</div>`}).join('');
-  const mine=[];for(const k of Object.keys(won).sort().reverse())for(const a of AWARDS)if(won[k][a.id]===p.id)mine.push(`<span class="aw-chip">${a.i} ${a.n} <small>${monthName(k).split(' ')[0].slice(0,3)} ${k.slice(2,4)}</small></span>`);
+  const mine=[];for(const k of Object.keys(won).sort().reverse())for(const a of AWARDS)if(won[k][a.id]===p.id)mine.push(`<div class="tshelf-t"><span class="tshelf-cup">${pixArt(CUP,'allstar',a.pal)}</span><b>${a.n}</b><small>${monthName(k).split(' ')[0].slice(0,3)} ${k.slice(0,4)}</small></div>`);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
   return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><span class="row" style="gap:6px">${subOptions(p,null).length?`<button class="btn" data-a="subSheet" data-id="${p.id}">⇄ Sub</button>`:''}<button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></span></div>
   <div class="prof" style="--pc:${ps.c}">
@@ -2036,13 +2056,16 @@ function profileView(){
     <div class="small muted" style="margin-top:8px">${(p.restDays||[]).length?`Rests every ${p.restDays.slice().sort().map(i=>WD[i]).join(', ')}: scores nothing for or against you, and your opponent adjusts.`:'No planned rest days. Pick days this habit takes off each week, like gym rest days.'}</div></div>
   <div class="sect"><h3 class="cond">This season</h3></div>
   ${st?`<div class="stgrid" style="margin-top:0"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Completion</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>`:'<p class="muted small">Season stats start at tip-off.</p>'}
+  <div class="sect"><h3 class="cond">Career</h3><span class="small muted">All-time with the club</span></div>
+  ${(()=>{const c=pCareer(p);return `<div class="stgrid" style="margin-top:0"><div><b>${c.seasons}</b><span>Season${c.seasons===1?'':'s'}</span></div><div><b>${c.made}</b><span>Makes</span></div><div><b>${c.pct===null?'–':c.pct+'%'}</b><span>All-time</span></div><div><b>${c.best}</b><span>Best streak</span></div></div>
+    <div class="small muted" style="margin:8px 2px 0">${c.pts.toLocaleString('en-GB')} career points${c.bestMonth?` · best month ${c.bestMonth} (${c.bestMade} make${c.bestMade===1?'':'s'})`:''}</div>${retireBlock(p)}`})()}
   <div class="sect"><h3 class="cond">Last 30 days</h3></div>
   <div class="card"><div class="grid30">${cells.join('')}</div>
     <div class="g30-key"><span><i class="y"></i>Done</span><span><i class="n"></i>Missed</span><span><i class="i"></i>Rested</span><span><i class="t"></i>Today</span></div></div>
   <div class="sect"><h3 class="cond">Monthly awards</h3><span class="small muted">${monthName(key).split(' ')[0]} race</span></div>
   <div class="card aw-card">${raceRows}<div class="small muted" style="margin-top:8px">Awards are decided on the last day of the month.</div></div>
   <div class="sect"><h3 class="cond">Trophy case</h3></div>
-  <div class="card">${mine.length?`<div class="aw-chips">${mine.join('')}</div>`:'<p class="muted small" style="margin:0">No awards yet. Lead a race at month end to win one.</p>'}</div>`;
+  <div class="card tshelf-card">${mine.length?`<div class="tshelf">${mine.join('')}</div>`:'<p class="muted small" style="margin:0">No awards yet. Lead a race at month end to win one.</p>'}</div>`;
 }
 
 /* ===================== gameday moments: final buzzer reveal + tip-off intro ===================== */
@@ -2345,7 +2368,7 @@ const A={
   sinfo(d){squadInfo(d.v)},
   headInfo(d){toast(cosUnlocked('head',d.v)?'Unlocked: tap a player in Squad to give them this head':lockMsg('head',d.v))},
   unlockAll(){S.unlockAll=!S.unlockAll;save();render();toast(S.unlockAll?'All cosmetics unlocked for testing':'Cosmetics re-locked')},
-  retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;const id=ident(p),best=playerBest(p);
+  retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;if((S.retired||[]).some(r=>r.id===p.id))return;const id=ident(p),best=playerBest(p);
     if(!confirm(`Retire #${id.num} ${id.name}? Their jersey goes up in the Club rafters for good. They keep playing, and #${id.num} can't be used by anyone else.`))return;
     S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:(p.seasons||0)>=3?`${p.seasons} seasons`:`${best}-day streak`});
     p.num=id.num;save();closeSheet();render();celebrate('stamp','RETIRED',`#${id.num} ${id.name}`)},
