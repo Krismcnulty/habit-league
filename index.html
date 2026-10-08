@@ -421,6 +421,28 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .evt small{font-size:10.5px;line-height:1.2;color:var(--muted)}
 .evt .gshot .ball{width:34px;height:34px}
 .evt .gcel{width:44px;height:44px}
+/* ---- Halloween Shootout ---- */
+.court-spooky{background:repeating-linear-gradient(90deg,#2a1838 0 22px,#24142f 22px 23px,#2f1b3f 23px 47px,#1f1129 47px 48px);border-color:#f97316}
+.court-spooky svg.lines{stroke:#fb923c}
+.court-spooky:before{content:"🦇";padding:6px 10px;font-size:16px;background:radial-gradient(circle at 50% 115%,rgba(249,115,22,.28),transparent 60%)}
+.court-spooky:after{content:"🎃";position:absolute;right:10px;top:6px;font-size:18px}
+.sb-spooky{background:radial-gradient(120% 120% at 50% 0%,#3b0764,#0b0414 72%)!important;border:2px solid #f97316!important;box-shadow:0 0 16px rgba(249,115,22,.35)}
+.sb-spooky:after{border:0!important;width:auto!important;height:auto!important;inset:8px 12px auto auto!important;content:"🦇";font-size:18px;border-radius:0!important}
+.sb-spooky .score{color:#fed7aa;text-shadow:0 0 10px rgba(249,115,22,.8)}
+.sb-spooky .score .lead{color:#fde047}
+.sb-spooky .phase,.sb-spooky .clock{color:#c084fc}
+.hsbar{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(90deg,#3b0764,#7c2d12);border:1px solid #f97316;cursor:pointer}
+.hsbar>span:first-child{font-size:24px}
+.hsbar b{font-size:13px;letter-spacing:.04em}
+.hsbar .small{color:#fed7aa}
+.hsscore{display:flex;gap:6px;align-items:baseline;font-weight:800;font-size:16px;margin-top:2px}
+.hsscore i{font-style:normal;color:#fdba74}.hsscore .up{color:#fde047}
+.hsbar.win{background:linear-gradient(90deg,#713f12,#a16207);border-color:var(--gold)}
+.series.hs.mine{border-color:#f97316}
+#pvbar{position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:40;display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:14px;background:linear-gradient(90deg,#3b0764,#7c2d12);border:1px solid #f97316;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#pvbar b{font-size:12px;letter-spacing:.05em}#pvbar .small{color:#fed7aa}
+#pvbar .btn{padding:8px 10px;font-size:13px}
+body.pv main{padding-top:70px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -552,7 +574,8 @@ const uid=()=>'p'+Math.random().toString(36).slice(2,9);
 let S=load();
 function blank(){return{v:1,team:null,squad:[],firstStart:null,startDate:null,seasons:{},days:{},xp:0,trophies:[],history:[]}}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return s}catch(e){}return blank()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save — storage is full or blocked')}}
+let PREVIEW=null;
+function save(){if(PREVIEW)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save — storage is full or blocked')}}
 
 /* ===================== season engine ===================== */
 /* ===================== divisions ===================== */
@@ -581,7 +604,8 @@ function ensureSeason(key){
   const se={key,start:first?S.firstStart:key+'-01',locked:first,teams,order,tb,injLeft:INJURY_USES,transferUsed:false,seeds:null,sw:[],done:null};
   S.seasons[key]=se;return se;
 }
-const team=id=>{if(id==='me')return{id:'me',city:S.team.city,n:S.team.name,ab:S.team.ab,c:(S.cos&&S.cos.jersey)||'#ff7a1a'};const t=TEAMS.find(x=>x.id===id);return S.teamSet==='fictional'?t:{...t,...NBA[id]}};
+const SPOOKY=[{id:'ghl',city:'Graveyard',n:'Ghouls',ab:'GHL',c:'#4b5563'},{id:'pmk',city:'Pumpkin',n:'Kings',ab:'PMK',c:'#ea580c'},{id:'sal',city:'Salem',n:'Witches',ab:'SAL',c:'#7c3aed'},{id:'mid',city:'Midnight',n:'Howlers',ab:'MID',c:'#1e3a8a'},{id:'bel2',city:'Belfry',n:'Bats',ab:'BAT',c:'#111827'},{id:'cry',city:'Crypt',n:'Zombies',ab:'CRY',c:'#15803d'},{id:'trn',city:'Transylvania',n:'Counts',ab:'TRN',c:'#991b1b'}];
+const team=id=>{const sp=SPOOKY.find(x=>x.id===id);if(sp)return sp;if(id==='me')return{id:'me',city:S.team.city,n:S.team.name,ab:S.team.ab,c:(S.cos&&S.cos.jersey)||'#ff7a1a'};const t=TEAMS.find(x=>x.id===id);return S.teamSet==='fictional'?t:{...t,...NBA[id]}};
 const rating=(se,id)=>se?(se.teams.find(t=>t.id===id)||{rating:.6}).rating:.6;
 const tname=id=>{const t=team(id);return `${t.city} ${t.n}`};
 
@@ -664,6 +688,7 @@ function lockDay(d){
     if(d>=se.start)snapPar(se);
     if(D.ph==='po'){const b=bracket(se,addDays(d,1));b.rounds.forEach((rs,i)=>rs.forEach(s=>{if(s.winner==='me'&&!se.sw.includes(i)){se.sw.push(i);S.xp+=100}}))}
     if(d===monthEnd(se.key))finalize(se);
+    if(d===HSE.end)hsFinish();
   }
 }
 function finalize(se){
@@ -916,6 +941,7 @@ function render(){
   if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
   nav.hidden=false;
   checkAch();if(view==='club')S.achNew=0;
+  pvBar();
   nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.classList.toggle('new',b.dataset.v==='club'&&(S.achNew||0)>0)});
   app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView})[view]();
   if(view==='today'&&S.newResult&&S.newResult===addDays(gameDate(),-1)){const L=S.days[S.newResult];if(L&&L.res==='W'&&!L.cel){L.cel=1;save();setTimeout(()=>celebrate(myCel(),'WIN',`${L.me}–${L.opp} vs ${team(L.oppId).n}`),450)}}
@@ -985,7 +1011,7 @@ function todayView(){
   return `
   <div class="top"><h1 class="cond">${nice(t,{weekday:'long',day:'numeric',month:'short'})}</h1><span class="small muted">Final at 4:00am</span></div>
   ${lastHtml}${pre}
-  <div class="board sb-${(S.cos&&S.cos.board)||'classic'}">${(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
+  <div class="board sb-${hsLive()?'spooky':(S.cos&&S.cos.board)||'classic'}">${(S.cos&&S.cos.board)==='broadcast'?'<span class="livebug">● LIVE</span>':''}
     <div class="phase cond">${esc(phase)}</div>
     <div class="teams">
       <div class="tm">${badge('me')}<div class="tmname">${esc(S.team.name)}</div><div class="rec">${myRec}</div></div>
@@ -995,6 +1021,7 @@ function todayView(){
     <div class="clock cond">${q===5?`${esc(team(D.oppId).n)} are done · final buzzer 4am`:q===0?`Tip-off ${TIPOFF_H}am`:`${QLABEL[q]} · live`}</div>
     <div class="status" style="margin-top:6px">${status2}</div>
   </div>
+  ${hsStrip()}
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D)}
   <div class="benchwrap bench-${(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench · half points','bench',D)}</div>`;
 }
@@ -1046,7 +1073,7 @@ function courtView(D){
       <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
       <div class="tag" data-a="player" data-id="${p.id}">${esc(p.name)}${st>=2?` <span class="fire">🔥${st}</span>`:''}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
-  return `<div class="court court-${(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
+  return `<div class="court court-${hsLive()?'spooky':(S.cos&&S.cos.court)||'wood'}">${lines}${spots}</div>`;
 }
 function shoot(id){
   try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return}catch(e){}
@@ -1294,11 +1321,70 @@ const EV_TROPHY={
  'Spring Slam':{n:'Blossom Medal',rows:fit16(["..rr.......bb...","...rr.....bb....","....rr...bb.....",".....rr.bb......","......rbb.......",".....yyyyyy.....","....yyyyyyyy....","...yyyppppyyy...","...yyppyyppyy...","...yypyiiypyy...","...yyppyyppyy...","...yyyppppyyy...","....yyyyyyyy....",".....yyyyyy.....","................","................"]),pal:{r:'#ec4899',b:'#22c55e',y:'#fbbf24',p:'#f472b6',i:'#fef3c7'}},
 };
 const EV_REWARDS={'Halloween Shootout':[['ball','pumpkin'],['logo','owl']],'Winter Classic':[['court','neon'],['shot','lightning']],'New Year Cup':[['cel','goldrain'],['logo','star']],'Spring Slam':[['shot','confetti'],['kit','sunset']]};
-function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today);
-  return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s,T=EV_TROPHY[e.n];
+
+/* ===================== Halloween Shootout ===================== */
+const HSE={start:'2026-10-24',end:'2026-10-31',rounds:['Quarterfinals','Semifinals','Final'],short:['QF','SF','Final'],spans:[[0,1],[2,4],[5,7]]};
+const hsDays=()=>HSE.spans.map(([a,b])=>{const r=[];for(let i=a;i<=b;i++)r.push(addDays(HSE.start,i));return r});
+const hsLive=()=>{const t=gameDate();return !!S.firstStart&&t>=HSE.start&&t<=HSE.end};
+const hsRating=id=>.52+rng('hsr'+id)()*.28;
+function hsTarget(d,id){const f=hsRating(id)+(rng('hst'+d+id)()-.5)*.24;return Math.max(1,Math.round(dayDiv(d).avg*(1+(f-.66)*.8)))}
+function hsMine(d,today){if(d>today)return 0;const D=S.days[d];if(!D)return 0;return D.locked?D.me:score(D).me}
+function hsOpp(d,id,today,mine){if(d>today)return 0;let v=hsTarget(d,id);if(mine){const D=S.days[d];if(D){const mx=D.locked?D.max:score(D).max,full=fullMax();if(full)v=Math.round(v*mx/full)}}if(d===today)v=Math.round(v*oppProgress(d));return v}
+function shootout(){
+  const today=gameDate(),days=hsDays();
+  const order=['me',...shuffle(SPOOKY.map(t=>t.id),rng('hs-seed-2026'))];
+  let pairs=[[order[0],order[1]],[order[2],order[3]],[order[4],order[5]],[order[6],order[7]]];const rounds=[];
+  for(let r=0;r<3;r++){
+    const ms=pairs.map(([a,b])=>{const mine=a==='me'||b==='me';const tot=id=>days[r].reduce((sum,d)=>sum+(id==='me'?hsMine(d,today):hsOpp(d,id,today,mine)),0);
+      const ta=tot(a),tb=tot(b),done=days[r][days[r].length-1]<today,started=days[r][0]<=today;return{a,b,ta,tb,done,started,winner:done?(ta>=tb?a:b):null}});
+    rounds.push(ms);if(!ms.every(m=>m.done))break;
+    const w=ms.map(m=>m.winner);pairs=[];for(let i=0;i<w.length;i+=2)pairs.push([w[i],w[i+1]]);
+  }
+  return{rounds,days};
+}
+function hsMe(){const sh=shootout();let cur=null,ri=-1;sh.rounds.forEach((ms,r)=>ms.forEach(m=>{if(m.a==='me'||m.b==='me'){cur=m;ri=r}}));return{sh,m:cur,r:ri}}
+function hsFinish(){
+  if(S.hsDone)return;const {sh,m,r}=hsMe();const fin=sh.rounds[2]&&sh.rounds[2][0];
+  const champ=fin&&fin.winner,reached=m?(m.winner==='me'?r+1:r):0;S.hsDone={champ,reached};S.owned=S.owned||{};
+  if(champ==='me'){S.trophies.push({t:'Pumpkin Trophy',ev:'Halloween Shootout',k:'2026-10'});S.owned['ball:pumpkin']=true;S.owned['logo:owl']=true;S.xp+=300}
+  else if(reached>=1)S.owned['logo:owl']=true;
+}
+function hsStrip(){
+  if(!hsLive())return '';const today=gameDate(),{sh,m,r}=hsMe();if(!m)return '';
+  if(m.done&&m.winner!=='me')return `<div class="hsbar"><span>🎃</span><div class="sp"><b>SHOOTOUT</b> · Knocked out in the ${HSE.rounds[r]}<div class="small">${esc(team(m.b==='me'?m.a:m.b).n)} won ${Math.max(m.ta,m.tb)}–${Math.min(m.ta,m.tb)}</div></div></div>`;
+  if(m.done&&m.winner==='me'&&r===2)return `<div class="hsbar win"><span>🏆</span><div class="sp"><b>SHOOTOUT CHAMPIONS</b><div class="small">Pumpkin Trophy is yours</div></div></div>`;
+  if(m.done)return '';
+  const days=sh.days[r],dn=days.indexOf(today)+1,opp=m.a==='me'?m.b:m.a,me=m.a==='me'?m.ta:m.tb,them=m.a==='me'?m.tb:m.ta;
+  return `<div class="hsbar" data-a="go" data-v="league" onclick="standTab='events'"><span>🎃</span><div class="sp"><b>SHOOTOUT · ${HSE.short[r]}</b> <span class="small">Day ${dn} of ${days.length} · ${days.length}-day total</span>
+    <div class="hsscore"><span class="${me>them?'up':''}">You ${me}</span><i>–</i><span>${them} ${esc(team(opp).n)}</span></div></div><span class="mvc">›</span></div>`;
+}
+function hsBracket(){
+  const today=gameDate(),{rounds,days}=shootout();
+  return HSE.rounds.map((n,r)=>{const ms=rounds[r];const d=days[r];
+    return `<div class="small cond" style="margin:12px 0 6px;color:#c084fc">${n} · ${nice(d[0],{day:'numeric',month:'short'})}${d.length>1?'–'+nice(d[d.length-1],{day:'numeric'}):''}</div>`+
+     (ms?ms.map(m=>`<div class="series hs ${m.a==='me'||m.b==='me'?'mine':''}"><div class="ln ${m.winner===m.a?'win':''}"><span>${mini(m.a)}${esc(team(m.a).n)}</span><b>${m.started?m.ta:'–'}</b></div><div class="ln ${m.winner===m.b?'win':''}"><span>${mini(m.b)}${esc(team(m.b).n)}</span><b>${m.started?m.tb:'–'}</b></div></div>`).join(''):'<div class="series muted">To be decided</div>');
+  }).join('');
+}
+function hsCardBody(today,e){
+  if(!S.firstStart)return '';
+  if(today<e.s)return `<div class="small" style="margin-top:8px;color:var(--green)">Free in the prototype · starts automatically on ${nice(e.s,{weekday:'long',day:'numeric',month:'short'})}</div>
+    <div class="small muted" style="margin-top:4px">8 teams, knockout. Each round is decided by your total score over its days. Reach the semis to win the Night owl logo.</div>
+    <button class="btn block" style="margin-top:8px" data-a="hsPreview">▶ Preview the Shootout</button>`;
+  const D=S.hsDone;const head=D?(D.champ==='me'?'<div class="small" style="margin-top:8px;color:var(--gold)">🏆 You won the Halloween Shootout!</div>':`<div class="small muted" style="margin-top:8px">🏆 ${esc(team(D.champ).city+' '+team(D.champ).n)} won the Shootout</div>`):'<div class="small" style="margin-top:8px;color:var(--green)">Live now · your daily score counts here too</div>';
+  return head+hsBracket();
+}
+function pvBar(){
+  let b=document.getElementById('pvbar');if(!PREVIEW){if(b)b.remove();document.body.classList.remove('pv');return}
+  if(!b){b=document.createElement('div');b.id='pvbar';document.body.appendChild(b)}document.body.classList.add('pv');
+  const t=gameDate(),after=t>HSE.end,{m,r}=hsMe();
+  const st=after?(S.hsDone&&S.hsDone.champ==='me'?'🏆 Champions!':'Shootout over'):m?(m.done&&m.winner!=='me'?`Out in the ${HSE.short[r]}`:`${HSE.short[r]} · ${nice(t,{weekday:'short',day:'numeric',month:'short'})}`):'';
+  b.innerHTML=`<div class="sp"><b>🎃 SHOOTOUT PREVIEW</b><div class="small">${st} · not saved</div></div><button class="btn primary" data-a="pvNext">${after?'See bracket':(m&&m.done&&m.winner!=='me')?'Skip to end ▶':'Next day ▶'}</button><button class="btn" data-a="pvExit">Exit</button>`;
+}
+function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.n==='Halloween Shootout'&&today<=addDays(e.e,14)));
+  return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
     const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small></div>`)).join('');
-    return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
-      <div class="evrw">${tiles}</div><div class="small" style="margin-top:6px;color:var(--orange2)">Coming soon in the prototype</div></div></div>`}).join('')}</div>`;
+    return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
+      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e):`<div class="small" style="margin-top:6px;color:var(--orange2)">Coming soon in the prototype</div>`}</div></div>`}).join('')}</div>`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
@@ -1332,7 +1418,7 @@ function awardsView(){
 function clubView(){
   const c=career();
   const hist=S.history.map(h=>`<div class="trophy"><span class="wl ${h.champ==='me'?'W':''}" style="width:auto;padding:0 8px">${h.w}–${h.l}</span><div class="sp"><b>${monthName(h.k)}</b><div class="small muted">${h.div?divById(h.div).n+" · ":""}Seed ${h.seed} · ${esc(h.result)}${h.sim?" · simulated":""}</div></div></div>`).join('');
-  const tro=S.trophies.map(x=>{const tr=trophyTier(x);return `<div class="trophy">${trophyImg(x.t,44,tr)}<div><b>${divById(tr).n} ${esc(x.t)}</b><div class="small muted">${monthName(x.k)}</div></div></div>`}).join("");
+  const tro=S.trophies.map(x=>{if(x.ev){const T=EV_TROPHY[x.ev];return `<div class="trophy"><span class="tro" style="width:44px;height:44px">${pixArt(T.rows,'allstar',T.pal)}</span><div><b>${esc(T.n)}</b><div class="small muted">${esc(x.ev)} · ${monthName(x.k)}</div></div></div>`}const tr=trophyTier(x);return `<div class="trophy">${trophyImg(x.t,44,tr)}<div><b>${divById(tr).n} ${esc(x.t)}</b><div class="small muted">${monthName(x.k)}</div></div></div>`}).join("");
   return `<div class="top"><h1 class="cond">Club</h1></div>
   <div class="card stack"><div class="row">${badge('me',54)}<div class="sp"><h2>${esc(S.team.city)} ${esc(S.team.name)}</h2><div class="small muted">Career: <b style="color:var(--gold)">${c.name}</b> · ${S.xp.toLocaleString('en-GB')} XP</div></div><button class="small muted" data-a="editTeam">Edit</button></div>
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
@@ -1355,6 +1441,7 @@ function clubView(){
     <p class="small muted" style="margin:0">Adds a made-up Pro season for September 2026 (17–4, top seed, champions) to your cabinet and history, marked as simulated. It doesn't change your XP or this season.</p>
     <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
     <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button>
+    <button class="btn block" data-a="hsPreview">🎃 Fast-forward through the Halloween Shootout</button>
     <button class="btn block" data-a="fastVet">Make a starter a 3-season veteran</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
@@ -1524,6 +1611,12 @@ const A={
   fastVet(){const p=S.squad.find(x=>x.slot==='court');p.seasons=Math.max(3,p.seasons||0);save();render();toast(`${p.name} is now a 3-season veteran`)},
   addStep(){const i=document.getElementById('newStep');const v=i.value.trim();if(!v)return i.focus();if(document.querySelectorAll('.stepin').length>=8)return toast('Up to 8 steps');document.getElementById('stepList').insertAdjacentHTML('beforeend',stepRow(v));i.value='';i.focus()},
   delStep(d,el){el.closest('.steprow').remove()},
+  hsPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW};closeSheet();window.HL_NOW=HSE.start+'T19:00:00';view='today';render();scrollTo(0,0);toast('🎃 Preview mode · nothing here is saved')},
+  pvNext(){const t=gameDate();if(t>HSE.end){standTab='events';view='league';render();scrollTo(0,0);return}
+    const out=(()=>{const {m}=hsMe();return m&&m.done&&m.winner!=='me'})();if(out){window.HL_NOW=addDays(HSE.end,1)+'T09:00:00';render();scrollTo(0,0);return}
+    const D=ensureDay(t);if(score(D).me===0){const rate=.75+Math.random()*.25;for(const p of S.squad)if(!D.inj.includes(p.id)&&Math.random()<rate)D.t[p.id]=p.steps&&p.steps.length?p.steps.map(()=>true):true}
+    window.HL_NOW=addDays(t,1)+'T19:00:00';render();scrollTo(0,0)},
+  pvExit(){if(!PREVIEW)return;S=JSON.parse(PREVIEW.bak);if(PREVIEW.now===undefined)delete window.HL_NOW;else window.HL_NOW=PREVIEW.now;PREVIEW=null;const b=document.getElementById('pvbar');if(b)b.remove();document.querySelectorAll('.celeb').forEach(e=>e.remove());view='league';standTab='events';render();scrollTo(0,0);toast('Back to your real league')},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
