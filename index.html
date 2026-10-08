@@ -92,6 +92,9 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .ls-bar{height:9px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden}.ls-bar i{display:block;height:100%;background:linear-gradient(90deg,#f97316,#fbbf24)}
 .ls-pl{font-size:12px;color:var(--muted);text-align:center;margin-top:5px}
 .ls-more{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.ls-more div{display:flex;flex-direction:column;align-items:center;gap:3px}.ls-more small{font-size:11px;color:var(--muted)}
+.gatm{display:flex;gap:2px;width:44px;height:34px;padding:4px;border-radius:8px;background:var(--tb);background-image:var(--tt);border:1px solid var(--tl)}.gatm i{flex:1;border-radius:3px;background:var(--tp);border:1px solid var(--tl)}.gatm i:nth-child(2){background:var(--tp2)}.gatm i:nth-child(3){flex:.6;background:linear-gradient(180deg,var(--ta),var(--ta2));border:0}
+.gatm.big{width:76px;height:56px;gap:4px;padding:7px}.gtile.locked .gatm{opacity:.45;filter:grayscale(.4)}
+.setrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--text);font:inherit}.setrow b{display:block;font-size:14px}.setrow small{font-size:12px}
 .gtile.locked .gpbg{opacity:.4;filter:grayscale(.5)}
 .av svg{width:46px;height:46px;image-rendering:pixelated;display:block}
 .posn{font-weight:700}
@@ -1667,16 +1670,18 @@ const BENCHES=[['classic','Classic'],['wood','Wooden bench'],['courtside','Court
 // Player backgrounds: team-wide fill behind every player's head (the border keeps the position colour).
 const PBGS=[['classic','Classic'],['midnight','Midnight'],['slate','Slate'],['sunset','Sunset'],['hardwood','Hardwood'],['net','Net'],['spotlight','Spotlight'],['ice','Ice'],['flames','Flames'],['velvet','Velvet'],['crystal','Crystal'],['trophy','Trophy room'],['starfield','Starfield'],['holo','Holo foil'],['graveyard','Graveyard'],['snowfall','Snowfall'],['fireworks','Fireworks'],['blossom','Blossom']];
 const RANK_BG={velvet:3,crystal:4,trophy:5};
-const COS_LISTS={pbg:PBGS,head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
-const COS_NAMES={pbg:'player background',head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style'};
+// Atmosphere: the whole app's theme, collected like any other gear (Blackout always free).
+const ATMS=[['navy','Navy'],['blackout','Blackout'],['steel','Steel'],['hardwood','Hardwood'],['forest','Forest'],['crimson','Crimson'],['royale','Royale'],['neon','Neon Night'],['gold','Gold Edition'],['arcade','Arcade'],['sunset','Sunset Strip'],['dynasty','Dynasty']];
+const COS_LISTS={atm:ATMS,pbg:PBGS,head:HEAD_LIST,logo:LOGOS,kit:KITS,bench:BENCHES,board:BOARDS,court:COURTS,shot:SHOTFX,ball:BALLS,cel:CELS};
+const COS_NAMES={atm:'atmosphere',pbg:'player background',head:'player head',logo:'team logo',board:'scoreboard',cel:'celebration',ball:'ball',kit:'kit',bench:'bench',court:'court',shot:'shot style'};
 const ACH=[
- {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame'],['cel','stamp']]},
- {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand'],['ball','street']]},
+ {id:'tipoff',i:'🏀',n:'Tip-Off',d:'Win your first game',goal:1,v:s=>s.wins,rw:[['logo','flame'],['cel','stamp'],['atm','hardwood']]},
+ {id:'hothand',i:'🔥',n:'Hot Hand',d:'Reach a 7-day streak on any player',goal:7,v:s=>s.bestStreak,rw:[['head','hothand'],['ball','street'],['atm','forest']]},
  {id:'heating',i:'📈',n:'Heating Up',d:'Win 5 games in a row',goal:5,v:s=>s.bestWinRun,rw:[['head','retro'],['ball','aba'],['pbg','hardwood']]},
  {id:'perfect',i:'💯',n:'Perfect Game',d:'Score with every player in one day',goal:1,v:s=>s.perfect,rw:[['head','icecold'],['kit','retro'],['pbg','ice']]},
- {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk']]},
+ {id:'comeback',i:'🔄',n:'Comeback Kid',d:'Win right after 3 straight losses',goal:1,v:s=>s.comeback,rw:[['shot','fire'],['board','chalk'],['atm','crimson']]},
  {id:'ten',i:'🔟',n:'Double Digits',d:'Win 10 games',goal:10,v:s=>s.wins,rw:[['logo','bolt'],['board','led'],['bench','courtside'],['pbg','net']]},
- {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain'],['kit','pinstripe']]},
+ {id:'playoffs',i:'🎟️',n:'Playoff Bound',d:'Make the playoffs',goal:1,v:s=>s.playoffs,rw:[['court','dark'],['logo','mountain'],['kit','pinstripe'],['atm','royale']]},
  {id:'series',i:'⚔️',n:'Series Winner',d:'Win a playoff series',goal:1,v:s=>s.series,rw:[['logo','swords'],['cel','fireworks'],['bench','locker']]},
  {id:'seed1',i:'🥇',n:'Number One Seed',d:'Finish a regular season top of the table',goal:1,v:s=>s.topSeed,rw:[['court','blue'],['board','broadcast'],['pbg','spotlight']]},
  {id:'champ',i:'🏆',n:'Champions',d:'Win a league title',goal:1,v:s=>s.titles,rw:[['head','king'],['logo','crown'],['bench','vip']]},
@@ -1689,7 +1694,7 @@ const ACH=[
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Premium: weekly drops of 3 items from this pool. Claimed items are kept. Nothing here affects scoring.
-const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy'],['kit','neon'],['kit','sunset'],['kit','galaxy'],['bench','neon'],['bench','velvet'],['pbg','starfield'],['pbg','holo']];
+const PREM_POOL=[['head','neon'],['logo','owl'],['court','neon'],['shot','lightning'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['shot','confetti'],['logo','star'],['head','flash'],['logo','anchor'],['board','neon'],['board','arcade'],['cel','goldrain'],['cel','lasers'],['ball','pumpkin'],['ball','glow'],['ball','galaxy'],['kit','neon'],['kit','sunset'],['kit','galaxy'],['bench','neon'],['bench','velvet'],['pbg','starfield'],['pbg','holo'],['atm','neon'],['atm','gold'],['atm','arcade'],['atm','sunset']];
 const isPrem=(k,v)=>PREM_POOL.some(([a,b])=>a===k&&b===v);
 const owned=(k,v)=>!!(S.owned&&S.owned[k+':'+v]);
 const DROP_EPOCH='2026-01-05';
@@ -1700,11 +1705,12 @@ const inDrop=(k,v)=>weeklyDrop().some(([a,b])=>a===k&&b===v);
 const EV_ICON={'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'};
 const EV_ONLY={'head:zombie':'Halloween Shootout','pbg:graveyard':'Halloween Shootout','pbg:snowfall':'Winter Classic','pbg:fireworks':'New Year Cup','pbg:blossom':'Spring Slam'};
 const topRank=()=>Math.max(0,...S.squad.map(p=>Math.max(p.rk||0,pRank(p))));
-function cosUnlocked(k,v){if(S.unlockAll)return true;if(k==='pbg'&&RANK_BG[v]!=null)return topRank()>=RANK_BG[v];if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
+const ATM_TOP=()=>CAREER[CAREER.length-1];
+function cosUnlocked(k,v){if(S.unlockAll)return true;if(owned(k,v))return true;if(k==='atm'&&v==='dynasty')return S.xp>=ATM_TOP()[0];if(k==='pbg'&&RANK_BG[v]!=null)return topRank()>=RANK_BG[v];if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
 // Rarity: how hard an item is to get. Common = free, Rare = achievements, Epic = harder achievements, events, premium and Veteran/Legend backgrounds, Legendary = the very top.
 const RAR_N={com:'Common',rare:'Rare',epic:'Epic',leg:'Legendary'};
 const isEvReward=(k,v)=>Object.values(EV_REWARDS).some(L=>L.some(([a,b])=>a===k&&b===v));
-function rarity(k,v){if(k==='pbg'&&RANK_BG[v]!=null)return RANK_BG[v]>=5?'leg':'epic';if(EV_ONLY[k+':'+v]||isEvReward(k,v)||isPrem(k,v))return 'epic';const a=lockAch(k,v);if(!a)return 'com';if(['champ','iron','mvp'].includes(a.id))return 'leg';if(['onfire','seed1','series','allstar','clutch'].includes(a.id))return 'epic';return 'rare'}
+function rarity(k,v){if(k==='atm'&&v==='dynasty')return 'leg';if(k==='atm'&&v==='royale')return 'epic';if(k==='pbg'&&RANK_BG[v]!=null)return RANK_BG[v]>=5?'leg':'epic';if(EV_ONLY[k+':'+v]||isEvReward(k,v)||isPrem(k,v))return 'epic';const a=lockAch(k,v);if(!a)return 'com';if(['champ','iron','mvp'].includes(a.id))return 'leg';if(['onfire','seed1','series','allstar','clutch'].includes(a.id))return 'epic';return 'rare'}
 // "New" gear: unlocked, not free, and not yet seen in the Locker.
 let lkShown=null;
 function allGear(){const out=[];for(const k of Object.keys(COS_LISTS))for(const [v] of COS_LISTS[k])out.push([k,v]);return out}
@@ -1714,7 +1720,8 @@ const newCount=ks=>allGear().filter(([k,v])=>(!ks||ks.includes(k))&&isNew(k,v)).
 function lockSheet(k,v){
   const r=rarity(k,v),nm=cosName(k,v),bar=(n,g,l)=>`<div class="ls-bar"><i style="width:${Math.min(100,n/g*100)}%"></i></div><div class="ls-pl">${l||`${n.toLocaleString('en-GB')} / ${g.toLocaleString('en-GB')}`}</div>`;
   let how='',prog='',more='',btn='';
-  if(k==='pbg'&&RANK_BG[v]!=null){const R=PRANKS[RANK_BG[v]],best=Math.max(0,...S.squad.map(careerMakes));how=`Get any player to <b>${RSYM[RANK_BG[v]]} ${R.n}</b> (${R.at} career makes).`;prog=bar(best,R.at,`${best} / ${R.at} makes · your best player`)}
+  if(k==='atm'&&v==='dynasty'){const T=ATM_TOP();how=`Reach the <b>${T[1]}</b> club level (${T[0].toLocaleString('en-GB')} XP).`;prog=bar(S.xp,T[0],`${S.xp.toLocaleString('en-GB')} / ${T[0].toLocaleString('en-GB')} XP`)}
+  else if(k==='pbg'&&RANK_BG[v]!=null){const R=PRANKS[RANK_BG[v]],best=Math.max(0,...S.squad.map(careerMakes));how=`Get any player to <b>${RSYM[RANK_BG[v]]} ${R.n}</b> (${R.at} career makes).`;prog=bar(best,R.at,`${best} / ${R.at} makes · your best player`)}
   else if(EV_ONLY[k+':'+v]){const e=EVENTS.find(x=>x.n===EV_ONLY[k+':'+v]);how=`Win the <b>${EV_ONLY[k+':'+v]}</b>${e?` (${nice(e.s,{day:'numeric',month:'short'})} – ${nice(e.e,{day:'numeric',month:'short'})})`:''}. Event-only: it can't be bought.`}
   else if(isPrem(k,v)){const ev=Object.keys(EV_REWARDS).find(n=>EV_REWARDS[n].some(([a,b])=>a===k&&b===v));how=inDrop(k,v)?'⭐ In this week\'s premium drop.':'⭐ Premium item. It comes back in a future weekly drop.';if(ev)how+=` Or win it in the <b>${ev}</b>${EV_REQ[k+':'+v]?` (reach the ${EV_REQ[k+':'+v].toLowerCase()})`:''}.`;if(inDrop(k,v))btn=`<button class="btn primary block" style="margin-top:12px" data-a="claim" data-k="${k}" data-v="${v}">${S.premium?'Claim it':'⭐ Premium'}</button>`}
   else{const a=lockAch(k,v),st=stats(),val=Math.min(a.v(st),a.goal);how=`Earn the <b>${a.i} ${a.n}</b> achievement: ${a.d}.`;prog=a.goal>1?bar(val,a.goal):'<div class="ls-pl">Not done yet</div>';
@@ -1723,7 +1730,7 @@ function lockSheet(k,v){
     <div class="ls-top"><div class="ls-pic rr-${r}">${itemPreview(k,v)}</div><span class="rar rr-${r}">${RAR_N[r]}</span><h2>${esc(nm)}</h2><div class="small muted">${COS_NAMES[k]} · 🔒 locked</div></div>
     <div class="ls-how">${how}</div>${prog}${btn}${more}`);
 }
-function lockMsg(k,v){if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `🎃 Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
+function lockMsg(k,v){if(k==='atm'&&v==='dynasty')return `🏛️ Reach the ${ATM_TOP()[1]} club level to unlock`;if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `🎃 Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inDrop(k,v)?(S.premium?'⭐ In this week\'s drop: claim it in the Locker':'⭐ Premium item: in this week\'s drop'):'⭐ Premium item: comes back in a future weekly drop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
   const today=gameDate(),days=Object.keys(S.days).sort();
   let wins=0,run=0,bestWinRun=0,lossRun=0,comeback=0,perfect=0,clutchWins=0;
@@ -2191,7 +2198,9 @@ const BREAK_DAYS=3,EV_FREE=true;
 const brkStart=key=>addDays(poStart(key),-BREAK_DAYS);
 const EVENTS=[{n:'Halloween Shootout',k:'2026-10',play:true,d:'Three spooky knockout games on a haunted court, for a pumpkin trophy'},{n:'Winter Classic',k:'2026-12',d:'Three games on an outdoor ice court. Win the snow globe'},{n:'New Year Cup',k:'2027-01',d:'Start the year strong: three games, one cup'},{n:'Spring Slam',k:'2027-03',d:'A slam-dunk contest where your biggest players count double'}].map(e=>({...e,s:brkStart(e.k),e:addDays(poStart(e.k),-1)}));
 const evFor=key=>EVENTS.find(e=>e.k===key&&e.play&&(EV_FREE||S.premium));
+function atmSwatch(v,cls=''){const t=THEMES.find(x=>x[0]===v)||THEMES[0],T=t[3];return `<span class="gatm ${cls}" style="--tb:${T.bg};--tp:${T.panel};--tp2:${T.panel2};--tl:${T.line};--ta:${T.ac||'#ff7a1a'};--ta2:${T.ac2||'#ffb066'};--tt:${T.tex||'none'}"><i></i><i></i><i></i></span>`}
 function itemPreview(k,v){
+  if(k==='atm')return `<span class="dprev" style="display:grid;place-items:center;border:0">${atmSwatch(v,'big')}</span>`;
   if(k==='pbg')return `<span class="dprev gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`;
   if(k==='logo')return `<span class="dprev" style="background:var(--well);display:grid;place-items:center">${logoSvg(v)}</span>`;
   if(k==='bench')return `<span class="dprev" style="display:grid;place-items:center;background:var(--well)">${`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`}</span>`;
@@ -2205,6 +2214,7 @@ function itemPreview(k,v){
 }
 function rewardPic(k,v){
   if(k==='pbg')return `<span class="rwp gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`;
+  if(k==='atm')return `<span class="rwp" style="background:none">${atmSwatch(v)}</span>`;
   if(k==='bench')return `<span class="rwp" style="background:none">${`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`}</span>`;
   if(k==='kit')return `<span class="rwp">${jerseySvg(v,'',23)}</span>`;
   if(k==='ball')return `<span class="rwp gshot">${ballSvg(v)}</span>`;
@@ -2241,7 +2251,7 @@ function headGrid(p){
 function gearGrid(k,cur){
   const fz=ARENA.includes(k)&&arenaLocked(),th=arenaTheme();
   return `${fz?`<span class="frozen-note">🔒 Locked until the new season${th?` · ${th==='spooky'?'Halloween':'Playoff'} theme is on`:''}</span>`:''}<div class="ggrid${fz?' frozen':''}">${COS_LISTS[k].map(([v,n])=>{const ok=cosUnlocked(k,v),pr=isPrem(k,v);if(pr&&!ok&&!S.premium&&!inDrop(k,v))return '';
-    const pic=k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
+    const pic=k==='atm'?atmSwatch(v):k==='pbg'?`<span class="gpbg pbg-${v}">${faceSvg({id:'pbgdemo'})}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='cel'?`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`:k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='logo'?`<span class="glogo">${logoSvg(v)}</span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:`<span class="gshot ${v}">${ballSvg()}${v==='confetti'?'<em>🎉</em>':''}</span>`;
     return `<button class="gtile rr-${rarity(k,v)} ${cur===v?'on':''} ${ok?'':'locked'}" data-a="cos" data-k="${k}" data-v="${v}">${pic}${!ok?`<i class="gb">${pr?'⭐':EV_ONLY[k+':'+v]?EV_ICON[EV_ONLY[k+':'+v]]:'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}${isNew(k,v)?'<i class="gnew">NEW</i>':''}<span class="gn">${n}</span></button>`}).join('')}</div>`;
 }
 const fit16=a=>a.map(r=>(r+'................').slice(0,16));
@@ -2392,7 +2402,7 @@ function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
   const drop=weeklyDrop(),days=diffDays(gameDate(),nextDrop());
   lkShown=allGear().filter(([k,v])=>isNew(k,v)).map(([k,v])=>k+':'+v);
-  const KS=['logo','kit','pbg','head','board','court','bench','ball','shot','cel'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
+  const KS=['atm','logo','kit','pbg','head','board','court','bench','ball','shot','cel'];let have=0,all=0;KS.forEach(k=>{const [h,n]=gearCount(k);have+=h;all+=n});
   const gh=(k,t,d)=>{const [h,n]=gearCount(k);return `<div class="gh"><b>${t}</b><span class="gcount ${h===n?'full':''}">${h}/${n}</span></div>${d?`<div class="small muted">${d}</div>`:''}`};
   return `<div class="top"><h1 class="cond">Locker</h1><span class="small muted">${have} / ${all} collected</span></div>
   <button class="prembar ${P?'on':''}" data-a="lkPrem"><span class="pb-k">⭐ Premium</span><span class="sp pb-t">This week: ${drop.map(([k,v])=>cosName(k,v)).join(', ')}</span><span class="pb-d">${days}d ${lkPremOpen?'▴':'▾'}</span></button>
@@ -2404,7 +2414,7 @@ function awardsView(){
       <button class="btn ${own?'':'primary'}" style="padding:6px 10px;font-size:13px" data-a="claim" data-k="${k}" data-v="${v}" ${own?'disabled':''}>${own?'Owned':P?'Claim':'⭐ Premium'}</button></div>`}).join('')}</div>
     ${P?'':`<ul class="perks"><li><b>Special tournaments</b> alongside the league</li><li><b>Weekly drops</b> of kits, courts, looks and shot effects</li><li><b>Friend leagues</b>: host as many as you like</li><li><b>Deeper stats</b>: full history, heatmaps, trends</li><li><b>Cloud sync</b> and automatic backups</li></ul><div class="small muted">Never more scoring power: premium only changes looks and adds ways to play.</div>`}
   </div>`:''}
-  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['board','court','bench']],['fx','Effects',['ball','shot','cel']]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
+  <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team',['logo','kit','pbg','head']],['arena','Arena',['atm','board','court','bench']],['fx','Effects',['ball','shot','cel']]].map(([k,n,ks])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}${newCount(ks)?'<i class="tdot"></i>':''}</button>`).join('')}</div></div>
   ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
@@ -2414,6 +2424,7 @@ function awardsView(){
         return `<button class="gtile rr-${rarity('head',h.id)} ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${isNew('head',h.id)?'<i class="gnew">NEW</i>':''}${!ok?`<i class="gb">${pr?'⭐':EV_ONLY['head:'+h.id]?'🎃':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
   </div>
 `:''}${lkTab==='arena'?`<div class="card stack">
+    <div id="lk-atm">${gh('atm','Atmosphere','The whole app\'s colours and background.')}${gearGrid('atm',curAtm())}</div>
     <div>${gh('board','Scoreboard')}${gearGrid('board',(C.board)||'classic')}</div>
     <div>${gh('court','Court')}${gearGrid('court',C.court||'wood')}</div>
     <div>${gh('bench','Bench','How your bench rows look on Gameday.')}${gearGrid('bench',(C.bench)||'classic')}</div>
@@ -2494,18 +2505,17 @@ const THEMES=[
  // Earned: the top club level
  ['dynasty','Dynasty','Marble and gold for the top club level',{bg:'#0b0a0e',panel:'#16141b',panel2:'#1e1b25',line:'#3a3242',muted:'#b0a6bd',well:'#08070a',deep:'#100e14',ac:'#facc15',ac2:'#fef08a',tex:'repeating-linear-gradient(35deg,rgba(255,255,255,.028) 0 1px,transparent 1px 23px),repeating-linear-gradient(-55deg,rgba(255,255,255,.02) 0 1px,transparent 1px 37px),radial-gradient(100% 45% at 50% -10%,rgba(250,204,21,.15),transparent 60%)'},'earn'],
 ];
-const themeOk=t=>!t[4]||S.unlockAll||(t[4]==='prem'?!!S.premium:S.xp>=CAREER[CAREER.length-1][0]);
-function applyTheme(){const t0=THEMES.find(t=>t[0]===S.theme),T=(t0&&themeOk(t0)?t0:THEMES[0])[3],r=document.documentElement.style;
+const themeOk=t=>cosUnlocked('atm',t[0]);
+const curAtm=()=>{if(S.theme){S.cos={...(S.cos||{})};if(!S.cos.atm){S.cos.atm=S.theme;if(!['navy','blackout','steel'].includes(S.theme))S.owned={...(S.owned||{}),['atm:'+S.theme]:true}}delete S.theme;save()}return (S.cos&&S.cos.atm)||'navy'};
+function applyTheme(){const t0=THEMES.find(t=>t[0]===curAtm()),T=(t0&&themeOk(t0)?t0:THEMES[0])[3],r=document.documentElement.style;
   r.setProperty('--orange',T.ac||'#ff7a1a');r.setProperty('--orange2',T.ac2||'#ffb066');r.setProperty('--bgtex',T.tex||'none');
   r.setProperty('--bg',T.bg);r.setProperty('--panel',T.panel);r.setProperty('--panel2',T.panel2);r.setProperty('--line',T.line);r.setProperty('--muted',T.muted);r.setProperty('--well',T.well);r.setProperty('--deep',T.deep);
   const m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',T.bg)}
 function settingsView(){
-  const cur=S.theme||'navy';
-  const tile=t=>{const [id,n,d,T,tier]=t,ok=themeOk(t);return `<button class="thm ${cur===id&&ok?'on':''} ${ok?'':'locked'} ${tier?'t-'+tier:''}" data-a="setTheme" data-v="${id}" style="--tb:${T.bg};--tp:${T.panel};--tp2:${T.panel2};--tl:${T.line};--ta:${T.ac||'#ff7a1a'};--ta2:${T.ac2||'#ffb066'};--tt:${T.tex||'none'}">${tier?`<i class="thm-b">${tier==='prem'?'⭐':ok?'🏛️':'🔒'}</i>`:''}<span class="thm-sw"><i></i><i></i><i></i></span><b>${n}</b><small>${d}</small></button>`};
-  const themes=THEMES.filter(t=>!t[4]).map(tile).join('')+`</div><div class="small muted" style="margin:12px 2px 6px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:11px">Premium &amp; earned</div><div class="thmgrid">`+THEMES.filter(t=>t[4]).map(tile).join('');
+  const ca=THEMES.find(t=>t[0]===curAtm())||THEMES[0];
   return `<div class="top"><button class="backbtn" data-a="go" data-v="club">‹ Club</button><h1 class="cond" style="font-size:22px">Settings</h1></div>
-  <div class="sect"><h3 class="cond">Appearance</h3><span class="small muted">App theme</span></div>
-  <div class="thmgrid">${themes}</div>
+  <div class="sect"><h3 class="cond">Appearance</h3></div>
+  <button class="card setrow" data-a="toAtm">${atmSwatch(ca[0])}<div class="sp"><b>Atmosphere · ${ca[1]}</b><small class="muted">The app's colours and background. Collect more in the Locker.</small></div><span class="muted">›</span></button>
   <div class="sect"><h3 class="cond">Sound &amp; vibration</h3></div>
   <div class="card stack"><div class="row"><button class="btn sp ${sndOn()?'primary':''}" data-a="togSound">${sndOn()?'🔊 Sound on':'🔇 Sound off'}</button><button class="btn sp ${hapOn()?'primary':''}" data-a="togHaptics">${hapOn()?'📳 Vibration on':'📴 Vibration off'}</button></div>
   <p class="small muted" style="margin:0">Swish when you score, a cheer for wins and buzzer beaters, a crowd groan for losses, a whistle at tip-off. Vibration works on Android; iPhones don't allow it from web apps.</p></div>
@@ -2969,6 +2979,7 @@ const A={
   clubTab(d){clubTab=d.v;render()},
   careerSheet(){sheet(careerSheetHtml())},
   achInfo(d){const a=ACH.find(x=>x.id===d.v);if(!a)return;sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>${achList([a])}`)},
+  toAtm(){lkTab='arena';view='awards';render();setTimeout(()=>{const e=document.getElementById('lk-atm');if(e)e.scrollIntoView({block:'center'})},50)},
   setTheme(d){const t=THEMES.find(x=>x[0]===d.v);if(t&&!themeOk(t))return toast(t[4]==='prem'?'⭐ Premium theme: turn on the Premium preview in the Locker to use it':`🏛️ Reach the ${CAREER[CAREER.length-1][1]} club level to unlock this theme`);S.theme=d.v;save();render();toast(`🎨 ${THEMES.find(t=>t[0]===d.v)[1]} theme on`)},
   lkPrem(){lkPremOpen=!lkPremOpen;render()},
   lkJump(d){lkTab=d.v;render();const h=document.querySelector('.lkhead');if(h&&h.getBoundingClientRect().top<=0)window.scrollTo({top:h.offsetTop})},
