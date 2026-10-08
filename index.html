@@ -744,6 +744,12 @@ nav svg{width:24px;height:24px}
 .sheet h2{font-size:19px;margin-bottom:4px}
 .grab{width:40px;height:4px;background:var(--line);border-radius:4px;margin:-6px auto 12px}
 .lib{padding:10px 0;border-top:1px solid var(--line)}
+.libcard{padding:11px 12px;margin-bottom:8px;border-radius:14px;background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--pc) 12%,transparent),transparent 55%),var(--panel);border:1px solid var(--line)}
+.lc-top{display:flex;align-items:center;gap:10px}
+.lc-name{font-weight:750;font-size:15px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.lc-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.libcard .lvls{margin-top:9px}
+.rookie{font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;color:#052e16;background:linear-gradient(90deg,#86efac,#22c55e)}
 .lvls{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .lvl{padding:7px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);font-size:13px;font-weight:600}
 .lvl.on{border-color:var(--orange);color:var(--orange2)}
@@ -780,6 +786,9 @@ const POS=[{id:'fitness',n:'Fitness',a:'FIT',c:'#ef4444'},{id:'mind',n:'Mind',a:
 const posById=id=>POS.find(p=>p.id===id);
 const CUSTOM_SHOT='jumper', MAX_CUSTOM=2, BENCH_SIZE=5, INJURY_USES=3, TRANSFER_DAYS=7;
 const L=(l,shot)=>({l,shot});
+// Rookies: habits new to the league this season. Add to this list as new habits/players arrive each season.
+const ROOKIES=new Set(['protein','podcast','screen','plan','budget']);
+const prospect=x=>({id:'lib-'+x.id,face:'lib-'+x.id,pos:x.pos});
 const LIB=[
  {id:'gym',n:'Gym Session',pos:'fitness',lv:[L('30 minutes','three'),L('Full session','dunk')]},
  {id:'steps',n:'Daily Steps',pos:'fitness',lv:[L('5k steps','layup'),L('8k steps','jumper'),L('12k steps','three')]},
@@ -2125,8 +2134,9 @@ function libSheet(ctx){
   const groups=POS.filter(p=>!posFilter||p.id===posFilter).map(pos=>{
     const items=LIB.filter(x=>x.pos===pos.id&&!owned.has(x.id));
     if(!items.length)return '';
-    return `<div class="sect"><h3 class="cond">${pos.n}</h3></div>`+items.map(x=>`<div class="lib"><b>${esc(x.n)}</b>${x.steps?` <span class="small muted">· ${x.steps.length} steps</span>`:''}${x.starter?' <span class="chip">Starter</span>':''}
-      <div class="lvls">${x.lv.map((l,i)=>{const ok=SHOTS[l.shot].pts>=minPts&&!(sell&&sell.lib===x.id&&SHOTS[l.shot].pts<=minPts);return `<button class="lvl" data-a="signLib" data-lib="${x.id}" data-i="${i}" ${ok?'':'disabled'}>${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts} pts</span></button>`}).join('')}</div></div>`).join('');
+    return `<div class="sect"><h3 class="cond">${pos.n}</h3><span class="small muted">${items.length} available</span></div>`+items.map(x=>{const pr=prospect(x);return `<div class="libcard" style="--pc:${pos.c}">
+      <div class="lc-top">${avatar(pr)}<div class="sp" style="min-width:0"><div class="lc-name">${esc(x.n)}${ROOKIES.has(x.id)?'<span class="rookie">Rookie</span>':''}</div><div class="lc-sub">${esc(ident(pr).name)}${x.steps?` · ${x.steps.length} steps`:''}</div></div></div>
+      <div class="lvls">${x.lv.map((l,i)=>{const ok=SHOTS[l.shot].pts>=minPts&&!(sell&&sell.lib===x.id&&SHOTS[l.shot].pts<=minPts);return `<button class="lvl" data-a="signLib" data-lib="${x.id}" data-i="${i}" ${ok?'':'disabled'}>${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts} pts</span></button>`}).join('')}</div></div>`}).join('');
   }).join('');
   const customs=S.squad.filter(p=>p.custom&&(!sell||p.id!==sell.id)).length;
   const canCustom=customs<MAX_CUSTOM&&SHOTS[CUSTOM_SHOT].pts>=minPts&&!(sell&&sell.custom);
@@ -2166,7 +2176,7 @@ function playerSheet(id){
   ${a?`<div class="ecard"><div class="ehead">Squad moves</div>${a}</div>`:''}`);
 }
 const stepRow=v=>`<div class="steprow"><span class="sdot"></span><input class="stepin" maxlength="30" value="${esc(v)}"><button class="sdel" data-a="delStep" aria-label="Remove step">✕</button></div>`;
-function newPlayer(lib,i,slot){const l=lib.lv[i];return{id:uid(),lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0,signedAt:gameDate()}}
+function newPlayer(lib,i,slot){const l=lib.lv[i],pr=ident(prospect(lib));return{id:uid(),face:'lib-'+lib.id,pname:pr.name,num:pr.num,lib:lib.id,name:lib.n,pos:lib.pos,lvl:l.l,shot:l.shot,steps:lib.steps?[...lib.steps]:[],slot,custom:false,seasons:0,signedAt:gameDate()}}
 
 /* ===================== actions ===================== */
 const A={
