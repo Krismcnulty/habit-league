@@ -1673,6 +1673,7 @@ const HEADS=[
  {id:'snowman',n:'Snowman',skin:['#f8fafc','#cbd5e1'],hair:'#111827',style:'bald',band:'none',fx:['snowman'],mouth:'none'},
  {id:'leprechaun',n:'Leprechaun',sk:0,hair:'#c2410c',style:'short',band:'none',fx:['beard','lephat'],mouth:'grin'},
  {id:'blacktop',n:'Blacktop',sk:4,hair:'#1b120c',style:'buzz',band:'none',fx:['cap'],mouth:'smile'},
+ {id:'enforcer',n:'Enforcer',sk:3,hair:'#1b120c',style:'curly',band:'#facc15',fx:['scowl','stache','vandyke'],mouth:'flat'},
  {id:'bigbeard',n:'Big Beard',sk:2,hair:'#2a1a12',style:'long',band:'#fbbf24',fx:['beard'],mouth:'flat'},
  {id:'oldtimer',n:'Old Timer',sk:0,hair:'#e5e7eb',style:'horseshoe',band:'none',fx:['glasses','stache','goatee'],mouth:'grin'},
  {id:'zombie',n:'Zombie',skin:['#8fbf6a','#6a9a4e'],hair:'#2b2f22',style:'spiky',band:'none',fx:['zombie'],mouth:'zgrin'},
@@ -1745,6 +1746,8 @@ function faceSvgHD(p){
   // facial hair
   if(fx.beard){for(let y=12;y<=30;y++)for(let x=5;x<=26;x++){const inside=hdIn(x,y)&&(y>=21||x<=8||x>=23);const below=y>27&&Math.abs(x+.5-16)<=(9-(y-27)*2.6);if(inside||below)set(x,y,(x*7+y*3)%11===0?hl:(x>=22?hd:hair))}
     rect(11,21,20,21,hair);set(10,22,hair);set(21,22,hair)}
+  if(fx.scowl){rect(8,12,12,13,hd);rect(19,12,23,13,hd);rect(11,14,13,14,hd);rect(18,14,20,14,hd);set(8,12,null);set(23,12,null);set(8,12,hdIn(8,12)?sk:null);set(23,12,hdIn(23,12)?sh:null)}
+  if(fx.vandyke){rect(11,21,12,25,hair);rect(19,21,20,25,hair);rect(12,25,19,27,hair);rect(13,28,18,29,hair);set(13,26,hl);set(17,27,hl)}
   if(fx.goatee){rect(13,25,18,27,hair);rect(14,28,17,28,hair);set(14,26,hl);set(15,27,hl)}
   if(fx.stache){rect(11,21,20,21,hair);rect(12,20,19,20,hair);set(11,22,hair);set(20,22,hair);set(13,20,hl)}
   // mouth
@@ -1946,7 +1949,7 @@ const ACH=[
 const cosName=(k,v)=>(COS_LISTS[k].find(x=>x[0]===v)||[,v])[1];
 const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Reserved: drawn items held back for future Store collections. Hidden in the Locker until a collection uses them (or you own them).
-const RESERVED=[['head','bigbeard'],['head','oldtimer'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
+const RESERVED=[['head','enforcer'],['head','bigbeard'],['head','oldtimer'],['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
 const isPrem=(k,v)=>RESERVED.some(([a,b])=>a===k&&b===v);
 // Item Shop: 4 single items from the reserved pool, rotating every day. Priced by rarity; items a collection uses leave the pool.
 const SHOP_RAR={'logo:rocket':'rare','logo:anchor':'rare','ball:galaxy':'rare','pbg:starfield':'rare','head:bigfella':'epic','head:warrior':'epic','head:flash':'epic','kit:galaxy':'epic','court:beach':'epic','board:arcade':'epic','atm:gold':'leg','atm:arcade':'leg','atm:sunset':'leg'};
