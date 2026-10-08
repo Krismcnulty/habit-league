@@ -45,7 +45,7 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .btn.block{width:100%}
 .btn:disabled{opacity:.4}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
-.av{width:46px;height:46px;flex:none;border-radius:12px;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.av{width:52px;height:52px;flex:none;border-radius:12px;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
 .shn{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
 .shn::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:60%;transform:translateX(-160%) skewX(-18deg);animation:shnsweep 3.6s ease-in-out infinite;animation-delay:var(--sd,0s)}
 .shn.r-vet::after{background:linear-gradient(90deg,transparent,rgba(244,114,182,.45),rgba(255,255,255,.35),transparent)}
@@ -92,7 +92,7 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .ls-pl{font-size:12px;color:var(--muted);text-align:center;margin-top:5px}
 .ls-more{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}.ls-more div{display:flex;flex-direction:column;align-items:center;gap:3px}.ls-more small{font-size:11px;color:var(--muted)}
 .gtile.locked .gpbg{opacity:.4;filter:grayscale(.5)}
-.av svg{width:40px;height:40px;image-rendering:pixelated;display:block}
+.av svg{width:46px;height:46px;image-rendering:pixelated;display:block}
 .posn{font-weight:700}
 .pos{font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:6px;background:var(--well);color:var(--orange2);border:1px solid var(--line);min-width:38px;text-align:center}
 .shot-layup{color:var(--layup)}.shot-jumper{color:var(--jumper)}.shot-three{color:var(--three)}.shot-dunk{color:var(--dunk)}
@@ -158,9 +158,9 @@ tr.cut td{border-top:2px dashed var(--orange)}
 .court:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 61px,rgba(80,40,10,.18) 61px 62px),linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.12))}
 .court svg.lines{position:absolute;inset:0;width:100%;height:100%}
 .spot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;width:120px}
-.tok{position:relative;width:54px;height:54px;border-radius:16px;background:var(--pbg);background-size:var(--pbgs,auto);border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
+.tok{position:relative;width:60px;height:60px;border-radius:16px;background:var(--pbg);background-size:var(--pbgs,auto);border:3px solid #2f6fe0;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.35);padding:0}
 .tok .rkb{top:-8px;left:-8px;width:21px;height:21px;font-size:11px}
-.tok svg{width:40px;height:40px;image-rendering:pixelated}
+.tok svg{width:50px;height:50px;image-rendering:pixelated}
 .tok.done{background:linear-gradient(180deg,#14532d,#0f3d22);border-color:#22c55e!important;box-shadow:0 0 0 3px rgba(34,197,94,.35),0 4px 10px rgba(0,0,0,.35)}
 .tok.inj{filter:grayscale(1);opacity:.6}
 .tok .ck{position:absolute;top:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#052e12;font-weight:900;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
@@ -616,7 +616,7 @@ td.tpos{white-space:nowrap}
 .backbtn{background:none;border:0;color:var(--orange2);font-weight:800;font-size:16px;padding:6px 0}
 .prof{position:relative;text-align:center;padding:16px 14px 14px;border-radius:20px;border:1px solid var(--line);background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--pc) 28%,transparent),transparent 70%),linear-gradient(180deg,#151d33,#0e1426)}
 .prof-art{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:8px}
-.prof-head{width:104px;height:104px;border-radius:24px;border:3px solid var(--pc);background:var(--pbg);background-size:var(--pbgs,auto);padding:8px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
+.prof-head{width:104px;height:104px;border-radius:24px;border:3px solid var(--pc);background:var(--pbg);background-size:var(--pbgs,auto);padding:4px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
 .prof-head svg{width:100%;height:100%}
 .prof-jsy{width:95px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 .prof-name{font-size:26px;line-height:1.1}
@@ -1443,7 +1443,10 @@ function faceSvgHD(p){
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
   let rects='';
   for(let y=0;y<N;y++){let x=0;while(x<N){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<N&&out[y][x+w]===c)w++;rects+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
-  return `<svg viewBox="0 0 32 32" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+  // crop to the face so it fills its frame (never tighter than 25px, so plain heads don't look oversized)
+  let x0=N,y0=N,x1=0,y1=0;for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(out[y][x]){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)}
+  const side=Math.min(N,Math.max(25,x1-x0+1,y1-y0+1)),vx=Math.max(0,Math.min(N-side,(x0+x1+1)/2-side/2)),vy=Math.max(0,Math.min(N-side,(y0+y1+1)/2-side/2));
+  return `<svg viewBox="${vx} ${vy} ${side} ${side}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
 }
 function faceSvg(p){
   if(S&&S.hdHeads)return faceSvgHD(p);
