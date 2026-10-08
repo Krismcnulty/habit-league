@@ -2201,7 +2201,7 @@ function profileView(){
   ${levelBlock(p)}
   ${retireBlock(p)}
   <div class="sect"><h3 class="cond">Trophy case</h3></div>
-  ${mine.length?`<div class="card tshelf-card"><div class="tshelf">${mine.join('')}</div></div>`:`<div class="card tshelf-card tc-empty">${COBWEB}<div class="te-k">Empty… for now</div><div class="te-t">Nothing but cobwebs in here</div><p>Win a monthly award to put a trophy on this shelf. Lead one of the races below (${AWARDS.map(a=>a.n).join(', ')}) when the month ends.</p><div class="te-shelf"></div></div>`}
+  ${mine.length?`<div class="card tshelf-card"><div class="tshelf">${mine.join('')}</div></div>`:`<div class="card tshelf-card tc-empty">${COBWEB}<div class="te-k">Empty… for now</div><div class="te-t">Nothing but cobwebs in here</div><p>Win a monthly award to put a trophy on this shelf. Lead one of the races below when the month ends.</p><div class="te-shelf"></div></div>`}
   <div class="sect"><h3 class="cond">Monthly awards</h3><span class="small muted">${monthName(key).split(' ')[0]} race</span></div>
   <div class="card aw-card">${raceRows}<div class="small muted" style="margin-top:8px">Awards are decided on the last day of the month.</div></div>
   <div class="sect"><h3 class="cond">Last 30 days</h3></div>
