@@ -453,11 +453,11 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .bench-playoffs .sect,.bench-playoffs h3{color:#fbbf24}
 .ggrid.frozen{opacity:.45;pointer-events:none;filter:grayscale(.3)}
 .frozen-note{display:inline-block;margin-top:3px;font-size:11.5px;color:var(--muted)}
-.top .form{display:flex;gap:4px;align-self:center;flex:none}
-.form i{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:12px}
-.form .fW{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.45)}
-.form .fL{background:rgba(240,82,82,.15);color:var(--red);border:1px solid rgba(240,82,82,.4)}
-.form i:last-child{box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+.top .wlf{display:flex;gap:4px;align-self:center;flex:none}
+.wlf i{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:12px}
+.wlf .fW{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.45)}
+.wlf .fL{background:rgba(240,82,82,.15);color:var(--red);border:1px solid rgba(240,82,82,.4)}
+.wlf i:last-child{box-shadow:0 0 0 2px rgba(255,255,255,.12)}
 /* ---- themed tournament cards ---- */
 .evc{padding:2px 14px;margin-bottom:12px;--ea:var(--orange2);--eb:var(--line);--et:var(--panel2)}
 .evc .ach{border-top:0}
@@ -476,6 +476,29 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .ev-ss .evt .req{color:#86efac}
 .evc .bracket{margin-top:0}
 .ev-hw .btn{background:#2a1238;border-color:#f97316;color:#fed7aa}
+/* ---- squad: team header + player cards ---- */
+.teamhd{position:relative;overflow:hidden;border-radius:18px;padding:14px 14px 10px;margin-bottom:6px;border:1px solid var(--line);background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--kc) 30%,transparent),transparent 60%),linear-gradient(180deg,#151d33,#0e1426)}
+.th-main{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.th-logo{width:58px;height:58px;flex:none;border-radius:14px;background:#0b1020;border:1px solid var(--line);display:grid;place-items:center;padding:6px}
+.th-logo svg{width:44px;height:44px}
+.th-city{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.th-name{font-size:24px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.th-kit{width:62px;flex:none;background:none;border:0;padding:0;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.teamhd .schips{margin-bottom:0}
+.teamhd .schip{background:rgba(11,16,32,.6)}
+.pcard .prow{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.pform{display:inline-flex;gap:3px}
+.pform i{width:9px;height:9px;border-radius:3px;background:var(--panel2);border:1px solid var(--line)}
+.pform i.y{background:var(--green);border-color:var(--green)}
+.pform i.n{background:rgba(240,82,82,.45);border-color:rgba(240,82,82,.6)}
+.pform i.i{background:#475569;border-color:#475569}
+.pstk{font-size:11.5px;font-weight:800;color:#fdba74}
+.ptag{font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px}
+.ptag.fire{color:#1a0d00;background:linear-gradient(90deg,#fbbf24,#f97316)}
+.ptag.cold{color:#bae6fd;background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.4)}
+.pcard.st-fire{border-color:rgba(249,115,22,.55);box-shadow:0 0 12px rgba(249,115,22,.18)}
+.pcard.st-cold{border-color:rgba(56,189,248,.35)}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1371,7 +1394,20 @@ function statsBlock(p){
   return `<div class="stgrid"><div><b>${st.pct===null?'–':st.pct+'%'}</b><span>Season</span></div><div><b>${st.made}/${st.att}</b><span>Made</span></div><div><b>${st.best}</b><span>Best streak</span></div><div><b>${st.pts}</b><span>Points</span></div></div>
   <div class="form">Last 7: ${st.form.map(x=>`<i class="${x}" title="${{y:'Scored',n:'Missed',i:'Rested',t:'Today'}[x]}"></i>`).join('')}</div>`;
 }
-function squadRow(p){const st=S.firstStart&&pStats(p);return `<div class="pl" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}${st&&st.att?` · <b style="color:${st.pct>=70?'var(--green)':st.pct>=40?'var(--gold)':'var(--red)'}">${st.made}/${st.att}</b>`:''}</div></div><div class="rcol">${pts(p)}${posTag(p)}</div></div>`}
+function pForm(p,n=5){
+  const out=[];let d=addDays(gameDate(),-1);
+  for(let i=0;i<60&&out.length<n;i++,d=addDays(d,-1)){const D=S.days[d];if(!D||!D.locked)break;if(p.signedAt&&d<p.signedAt)break;if(restD(D))continue;
+    out.unshift(D.inj.includes(p.id)?'i':isDone(p,D)?'y':'n')}
+  return out;
+}
+function pStatus(p,f,sk){const played=f.filter(x=>x!=='i'),made=played.filter(x=>x==='y').length;
+  if(sk>=5||(played.length>=5&&made===played.length))return 'fire';
+  if(played.length>=4&&(made<=1||played.slice(-3).every(x=>x==='n')))return 'cold';return ''}
+function squadRow(p){
+  const f=S.firstStart?pForm(p):[],sk=S.firstStart?streak(p):0,stt=pStatus(p,f,sk);
+  const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
+  const dots=f.length?`<span class="pform">${f.map(x=>`<i class="${x}"></i>`).join('')}</span>`:'';
+  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${posTag(p)}</div></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
@@ -1381,8 +1417,14 @@ function squadView(){
   else if(transferOpen())chips.push(`<button class="schip hl" data-a="sinfo" data-v="transfer">🔁 Transfer · ${left}d left</button>`);
   else chips.push(`<button class="schip" data-a="sinfo" data-v="locked">🔒 Locked${se&&se.transferUsed?' · swap used':''}</button>`);
   chips.push(`<button class="schip" data-a="sinfo" data-v="injury">🩹 ${inj} rest${inj===1?'':'s'}</button>`);
-  return `<div class="top"><h1 class="cond">Squad</h1><span class="small muted">Max ${max} pts/day</span></div>
-  <div class="schips">${chips.join('')}</div>
+  const K=KITDEF[myKit()]||KITDEF.home;
+  return `<div class="top"><h1 class="cond">Squad</h1></div>
+  <div class="teamhd" style="--kc:${K.b}">
+    <div class="th-main"><button class="th-logo" data-a="go" data-v="awards" aria-label="Change logo">${logoSvg(myLogo())}</button>
+      <div class="sp" style="min-width:0"><div class="th-city">${esc(S.team.city||'')}</div><div class="th-name cond">${esc(S.team.name)}</div><div class="th-sub">${esc(K.n)} kit · max ${max} pts a day</div></div>
+      <button class="th-kit" data-a="go" data-v="awards" aria-label="Change kit">${jerseySvg(myKit(),S.team.name||'','')}</button></div>
+    <div class="schips">${chips.join('')}</div>
+  </div>
   ${edit&&squadReady()?`<button class="btn primary block" style="margin-bottom:4px" data-a="lockin">Lock in squad</button>`:''}
   ${squadLists(edit)}`;
 }
@@ -1495,7 +1537,7 @@ function formHtml(t,D){
   const m=mode(D),start=t.slice(0,8)+'01',out=[];let p=addDays(t,-1);
   while(p>=start&&out.length<4){const x=S.days[p];if(x&&x.locked&&x.res&&mode(x)===m)out.unshift(x);p=addDays(p,-1)}
   if(!out.length)return '';
-  return `<div class="form" title="Last ${out.length} ${m==='reg'?'league':m==='po'?'playoff':'tournament'} games">${out.map(x=>`<i class="f${x.res}">${x.res}</i>`).join('')}</div>`}
+  return `<div class="wlf" title="Last ${out.length} ${m==='reg'?'league':m==='po'?'playoff':'tournament'} games">${out.map(x=>`<i class="f${x.res}">${x.res}</i>`).join('')}</div>`}
 const titleTheme=()=>arenaTheme()||(S.cos&&S.cos.board)||'classic';
 const arenaLocked=()=>seasonStage()!=='reg';
 const hsLive=()=>{const t=gameDate();return !!S.firstStart&&t>=HSE.start&&t<=HSE.end};
