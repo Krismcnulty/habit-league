@@ -10,6 +10,9 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
+@font-face{font-family:"Mountains of Christmas";src:url(fonts/mountains-of-christmas-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Monoton";src:url(fonts/monoton-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Pacifico";src:url(fonts/pacifico-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Bebas Neue";src:url(fonts/bebas-neue-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Creepster";src:url(fonts/creepster-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Permanent Marker";src:url(fonts/permanent-marker-latin-400-normal.woff2) format("woff2");font-display:swap}
@@ -458,7 +461,11 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 /* ---- themed tournament cards ---- */
 .evc{padding:2px 14px;margin-bottom:12px;--ea:var(--orange2);--eb:var(--line);--et:var(--panel2)}
 .evc .ach{border-top:0}
-.evc .ach b.sp{color:var(--ea)}
+.evc .ach b.sp{color:var(--ea);line-height:1.1}
+.ev-hw .ach b.sp{font-family:Creepster,cursive;font-weight:400;font-size:19px;letter-spacing:.02em;white-space:nowrap;color:#fb923c;text-shadow:0 0 10px rgba(249,115,22,.5),2px 2px 0 #3b0764}
+.ev-wc .ach b.sp{font-family:"Mountains of Christmas",cursive;font-weight:700;font-size:24px;color:#e0f2fe;text-shadow:0 0 8px rgba(125,211,252,.7),0 0 18px rgba(56,189,248,.35)}
+.ev-ny .ach b.sp{font-family:Monoton,cursive;font-weight:400;font-size:18px;letter-spacing:.04em;color:#fde68a;text-shadow:0 0 6px rgba(251,191,36,.7),0 0 16px rgba(244,114,182,.45)}
+.ev-ss .ach b.sp{font-family:Pacifico,cursive;font-weight:400;font-size:20px;color:#fbcfe8;text-shadow:2px 2px 0 #831843;display:block;margin-bottom:6px}
 .evc .ach .ic,.evc .evt .rwp{background:var(--et);border-color:var(--eb)}
 .evc .evt .rwp.tro2{border-color:var(--ea)}
 .evc .evsoon{margin-top:6px;color:var(--ea)}
