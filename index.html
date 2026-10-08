@@ -1712,9 +1712,19 @@ function hsCardBody(today,e,part){
   const D=S.hsDone;const head=D?(D.champ==='me'?'<div class="small" style="margin-top:8px;color:var(--gold)">🏆 You won the Halloween Shootout!</div>':`<div class="small muted" style="margin-top:8px">🏆 ${esc(team(D.champ).city+' '+team(D.champ).n)} won the Shootout</div>`):'<div class="small" style="margin-top:8px;color:var(--green)">Live now · the league is paused while it\'s on</div>';
   return part==='bracket'?hsBracket():head;
 }
+// Clutch preview: 9pm today, trailing, with your biggest starter still to play.
+function clSetup(){
+  const base=PREVIEW&&PREVIEW.base||gameDate();if(PREVIEW)PREVIEW.base=base;window.HL_NOW=base+'T21:00:00';
+  let t=gameDate(),D=ensureDay(t);
+  for(let i=0;i<10&&(D.off||D.locked||(D.ph==='brk'&&!D.ev));i++){window.HL_NOW=addDays(t,1)+'T21:00:00';t=gameDate();D=ensureDay(t)}
+  D.t={};D.inj=[];delete D.cp;delete D.clutch;delete D.clTrail;
+  const live=Math.round(score(D).opp*oppProgress(t)),big=S.squad.filter(p=>p.slot==='court').sort((a,b)=>pv(b)-pv(a))[0];
+  for(const p of [...S.squad].sort((a,b)=>pv(a)-pv(b))){if(p===big)continue;D.t[p.id]=p.steps&&p.steps.length?p.steps.map(()=>true):true;if(score(D).me>=live-1)delete D.t[p.id]}
+}
 function pvBar(){
   let b=document.getElementById('pvbar');if(!PREVIEW){if(b)b.remove();document.body.classList.remove('pv');return}
   if(!b){b=document.createElement('div');b.id='pvbar';document.body.appendChild(b)}document.body.classList.add('pv');
+  if(PREVIEW.mode==='clutch'){b.innerHTML=`<div class="sp"><b>🚨 CLUTCH PREVIEW</b><div class="small">Tap a glowing player to win it · not saved</div></div><button class="btn primary" data-a="clReplay">Replay ↺</button><button class="btn" data-a="pvExit">Exit</button>`;return}
   const t=gameDate(),after=t>HSE.end,{m,r}=hsMe();
   const st=after?(S.hsDone&&S.hsDone.champ==='me'?'🏆 Champions!':'Shootout over'):m?(m.done&&m.winner!=='me'?`Out in the ${HSE.short[r]}`:`${HSE.short[r]} · ${nice(t,{weekday:'short',day:'numeric',month:'short'})}`):'';
   b.innerHTML=`<div class="sp"><b>🎃 SHOOTOUT PREVIEW</b><div class="small">${st} · not saved</div></div><button class="btn primary" data-a="pvNext">${after?'See bracket':(m&&m.done&&m.winner!=='me')?'Skip to end ▶':'Next day ▶'}</button><button class="btn" data-a="pvExit">Exit</button>`;
@@ -1798,6 +1808,7 @@ function clubView(){
     <button class="btn block" data-a="simSeason" ${S.history.some(h=>h.k==='2026-09')?'disabled':''}>Add a simulated September season</button>
     <button class="btn block" data-a="unsim" ${S.history.some(h=>h.sim)?'':'disabled'}>Remove simulated seasons</button>
     <button class="btn block" data-a="hsPreview">🎃 Fast-forward through the Halloween Shootout</button>
+    <button class="btn block" data-a="clPreview">🚨 Simulate clutch time</button>
     <button class="btn block" data-a="fastVet">Make a starter a 3-season veteran</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
     <p class="small muted" style="margin:0">Unlocks every head, logo, scoreboard, court and shot style for testing, including premium ones. Re-locking puts back anything you haven't earned or claimed.</p></div></details>
@@ -2042,11 +2053,13 @@ const A={
   addStep(){const i=document.getElementById('newStep');const v=i.value.trim();if(!v)return i.focus();if(document.querySelectorAll('.stepin').length>=8)return toast('Up to 8 steps');document.getElementById('stepList').insertAdjacentHTML('beforeend',stepRow(v));i.value='';i.focus()},
   delStep(d,el){el.closest('.steprow').remove()},
   hsPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW};closeSheet();window.HL_NOW=HSE.start+'T19:00:00';view='today';render();scrollTo(0,0);toast('🎃 Preview mode · nothing here is saved')},
+  clPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'clutch'};closeSheet();clSetup();view='today';render();scrollTo(0,0);toast('🚨 Clutch preview · nothing here is saved')},
+  clReplay(){clSetup();render();scrollTo(0,0)},
   pvNext(){const t=gameDate();if(t>HSE.end){standTab='events';view='league';render();scrollTo(0,0);return}
     const out=(()=>{const {m}=hsMe();return m&&m.done&&m.winner!=='me'})();if(out){window.HL_NOW=addDays(HSE.end,1)+'T09:00:00';render();scrollTo(0,0);return}
     const D=ensureDay(t);if(score(D).me===0){const rate=.75+Math.random()*.25;for(const p of S.squad)if(!D.inj.includes(p.id)&&Math.random()<rate)D.t[p.id]=p.steps&&p.steps.length?p.steps.map(()=>true):true}
     window.HL_NOW=addDays(t,1)+'T19:00:00';render();scrollTo(0,0)},
-  pvExit(){if(!PREVIEW)return;S=JSON.parse(PREVIEW.bak);if(PREVIEW.now===undefined)delete window.HL_NOW;else window.HL_NOW=PREVIEW.now;PREVIEW=null;const b=document.getElementById('pvbar');if(b)b.remove();document.querySelectorAll('.celeb').forEach(e=>e.remove());view='league';standTab='events';render();scrollTo(0,0);toast('Back to your real league')},
+  pvExit(){if(!PREVIEW)return;const wasCl=PREVIEW.mode==='clutch';S=JSON.parse(PREVIEW.bak);if(PREVIEW.now===undefined)delete window.HL_NOW;else window.HL_NOW=PREVIEW.now;PREVIEW=null;const b=document.getElementById('pvbar');if(b)b.remove();document.querySelectorAll('.celeb').forEach(e=>e.remove());view=wasCl?'club':'league';if(!wasCl)standTab='events';render();scrollTo(0,0);toast('Back to your real league')},
   backup(){const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`habit-league-backup-${fmt(new Date())}.json`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);S.lastBackup=fmt(new Date());save();toast('Backup saved to your downloads')},
   restore(){document.getElementById('restoreFile').click()},
   reset(){if(confirm('Delete your team, squad and every result? This cannot be undone.')&&confirm('Really reset everything?')){S=blank();setupStep=0;view='today';save();render()}},
