@@ -1671,7 +1671,7 @@ function playerBest(p){let best=0,c=0;for(const d of Object.keys(S.days).sort())
 const retiredNums=except=>(S.retired||[]).filter(r=>r.id!==except).map(r=>r.num);
 let headOpen=false;
 function jerseyBlock(p){
-  const id=ident(p),best=playerBest(p),seasons=p.seasons||0,ok=seasons>=3||best>=100,R=(S.retired||[]).find(r=>r.id===p.id);
+  const id=ident(p),best=playerBest(p),seasons=p.seasons||0,ok=best>=100,R=(S.retired||[]).find(r=>r.id===p.id);
   const H=p.head&&HEADS.find(h=>h.id===p.head);
   const status=R?`<div class="small" style="color:var(--gold)">🏅 Retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`
     :ok?`<button class="btn primary block" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`
@@ -1934,7 +1934,7 @@ function clubView(){
   <div class="xp"><i style="width:${c.pct*100}%"></i></div><div class="small muted">${c.hi?`${(c.hi-S.xp).toLocaleString('en-GB')} XP to ${CAREER.find(x=>x[0]===c.hi)[1]}`:'Top of the career ladder'}</div></div>
   <div class="sect"><h3 class="cond">Trophy cabinet</h3></div><div class="card" style="padding:4px 14px">${tro||'<p class="muted">Empty for now. Win the league or top the regular season.</p>'}</div>
   <div class="sect"><h3 class="cond">Rafters</h3><span class="small muted">Retired jerseys</span></div>
-  <div class="card rafters">${(S.retired||[]).length?`<div class="banners">${S.retired.map(r=>`<div class="banner2">${jerseySvg(r.kit,r.name,r.num)}<b>${esc(r.name)}</b><span>${esc(r.habit)}</span><span>${esc(r.why)}</span></div>`).join('')}</div>`:'<p class="muted small" style="margin:0">Keep a player for 3 seasons or hit a 100-day streak to retire their jersey here.</p>'}</div>
+  <div class="card rafters">${(S.retired||[]).length?`<div class="banners">${S.retired.map(r=>`<div class="banner2">${jerseySvg(r.kit,r.name,r.num)}<b>${esc(r.name)}</b><span>${esc(r.habit)}</span><span>${esc(r.why)}</span></div>`).join('')}</div>`:'<p class="muted small" style="margin:0">Hit a 100-day streak on a player to retire their jersey here.</p>'}</div>
   <div class="sect"><h3 class="cond">Achievements</h3><span class="small muted">${ACH.filter(a=>S.ach&&S.ach[a.id]).length}/${ACH.length} · rewards show in the Locker</span></div><div class="card" style="padding:12px 14px 0">${achSummary()}</div>
   <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
   <div class="sect"><h3 class="cond">Sound &amp; vibration</h3></div>
@@ -2025,10 +2025,10 @@ function pCareer(p){
   return{seasons:(p.seasons||0)+1,att,made,pct:att?Math.round(made/att*100):null,best:playerBest(p),pts:made*pv(p),bestMonth:bk?monthName(bk):null,bestMade:bk?bym[bk]:0};
 }
 function retireBlock(p){
-  const id=ident(p),best=playerBest(p),R=(S.retired||[]).find(r=>r.id===p.id),ok=(p.seasons||0)>=3||best>=100;
+  const id=ident(p),best=playerBest(p),R=(S.retired||[]).find(r=>r.id===p.id),ok=best>=100;
   if(R)return `<div class="retire-done">🏅 #${id.num} retired ${nice(R.d,{day:'numeric',month:'short',year:'numeric'})} · hangs in the Club rafters</div>`;
   if(ok)return `<button class="btn primary block" style="margin-top:10px" data-a="retire" data-id="${p.id}">🏅 Retire jersey #${id.num}</button>`;
-  return `<div class="small muted" style="margin:6px 2px 0">Retire their jersey after 3 seasons or a 100-day streak.</div>`;
+  return `<div class="small muted" style="margin:6px 2px 0">Reach a 100-day streak to retire their jersey (best so far: ${best}).</div>`;
 }
 function profileView(){
   const p=S.squad.find(x=>x.id===profId);if(!p){view='squad';return squadView()}
@@ -2368,9 +2368,9 @@ const A={
   sinfo(d){squadInfo(d.v)},
   headInfo(d){toast(cosUnlocked('head',d.v)?'Unlocked: tap a player in Squad to give them this head':lockMsg('head',d.v))},
   unlockAll(){S.unlockAll=!S.unlockAll;save();render();toast(S.unlockAll?'All cosmetics unlocked for testing':'Cosmetics re-locked')},
-  retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;if((S.retired||[]).some(r=>r.id===p.id))return;const id=ident(p),best=playerBest(p);
+  retire(d){const p=S.squad.find(x=>x.id===d.id);if(!p)return;if((S.retired||[]).some(r=>r.id===p.id)||playerBest(p)<100)return;const id=ident(p),best=playerBest(p);
     if(!confirm(`Retire #${id.num} ${id.name}? Their jersey goes up in the Club rafters for good. They keep playing, and #${id.num} can't be used by anyone else.`))return;
-    S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:(p.seasons||0)>=3?`${p.seasons} seasons`:`${best}-day streak`});
+    S.retired=S.retired||[];S.retired.push({id:p.id,name:id.name,num:id.num,habit:p.name,kit:myKit(),d:gameDate(),why:`${best}-day streak`});
     p.num=id.num;save();closeSheet();render();celebrate('stamp','RETIRED',`#${id.num} ${id.name}`)},
   fastVet(){const p=S.squad.find(x=>x.slot==='court');p.seasons=Math.max(3,p.seasons||0);save();render();toast(`${p.name} is now a 3-season veteran`)},
   addStep(){const i=document.getElementById('newStep');const v=i.value.trim();if(!v)return i.focus();if(document.querySelectorAll('.stepin').length>=8)return toast('Up to 8 steps');document.getElementById('stepList').insertAdjacentHTML('beforeend',stepRow(v));i.value='';i.focus()},
