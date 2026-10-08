@@ -653,6 +653,12 @@ body.dragging .benchwrap .pl.drop-hover{outline:2px solid var(--orange);backgrou
 .rsname{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;margin-bottom:5px}
 .rsname b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rsname span{flex:none;font-size:11.5px;font-weight:700}
 .rdays.sm{gap:4px}.rdays.sm .rday{padding:6px 0;font-size:11.5px;border-radius:8px}
+.lvlist{display:flex;flex-direction:column;gap:6px}
+.lvrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
+.lvrow.on{border-color:var(--orange);background:rgba(255,122,26,.10)}
+.lvrow b{font-size:14.5px}.lvrow small{display:block;font-size:12px;color:var(--muted)}
+.lvyou{margin-left:6px;font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;background:var(--orange);color:#1a0d00;vertical-align:2px}
+.lvxp{font-size:12.5px;font-weight:800;color:var(--gold)}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -1666,7 +1672,12 @@ function jerseyBlock(p){
 function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(regStart(se),t):0;
   const body={
-    level:`<h2>${dv.n} level</h2><p>Opponents average <b>${dv.avg} pts</b> a day, which is ${Math.round(PAR_SHARE*100)}% of your squad's ${dv.provisional?'':'starting '}max (${dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE)} pts).${dv.provisional?' It gets set when your squad locks.':' It stays fixed all season.'}</p><p>Knockouts get tougher each round: playoff opponents average 78%, 82% then 85% of your max, and tournament opponents 80%, 83% then 86%.</p><p>Sign harder players and you get ahead of it. Higher levels earn more XP (×${dv.xp} at ${dv.n}).</p>`,
+    level:(()=>{const TH=[0,62,100,145],minMax=thr=>{let m=0;while(Math.round(m*PAR_SHARE)<thr)m++;return m},mx=dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE),cur=DIVS.findIndex(x=>x.id===dv.id),nx=DIVS[cur+1];
+      const rows=DIVS.map((x,k)=>{const lo=minMax(TH[k]),hi=TH[k+1]?minMax(TH[k+1])-1:null;return `<div class="lvrow ${k===cur?'on':''}">${trophyImg('League Champions',34,x.id)}<div class="sp"><b>${x.n}</b>${k===cur?'<span class="lvyou">You</span>':''}<small>Squad max ${hi?`${lo}–${hi}`:`${lo}+`} pts</small></div><span class="lvxp">×${x.xp} XP</span></div>`}).join('');
+      return `<h2>Level · ${dv.n}</h2><p class="small muted" style="margin:0 0 10px">Opponents average <b style="color:var(--text)">${dv.avg} pts</b>, 75% of your ${mx}-pt squad. ${dv.provisional?'It locks with your squad.':'Locked for this season.'}</p>
+      <div class="lvlist">${rows}</div>
+      ${nx?`<p class="small" style="margin:10px 0 0;color:var(--orange2)">${minMax(TH[cur+1])-mx} more squad points to reach ${nx.n}${dv.provisional?'':' next season'}.</p>`:''}
+      <p class="small muted" style="margin:8px 0 0">Knockouts get tougher each round: tournaments 80→86%, playoffs 78→85%.</p>`})(),
     pre:`<h2>Pre-season</h2><p>The first ${PRE_DAYS} days of each season are exhibition games: they don't count towards the table, so use them to try out players and habits.</p><p>Trades are unlimited: tap <b>Trade</b> on any player to swap in a different habit. The squad you finish pre-season with is locked in for the regular season, along with your level. After that you get ${REG_TRADES} trades up to the trade deadline at the end of the regular season, and none in the tournament or playoffs.</p>`,
     transfer:`<h2>Trades</h2><p>You have <b>${tradesLeft(se)} of ${REG_TRADES} trades</b> left this regular season. The trade deadline is <b>${nice(tradeDeadline(se),{weekday:'long',day:'numeric',month:'short'})}</b>; after that your squad is frozen for the tournament and playoffs (subs and rest days still work).</p><p>Sell a player and sign someone of the same difficulty or harder. Your opponents' level stays the same, so a harder signing helps you win.</p>`,
     locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&t>tradeDeadline(se)?': the trade deadline has passed, so there are no trades in the tournament or playoffs':se&&!tradesLeft(se)?' and both trades are used':''}. You can still sub players, rest them, rename them, edit their steps or change their look.</p>`,
