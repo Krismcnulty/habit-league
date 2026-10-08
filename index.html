@@ -1819,7 +1819,7 @@ function clubView(){
   <div class="sect"><h3 class="cond">Past seasons</h3></div><div class="card" style="padding:4px 14px">${hist||'<p class="muted">Your first season is under way.</p>'}</div>
   <div class="sect"><h3 class="cond">Sound &amp; vibration</h3></div>
   <div class="card stack"><div class="row"><button class="btn sp ${sndOn()?'primary':''}" data-a="togSound">${sndOn()?'🔊 Sound on':'🔇 Sound off'}</button><button class="btn sp ${hapOn()?'primary':''}" data-a="togHaptics">${hapOn()?'📳 Vibration on':'📴 Vibration off'}</button></div>
-  <p class="small muted" style="margin:0">Swish when you score, a horn for buzzer beaters and final results, a whistle at tip-off. Vibration works on Android; iPhones don't allow it from web apps.</p></div>
+  <p class="small muted" style="margin:0">Swish when you score, a cheer for wins and buzzer beaters, a crowd groan for losses, a whistle at tip-off. Vibration works on Android; iPhones don't allow it from web apps.</p></div>
   <div class="sect"><h3 class="cond">Backup</h3></div>
   <div class="card stack"><p class="small muted" style="margin:0">Everything is saved on this phone only. Save a backup now and then so you can restore it if you clear Chrome or change phone.</p>
   <div class="row"><button class="btn sp" data-a="backup">Save backup</button><button class="btn sp" data-a="restore">Restore backup</button></div></div>
@@ -1957,7 +1957,7 @@ function showReveal(d,done){
     <div class="gd-stamp ${W?'w':'l'}" id="rvS">${W?'WIN':'LOSS'}${L.ot?'<small>OT</small>':''}</div><div class="gd-skip">Tap to skip</div></div>`,3300,done);
   const a=o.querySelector('#rvA'),b=o.querySelector('#rvB'),t0=performance.now(),DUR=1200;
   (function step(now){const k=Math.min(1,(now-t0)/DUR),e=1-Math.pow(1-k,3);a.textContent=Math.round(L.me*e);b.textContent=Math.round(L.opp*e);
-    if(k<1)requestAnimationFrame(step);else{a.classList.toggle('hi',L.me>=L.opp);b.classList.toggle('hi',L.opp>L.me);o.querySelector('#rvS').classList.add('in');sfx('horn');buzz(W?[60,40,120]:[200]);if(!W)setTimeout(()=>sfx('thud'),300)}})(t0);
+    if(k<1)requestAnimationFrame(step);else{a.classList.toggle('hi',L.me>=L.opp);b.classList.toggle('hi',L.opp>L.me);o.querySelector('#rvS').classList.add('in');if(W){sfx('swish');setTimeout(()=>sfx('cheer'),180);buzz([60,40,120])}else{sfx('ooh');buzz([200])}}})(t0);
   return o;
 }
 function overlay(html,ms,done){
@@ -1983,9 +1983,10 @@ function sfx(name){
   if(!sndOn())return;const c=actx();if(!c||c.state!=='running')return;const t=c.currentTime+.01,out=c.createGain();out.gain.value=.55;out.connect(c.destination);
   if(name==='swish'){noise(c,t,.32,.9,'bandpass',2600,900,1.2,out);noise(c,t+.05,.18,.35,'highpass',5000,0,.7,out)}
   if(name==='tick'){tone(c,'triangle',880,1320,t,.08,.25,out)}
-  if(name==='horn'){ // short, soft arena buzzer: low tone through a muffling filter
-    const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=700;f.Q.value=.5;f.connect(out);
-    tone(c,'square',196,0,t,.42,.09,f);tone(c,'triangle',392,0,t,.42,.06,f)}
+  if(name==='ooh'){ // disappointed crowd: many low voices sliding down, muffled
+    const f=c.createBiquadFilter();f.type='lowpass';f.frequency.value=900;f.Q.value=.7;f.connect(out);
+    for(let i=0;i<9;i++){const f0=150+Math.random()*90;tone(c,'sawtooth',f0,f0*.68,t+Math.random()*.08,1.2,.035,f)}
+    noise(c,t,1.2,.18,'bandpass',600,350,1.2,out)}
   if(name==='whistle'){ // referee's pea whistle: high tone with a fast trill, plus breath
     [[0,.16],[.24,.42]].forEach(([d,len])=>{const t0=t+d,o=c.createOscillator(),lfo=c.createOscillator(),lg=c.createGain(),g=c.createGain();
       o.type='sine';o.frequency.setValueAtTime(2700,t0);o.frequency.linearRampToValueAtTime(3150,t0+.04);
@@ -1994,7 +1995,6 @@ function sfx(name){
       o.connect(g).connect(out);o.start(t0);lfo.start(t0);o.stop(t0+len+.02);lfo.stop(t0+len+.02);
       noise(c,t0,len,.07,'bandpass',3100,0,4,out)})}
   if(name==='cheer'){noise(c,t,1.8,.55,'bandpass',900,1500,.6,out);noise(c,t+.1,1.6,.3,'bandpass',2200,1800,.8,out);for(let i=0;i<6;i++)noise(c,t+.2+i*.17,.07,.5,'bandpass',1800+Math.random()*800,0,3,out)}
-  if(name==='thud'){tone(c,'sine',110,55,t,.45,.5,out)}
 }
 
 /* ===================== sheets ===================== */
@@ -2157,7 +2157,7 @@ const A={
   togHaptics(){S.haptics=!hapOn();save();render();buzz(40)},
   tIntro(){view='today';render();scrollTo(0,0);const D=S.days[gameDate()];if(!D||D.off||D.locked||(D.ph==='brk'&&!D.ev))return toast('No game today to introduce');maybeIntro(true)},
   tReveal(){const ds=Object.keys(S.days).filter(d=>S.days[d].locked&&S.days[d].res).sort();if(!ds.length)return toast('No finished games yet');view='today';render();scrollTo(0,0);showReveal(ds[ds.length-1])},
-  tSound(){actx();if(!sndOn())return toast('Sound is off: turn it on above');['whistle','swish','tick','horn','cheer','thud'].forEach((n,i)=>setTimeout(()=>{sfx(n);toast('🔊 '+n)},i*1300));buzz([40,60,40])},
+  tSound(){actx();if(!sndOn())return toast('Sound is off: turn it on above');['whistle','swish','tick','cheer','ooh'].forEach((n,i)=>setTimeout(()=>{sfx(n);toast('🔊 '+n)},i*1300));buzz([40,60,40])},
   clPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'clutch'};closeSheet();clSetup();view='today';render();scrollTo(0,0);toast('🚨 Clutch preview · nothing here is saved')},
   clReplay(){clSetup();render();scrollTo(0,0)},
   pvNext(){const t=gameDate();if(t>HSE.end){standTab='events';view='league';render();scrollTo(0,0);return}
@@ -2182,7 +2182,7 @@ function celebrate(type,title,sub){
   const old=document.getElementById('celeb');if(old)old.remove();
   const o=document.createElement('div');o.id='celeb';o.className='celeb c-'+type;
   o.innerHTML=`<div class="cel-txt"><b>${esc(title)}</b>${sub?`<span>${esc(sub)}</span>`:''}</div>`;
-  document.body.appendChild(o);sfx(type==='buzzer'?'horn':'cheer');buzz([40,60,40,60,80]);
+  document.body.appendChild(o);sfx('cheer');buzz([40,60,40,60,80]);
   const W=innerWidth,H=innerHeight,R=(a,b)=>a+Math.random()*(b-a);
   const add=(cls,css,txt)=>{const e=document.createElement('i');e.className=cls;for(const[k,v]of Object.entries(css)){if(k.startsWith('--'))e.style.setProperty(k,v);else e.style[k]=v}if(txt)e.textContent=txt;o.appendChild(e);return e};
   const COLS=['#ef4444','#fbbf24','#22c55e','#3b82f6','#ec4899','#a78bfa','#ff7a1a'];
@@ -2204,7 +2204,7 @@ function clutchScore(D,id,cs,before){
 }
 function buzzerStamp(){
   try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return toast('🚨 Buzzer beater! You\'ve taken the lead')}catch(e){}
-  sfx('horn');buzz([80,50,160]);
+  sfx('swish');setTimeout(()=>sfx('cheer'),180);buzz([80,50,160]);
   const o=document.createElement('div');o.className='bzb';o.innerHTML='<b>Buzzer</b><b>Beater</b>';document.body.appendChild(o);
   const app=document.getElementById('app');app.classList.add('shake');setTimeout(()=>app.classList.remove('shake'),500);
   setTimeout(()=>o.classList.add('out'),1700);setTimeout(()=>o.remove(),2200);o.addEventListener('click',()=>o.remove());
