@@ -397,7 +397,7 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .headbtn .hedit{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);white-space:nowrap;background:var(--orange);color:#1a0d00;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .headbtn.open{box-shadow:0 0 0 3px rgba(255,122,26,.5),0 6px 14px rgba(0,0,0,.35)}
 .headbtn.open .hedit{background:var(--text)}
-.nmrow{display:flex;gap:10px;margin-top:14px}
+.nmrow{display:flex;gap:10px;margin-top:22px}
 /* nav */
 nav{position:fixed;left:0;right:0;bottom:0;background:rgba(11,16,32,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
 nav[hidden]{display:none}
@@ -1194,7 +1194,6 @@ function jerseyBlock(p){
       <button class="headbtn ${headOpen?'open':''}" data-a="toggleHeads" style="border-color:${posById(p.pos).c}" aria-label="Change head">${faceSvg(p)}<span class="hedit">${headOpen?'✕ Close':'✏️ Change'}</span></button>
       <div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div>
     </div>
-    <div class="small muted" style="text-align:center;margin:6px 0 0">${H?esc(H.n):'Scouted'} head · tap the face to change it</div>
     <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
     <div class="nmrow"><div class="sp"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}"></div>
       <div style="width:84px"><label class="flab">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" ${R?'disabled':''}></div></div>
