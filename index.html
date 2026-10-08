@@ -235,18 +235,19 @@ td.tpos{white-space:nowrap}
 .prem.on{border-color:var(--gold)}
 .prembar{display:flex;align-items:center;gap:8px;width:100%;padding:9px 12px;border-radius:12px;border:1px solid rgba(251,191,36,.35);background:radial-gradient(120% 140% at 100% 0%,rgba(251,191,36,.14),transparent 60%),var(--panel);color:var(--text);font:inherit;text-align:left;margin-bottom:10px}
 .prembar.on{border-color:var(--gold)}.pb-k{font-weight:900;font-size:13px;color:var(--gold);white-space:nowrap}.pb-t{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.pb-d{font-size:12px;font-weight:800;color:var(--orange2);white-space:nowrap}
-.lkhead{position:sticky;top:0;z-index:5;margin:0 -16px;padding:8px 16px 8px;background:linear-gradient(180deg,var(--bg) 85%,transparent)}
+.lkhead{position:sticky;top:0;z-index:5;margin:0 -16px;padding:8px 16px 0;background:var(--bg)}
 .lkprev{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:8px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),#0f1424)}
 .lp-court{position:relative;margin:0;border-width:2px;border-radius:10px}
 .lp-court svg{position:absolute;inset:0;width:100%;height:100%}
 .lp-logo{width:40px;height:40px;flex:none}.lp-logo svg{width:100%;height:100%;image-rendering:pixelated}
 .lp-ball{position:absolute;right:22%;bottom:26%;z-index:2}.lp-ball .ball{width:24px;height:24px;margin:0}
-.lp-board.gboard{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:auto;height:20px;font-size:11px;padding:0 6px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.lp-board.gboard{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:auto;height:27px;font-size:15px;padding:0 9px;z-index:3;box-shadow:0 2px 6px rgba(0,0,0,.5)}
 .lp-side{display:flex;flex-direction:column;justify-content:center;gap:8px;min-width:0}.lp-row{display:flex;align-items:center;justify-content:center;gap:10px}
 .lp-jsy svg{width:46px;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
 .lp-bench.gbench{width:64px}.lp-bench .pl{height:13px}
 .lp-fx{display:flex;flex-direction:column;gap:4px}.lp-fx span{font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:8px;background:#0c1226;border:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lp-fx small{color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
-.lktabs{margin:6px 0 0}.lkhint{margin:10px 2px 8px;text-align:right}.lkchips{display:flex;gap:6px;margin-top:6px}.lkchips button{flex:1;padding:5px 0;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px;font-weight:800}
+.lktabs{margin:8px 0 0;border-radius:14px 14px 0 0;border-bottom:0;background:var(--panel)}
+.lkhead+.card{margin-top:0;border-top-left-radius:0;border-top-right-radius:0}.lkchips{display:flex;gap:6px;margin-top:6px}.lkchips button{flex:1;padding:5px 0;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px;font-weight:800}
 .gh{display:flex;align-items:center;justify-content:space-between}.gcount{font-size:11.5px;font-weight:800;color:var(--muted);padding:1px 7px;border-radius:99px;background:#0c1226;border:1px solid var(--line)}.gcount.full{color:#1a1000;background:var(--gold);border-color:var(--gold)}
 #lk-team,#lk-arena,#lk-fx{scroll-margin-top:200px}
 .switch{width:50px;height:30px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);position:relative;flex:none}
@@ -2110,22 +2111,19 @@ function awardsView(){
     ${P?'':`<ul class="perks"><li><b>Special tournaments</b> alongside the league</li><li><b>Weekly drops</b> of kits, courts, looks and shot effects</li><li><b>Friend leagues</b>: host as many as you like</li><li><b>Deeper stats</b>: full history, heatmaps, trends</li><li><b>Cloud sync</b> and automatic backups</li></ul><div class="small muted">Never more scoring power: premium only changes looks and adds ways to play.</div>`}
   </div>`:''}
   <div class="lkhead">${lockerPreview()}<div class="tabs lktabs">${[['team','Team'],['arena','Arena'],['fx','Effects']].map(([k,n])=>`<button class="${lkTab===k?'on':''}" data-a="lkJump" data-v="${k}">${n}</button>`).join('')}</div></div>
-  ${lkTab==='team'?`<div class="lkhint small muted">🔒 earn in Club · ⭐ premium</div>
-  <div class="card stack">
+  ${lkTab==='team'?`<div class="card stack">
     <div>${gh('logo','Team logo')}${gearGrid('logo',myLogo())}</div>
     <div>${gh('kit','Kit','Shows on player cards and retired jerseys.')}${gearGrid('kit',myKit())}</div>
     <div>${gh('head','Player heads','Give unlocked heads to players in the Squad tab.')}
       <div class="ggrid">${HEADS.map(h=>{const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(pr&&!ok&&!S.premium&&!inDrop('head',h.id))return '';
         return `<button class="gtile ${ok?'':'locked'}" data-a="headInfo" data-v="${h.id}">${!ok?`<i class="gb">${pr?'⭐':EV_ONLY['head:'+h.id]?'🎃':'🔒'}</i>`:pr?'<i class="gb">⭐</i>':''}<span class="glogo">${faceSvg({id:'x',head:h.id})}</span><span class="gn">${h.n}</span></button>`}).join('')}</div></div>
   </div>
-`:''}${lkTab==='arena'?`<div class="lkhint small muted">🔒 earn in Club · ⭐ premium</div>
-  <div class="card stack">
+`:''}${lkTab==='arena'?`<div class="card stack">
     <div>${gh('board','Scoreboard')}${gearGrid('board',(C.board)||'classic')}</div>
     <div>${gh('court','Court')}${gearGrid('court',C.court||'wood')}</div>
     <div>${gh('bench','Bench','How your bench rows look on Gameday.')}${gearGrid('bench',(C.bench)||'classic')}</div>
   </div>
-`:''}${lkTab==='fx'?`<div class="lkhint small muted">🔒 earn in Club · ⭐ premium</div>
-  <div class="card stack">
+`:''}${lkTab==='fx'?`<div class="card stack">
     <div>${gh('ball','Ball')}${gearGrid('ball',C.ball||'classic')}</div>
     <div>${gh('shot','Shot style')}${gearGrid('shot',C.shot||'classic')}</div>
     <div>${gh('cel','Win celebration','Plays when you see a win, or score a perfect game. Tap your current one to preview it.')}${gearGrid('cel',C.cel||'confetti')}</div>
