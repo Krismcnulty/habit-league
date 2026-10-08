@@ -471,6 +471,41 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .sb-arcade .score{font-family:"Press Start 2P","Courier New",monospace;font-size:26px;gap:4px}
 .sb-arcade .phase,.sb-arcade .clock{font-family:"Press Start 2P","Courier New",monospace;font-size:8.5px;line-height:1.6}
 .sb-chalk .score,.sb-chalk .phase,.sb-chalk .clock,.sb-chalk .status,.sb-chalk .tmname,.sb-chalk .rec{font-family:"Permanent Marker","Chalkboard SE","Marker Felt",cursive;font-weight:400}
+/* ---- tournament bracket ---- */
+.bracket{display:grid;grid-template-columns:1fr 1fr 1fr 40px;gap:0 12px;margin:4px 0 14px;padding:12px 10px 14px;border-radius:16px;background:radial-gradient(120% 80% at 50% 0%,#2a1240,#0d0716 75%);border:1px solid #4c1d95}
+.bk-col{display:flex;flex-direction:column;min-width:0}
+.bk-h{font:800 11px/1.1 "Arial Narrow",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#a78bfa;text-align:center;height:28px}
+.bk-h small{display:block;font-size:9.5px;font-weight:600;letter-spacing:.02em;text-transform:none;color:#7c6aa8;margin-top:2px}
+.bk-h.on{color:#fb923c}.bk-h.on small{color:#fdba74}
+.bk-body{flex:1;display:flex;flex-direction:column;justify-content:space-around;min-height:260px}
+.bk-pair{flex:1;display:flex;flex-direction:column;justify-content:space-around;position:relative}
+.bk-pair:after{content:"";position:absolute;right:-7px;top:25%;bottom:25%;width:6px;border:1.5px solid #6d28d9;border-left:0;border-radius:0 4px 4px 0}
+.r1 .bk-m,.r2 .bk-m{position:relative}
+.r1 .bk-m:before,.r2 .bk-m:before{content:"";position:absolute;left:-7px;top:50%;width:6px;border-top:1.5px solid #6d28d9}
+.r2 .bk-m:after{content:"";position:absolute;right:-7px;top:50%;width:6px;border-top:1.5px solid #6d28d9}
+.bk-m{background:#140a22;border:1px solid #3b2161;border-radius:8px;padding:3px 5px;margin:3px 0}
+.bk-m.mine{border-color:#f97316;box-shadow:0 0 0 1px rgba(249,115,22,.25)}
+.bk-m.live{border-color:#7c3aed;box-shadow:0 0 8px rgba(124,58,237,.45)}
+.bk-m.mine.live{border-color:#fb923c;box-shadow:0 0 10px rgba(249,115,22,.5)}
+.bk-ln{display:flex;align-items:center;gap:4px;height:20px;font-size:11.5px;color:#d8cfe9;min-width:0}
+.bk-ln+.bk-ln{border-top:1px solid #2a1846}
+.bk-ln .bk-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-ln b{font-variant-numeric:tabular-nums;font-size:12.5px;color:#e9d5ff}
+.bk-ln.w{color:#fff;font-weight:700}.bk-ln.w b{color:#fdba74}
+.bk-ln.l{opacity:.45}
+.bk-ln.me .bk-n{color:#fdba74;font-weight:700}
+.bk-ln.tbd{color:#6b5a8a}
+.bk-chip{flex:none;width:16px;height:16px;border-radius:4px;display:grid;place-items:center;font:900 6.5px/1 system-ui;color:#fff;background:#3b2161;overflow:hidden}
+.bk-chip.ab{width:30px;height:15px;border-radius:4px;font:900 8.5px/1 system-ui;letter-spacing:.03em}
+.bk-chip.ab.tbd{background:none;border:1px dashed #4c2a7a;color:#6b5a8a}
+.bk-chip.dot{width:9px;height:9px;border-radius:3px;margin:0 2px 0 1px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.bk-chip.logo{background:none;width:14px;height:14px}.bk-chip.logo svg{width:14px;height:14px}.bk-chip svg{width:16px;height:16px}
+.bk-cup{display:flex;flex-direction:column;align-items:center;gap:6px}
+.bk-tro svg{width:38px;height:38px;filter:grayscale(.6) brightness(.7)}
+.bk-cup.won .bk-tro svg{filter:drop-shadow(0 0 8px rgba(251,191,36,.6))}
+.bk-cup .bk-chip{width:24px;height:24px;font-size:8px;border-radius:6px}.bk-cup .bk-chip svg{width:24px;height:24px}
+.bk-q{width:24px;height:24px;border-radius:6px;border:1px dashed #6d28d9;color:#7c6aa8;display:grid;place-items:center;font-weight:900;font-size:12px}
+.r2 .bk-m:after{right:-13px;width:12px}
 /* ---- Halloween Shootout ---- */
 .court-spooky{background:repeating-linear-gradient(90deg,#2a1838 0 22px,#24142f 22px 23px,#2f1b3f 23px 47px,#1f1129 47px 48px);border-color:#f97316}
 .court-spooky svg.lines{stroke:#fb923c}
@@ -1461,19 +1496,27 @@ function hsStrip(){
     <div class="hsscore"><span class="${me>them?'up':''}">You ${me}</span><i>–</i><span>${them} ${esc(team(opp).n)}</span></div></div><span class="mvc">›</span></div>`;
 }
 function hsBracket(){
-  const today=gameDate(),{rounds,days}=shootout();
-  return HSE.rounds.map((n,r)=>{const ms=rounds[r];const d=days[r];
-    return `<div class="small cond" style="margin:12px 0 6px;color:#c084fc">${n} · ${nice(d[0],{weekday:'short',day:'numeric',month:'short'})}</div>`+
-     (ms?ms.map(m=>`<div class="series hs ${m.a==='me'||m.b==='me'?'mine':''}"><div class="ln ${m.winner===m.a?'win':''}"><span>${mini(m.a)}${esc(team(m.a).n)}</span><b>${m.started?m.ta:'–'}</b></div><div class="ln ${m.winner===m.b?'win':''}"><span>${mini(m.b)}${esc(team(m.b).n)}</span><b>${m.started?m.tb:'–'}</b></div></div>`).join(''):'<div class="series muted">To be decided</div>');
-  }).join('');
+  const today=gameDate(),{rounds,days}=shootout(),T=EV_TROPHY['Halloween Shootout'];
+  const live=days.findIndex(d=>d[0]===today);
+  const slot=(id,sc,m,started)=>{if(!id)return `<div class="bk-ln tbd"><span class="bk-chip ab tbd">TBD</span><span class="bk-n"></span><b></b></div>`;
+    const cls=m&&m.winner?(m.winner===id?'w':'l'):'';
+    const chip=id==='me'?`<span class="bk-chip logo">${logoSvg(myLogo())}</span>`:`<span class="bk-chip ab" style="background:${team(id).c}">${esc(team(id).ab)}</span>`;
+    return `<div class="bk-ln ${cls} ${id==='me'?'me':''}">${chip}${id==='me'?'<span class="bk-n">You</span>':'<span class="bk-n"></span>'}<b>${started?sc:''}</b></div>`};
+  const match=(r,i)=>{const m=rounds[r]&&rounds[r][i];
+    return `<div class="bk-m ${m&&(m.a==='me'||m.b==='me')?'mine':''} ${r===live&&m&&!m.done?'live':''}">${slot(m&&m.a,m&&m.ta,m,m&&m.started)}${slot(m&&m.b,m&&m.tb,m,m&&m.started)}</div>`};
+  const col=(r,n)=>{const ms=[...Array(n)].map((_,i)=>match(r,i));const pairs=[];for(let i=0;i<ms.length;i+=2)pairs.push(n>1?`<div class="bk-pair">${ms[i]}${ms[i+1]}</div>`:ms[i]);
+    return `<div class="bk-col r${r}"><div class="bk-h ${r===live?'on':''}">${HSE.short[r]}<small>${nice(days[r][0],{weekday:'short',day:'numeric'})}</small></div><div class="bk-body">${pairs.join('')}</div></div>`};
+  const fin=rounds[2]&&rounds[2][0],ch=fin&&fin.winner;
+  const champ=`<div class="bk-col champ"><div class="bk-h">🏆</div><div class="bk-body"><div class="bk-cup ${ch?'won':''} ${ch==='me'?'me':''}"><span class="bk-tro">${pixArt(T.rows,'allstar',T.pal)}</span>${ch?(ch==='me'?`<span class="bk-chip logo">${logoSvg(myLogo())}</span>`:`<span class="bk-chip" style="background:${team(ch).c}">${esc(team(ch).ab)}</span>`):'<span class="bk-q">?</span>'}</div></div></div>`;
+  return `<div class="bracket">${col(0,4)}${col(1,2)}${col(2,1)}${champ}</div>`;
 }
-function hsCardBody(today,e){
+function hsCardBody(today,e,part){
   if(!S.firstStart)return '';
-  if(today<e.s)return `<div class="small" style="margin-top:8px;color:var(--green)">Free in the prototype · starts automatically on ${nice(e.s,{weekday:'long',day:'numeric',month:'short'})}</div>
+  if(today<e.s)return part==='bracket'?'':`<div class="small" style="margin-top:8px;color:var(--green)">Free in the prototype · starts automatically on ${nice(e.s,{weekday:'long',day:'numeric',month:'short'})}</div>
     <div class="small muted" style="margin-top:4px">8 teams, one game a day: quarterfinal, semifinal, final. The league pauses for these 3 days. Reach the semis to win the Night owl logo.</div>
     <button class="btn block" style="margin-top:8px" data-a="hsPreview">▶ Preview the Shootout</button>`;
   const D=S.hsDone;const head=D?(D.champ==='me'?'<div class="small" style="margin-top:8px;color:var(--gold)">🏆 You won the Halloween Shootout!</div>':`<div class="small muted" style="margin-top:8px">🏆 ${esc(team(D.champ).city+' '+team(D.champ).n)} won the Shootout</div>`):'<div class="small" style="margin-top:8px;color:var(--green)">Live now · the league is paused while it\'s on</div>';
-  return head+hsBracket();
+  return part==='bracket'?hsBracket():head;
 }
 function pvBar(){
   let b=document.getElementById('pvbar');if(!PREVIEW){if(b)b.remove();document.body.classList.remove('pv');return}
@@ -1486,7 +1529,7 @@ function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.
   return `<div class="card" style="padding:2px 14px">${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
     const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small></div>`)).join('');
     return `<div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
-      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e):`<div class="small" style="margin-top:6px;color:var(--orange2)">Coming soon in the prototype</div>`}</div></div>`}).join('')}</div>`;
+      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):`<div class="small" style="margin-top:6px;color:var(--orange2)">Coming soon in the prototype</div>`}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}`}).join('')}</div>`;
 }
 function awardsView(){
   const C=S.cos||{};const P=!!S.premium;
