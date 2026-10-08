@@ -200,6 +200,17 @@ nav button.new:after{content:"";position:absolute;top:4px;right:calc(50% - 18px)
 .stk{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:#0c1226;border:1px solid var(--line)}
 .stk b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stk em{display:block;font-style:normal;font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stk em.g{color:var(--green)}.stk em.w{color:var(--gold)}
 .stk.won{border-color:var(--gold)}
+.recap{margin-bottom:12px;padding:14px;border-radius:16px;border:1px solid var(--gold);background:radial-gradient(110% 140% at 0% 0%,rgba(251,191,36,.18),transparent 60%),linear-gradient(180deg,#1b1a2e,#0f1020)}
+.recap.out{border-color:#475569;background:radial-gradient(110% 140% at 0% 0%,rgba(148,163,184,.14),transparent 60%),linear-gradient(180deg,#1b1a2e,#0f1020)}
+.rcp-k{font-size:10.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}.recap.out .rcp-k{color:var(--muted)}
+.rcp-head{display:flex;align-items:center;gap:12px;margin:6px 0 12px}
+.rcp-pos{font-family:"Bebas Neue",sans-serif;font-size:46px;line-height:1;color:#fde68a;text-shadow:0 0 14px rgba(251,191,36,.4)}.recap.out .rcp-pos{color:#cbd5e1;text-shadow:none}
+.rcp-head b{display:block;font-family:"Bebas Neue",sans-serif;font-weight:400;font-size:28px;line-height:1;letter-spacing:.03em}.rcp-head small{font-size:12.5px;color:var(--muted)}
+.rcp-g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.rcp-t{padding:8px 6px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line);text-align:center;min-width:0}
+.rcp-t small{display:block;font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.rcp-t b{display:block;font-size:15px;margin:3px 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rcp-t b .rcp-mvp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;font-size:13px;line-height:1.15;color:var(--text)}
+.rcp-t span{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .race{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),#0f1424)}
 .race.in{border-color:rgba(34,197,94,.55);background:radial-gradient(100% 140% at 0% 0%,rgba(34,197,94,.14),transparent 60%),linear-gradient(180deg,var(--panel),#0f1424)}
 .race.out{border-color:rgba(255,122,26,.55);background:radial-gradient(100% 140% at 0% 0%,rgba(255,122,26,.14),transparent 60%),linear-gradient(180deg,var(--panel),#0f1424)}
@@ -1713,6 +1724,19 @@ function raceCard(se,t,st,G,marks){
   else{const g=st[PO_TEAMS-1].w-me.w;head=`${ord(i+1)} · outside the top ${PO_TEAMS}`;sub=g>0?`${pl(g)} behind 8th`:'Level with 8th on wins';cls='out';tag='Chasing'}
   return `<div class="race ${cls}"><div class="sp"><div class="rc-k">Playoff race <span class="rc-tag">${tag}</span></div><b>${head}</b><small>${sub}</small></div>${over?'':`<div class="rc-left"><b>${G}</b><small>game${G===1?'':'s'} left</small></div>`}</div>`;
 }
+// Season recap: shown on the Table once the regular season ends (or on demand from Testing).
+function recapCard(se,st){
+  const ord=n=>n+(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%100]||'th');
+  const i=st.findIndex(x=>x.id==='me'),me=st[i],end=brkStart(se.key);let run=0,best=0,big=null;const pts={};
+  for(let d=regStart(se);d<end;d=addDays(d,1)){const D=S.days[d];if(!D||!D.locked||D.ph!=='reg')continue;
+    if(D.res==='W'){run++;best=Math.max(best,run);const m=D.me-D.opp;if(!big||m>big.m)big={m,d,opp:D.oppId,me:D.me,o:D.opp}}else run=0;
+    for(const p of S.squad)if(!D.inj.includes(p.id)&&isDone(p,D))pts[p.id]=(pts[p.id]||0)+pv(p)}
+  const mvpId=Object.keys(pts).sort((a,b)=>pts[b]-pts[a])[0],mvp=mvpId&&S.squad.find(p=>p.id===mvpId);
+  const inPO=i<PO_TEAMS,tile=(k,v,sm)=>`<div class="rcp-t"><small>${k}</small><b>${v}</b>${sm?`<span>${sm}</span>`:''}</div>`;
+  return `<div class="recap ${inPO?'in':'out'}"><div class="rcp-k">${monthName(se.key)} · Regular season recap</div>
+    <div class="rcp-head"><div class="rcp-pos">${ord(i+1)}</div><div class="sp"><b>${me.w}–${me.l}</b><small>${inPO?`Playoffs as the ${ord(i+1)} seed`:'Missed the playoffs'} · ${divOf(se).n}</small></div></div>
+    <div class="rcp-g">${tile('Best streak',best?`${best} W`:'–',best>=3?'🔥':'')}${tile('Biggest win',big?`+${big.m}`:'–',big?`${big.me}–${big.o} v ${esc(team(big.opp).ab)}`:'')}${tile('Team MVP',mvp?`<span class="rcp-mvp">${esc(mvp.name)}</span>`:'–',mvp?`${pts[mvpId]} pts`:'')}</div></div>`;
+}
 function trophyCard(se){
   if(!se)return '';const tv=divOf(se);
   return `<div class="card stakes sm"><div class="row" style="margin-bottom:6px"><b class="cond sp" style="font-size:12px;color:var(--muted)">Season trophies</b><span class="small" style="color:var(--orange2);font-size:11.5px">${tv.n} · ${TIER_METAL[tv.id]}</span></div>
@@ -1729,7 +1753,7 @@ function leagueView(){
     const y=addDays(t,-1),prev=y>regStart(se)?standings(se,y):null,pi={};if(prev&&prev.some(x=>x.gp))prev.forEach((x,k)=>pi[x.id]=k);
     const mv=(id,k)=>{if(pi[id]==null||pi[id]===k)return '<i class="mv"></i>';const d=pi[id]-k;return `<i class="mv ${d>0?'up':'dn'}">${d>0?'▲':'▼'}${Math.abs(d)}</i>`};
     const mk=id=>marks[id]?`<i class="clx ${marks[id]}" title="${marks[id]==='x'?'Clinched a playoff spot':'Eliminated'}">${marks[id]}</i>`:'';
-    body=`${raceCard(se,t,st,G,marks)}<div class="card" style="padding:6px 8px"><table><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th><th>STRK</th></tr>${st.map((x,i)=>`<tr class="${x.id==='me'?'me':''} ${i===8?'cut':''}"><td class="tpos">${i+1}${mv(x.id,i)}</td><td>${mini(x.id)}${esc(team(x.id).n)}${mk(x.id)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.gp?x.pct.toFixed(3).replace(/^0/,''):'—'}</td><td>${x.gb?x.gb:'—'}</td><td>${x.strk}</td></tr>`).join('')}</table></div>
+    body=`${t>=end||S.demoRecap?recapCard(se,st):''}${t>=end?'':raceCard(se,t,st,G,marks)}<div class="card" style="padding:6px 8px"><table><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th><th>GB</th><th>STRK</th></tr>${st.map((x,i)=>`<tr class="${x.id==='me'?'me':''} ${i===8?'cut':''}"><td class="tpos">${i+1}${mv(x.id,i)}</td><td>${mini(x.id)}${esc(team(x.id).n)}${mk(x.id)}</td><td>${x.w}</td><td>${x.l}</td><td>${x.gp?x.pct.toFixed(3).replace(/^0/,''):'—'}</td><td>${x.gb?x.gb:'—'}</td><td>${x.strk}</td></tr>`).join('')}</table></div>
     <p class="small muted" style="margin:10px 4px">Top 8 make the playoffs (${nice(poStart(se.key))}). <i class="clx x">x</i> clinched · <i class="clx e">e</i> eliminated · ▲▼ places moved since yesterday.</p>`;
   }else if(leagueTab==='games'){
     const ps=poStart(se.key);let up='';let d=t,i=0;
@@ -2108,6 +2132,7 @@ function clubView(){
     <button class="btn block" data-a="tReveal">📣 Replay the last final buzzer reveal</button>
     <button class="btn block" data-a="tSound">🔊 Play every sound</button>
     <button class="btn block" data-a="tAwards">${S.demoAwards?'🏅 Remove sample player awards':'🏅 Add sample player awards'}</button>
+    <button class="btn block" data-a="tRecap">${S.demoRecap?'📋 Hide the season recap':'📋 Show the season recap now'}</button>
     <button class="btn block" data-a="fast100">🏅 Give a player a 100-day streak</button>
     <button class="btn block" data-a="tRanks">⭐ Set a player's rank / makes</button>
     <button class="btn block" data-a="unlockAll">${S.unlockAll?'Re-lock cosmetics':'Unlock all cosmetics'}</button>
@@ -2568,6 +2593,7 @@ const A={
   mdPreview(){if(PREVIEW)return;if(!S.firstStart)return toast('Tip off a season first');PREVIEW={bak:JSON.stringify(S),now:window.HL_NOW,mode:'draft'};closeSheet();
     const nk=nextKey(skey(gameDate()));window.HL_NOW=nk+'-01T06:00:00';view='squad';render();scrollTo(0,0);toast(`📝 Mock draft for ${monthName(nk)} · nothing here is saved`)},
   mdClear(){if(!confirm('Release every player and draft from scratch? (Mock only)'))return;S.squad=[];render();scrollTo(0,0)},
+  tRecap(){S.demoRecap=!S.demoRecap;if(!S.demoRecap)delete S.demoRecap;save();render();toast(S.demoRecap?'Season recap shows on the Standings table':'Season recap hidden')},
   tAwards(){
     if(S.demoAwards){delete S.demoAwards;save();render();return toast('Sample awards removed')}
     const ids=[...S.squad].sort((a,b)=>pv(b)-pv(a)).map(p=>p.id),bench=S.squad.filter(p=>p.slot==='bench').map(p=>p.id),pick=(k,i)=>ids[(k+i)%ids.length];
