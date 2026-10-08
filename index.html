@@ -569,6 +569,18 @@ td.tpos{white-space:nowrap}
 .card.store.col-neon{background-image:linear-gradient(180deg,transparent 78%,rgba(217,70,239,.08) 78%),repeating-linear-gradient(90deg,transparent 0 30px,rgba(34,211,238,.13) 30px 31px),repeating-linear-gradient(0deg,transparent 0 22px,rgba(217,70,239,.14) 22px 23px),radial-gradient(120% 22% at 50% 0%,rgba(217,70,239,.35),transparent 70%),linear-gradient(180deg,#160829,#07030f);border-color:#d946ef;box-shadow:0 0 18px rgba(217,70,239,.25)}
 .store.col-neon .st-k{color:#67e8f9}.store.col-neon .st-t{font-family:Monoton,cursive;font-weight:400;font-size:26px;letter-spacing:.02em;color:#f5d0fe;text-shadow:0 0 6px #e879f9,0 0 16px #d946ef}
 .store.col-neon .pack{border-color:rgba(34,211,238,.45);background:radial-gradient(100% 120% at 0% 0%,rgba(217,70,239,.16),transparent 60%),rgba(6,3,14,.6)}
+.ishop{padding:12px;margin-top:12px}
+.ish-h{display:flex;align-items:center;gap:10px;margin:2px 2px 10px}.ish-h b{display:block;font-size:17px}.ish-h small{display:block;font-size:12px;color:var(--muted)}
+.ish-t{font-size:11px;font-weight:900;white-space:nowrap;color:var(--orange);background:color-mix(in srgb,var(--orange) 14%,transparent);padding:4px 9px;border-radius:99px}
+.ish-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ish-it{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 6px;border-radius:14px;border:1px solid var(--line);background:var(--well);color:var(--text);font:inherit;text-align:center;cursor:pointer}
+.ish-it .dprev{width:64px;height:64px;margin:0 0 4px}.ish-it .dprev svg{width:52px;height:52px}.ish-it b{font-size:13px;line-height:1.2}.ish-it small{font-size:11px;color:var(--muted)}.ish-it .rar{margin-top:5px}
+.ish-it.rr-rare{border-color:rgba(59,130,246,.55);background:linear-gradient(180deg,rgba(59,130,246,.12),transparent 60%),var(--well)}
+.ish-it.rr-epic{border-color:rgba(168,85,247,.6);background:linear-gradient(180deg,rgba(168,85,247,.15),transparent 60%),var(--well)}
+.ish-it.rr-leg{border-color:rgba(245,158,11,.75);background:linear-gradient(180deg,rgba(245,158,11,.16),transparent 60%),var(--well);box-shadow:0 0 10px rgba(245,158,11,.2)}
+.ish-p{margin-top:7px;font-weight:900;font-size:14px;color:#1a1000;background:var(--orange);padding:5px 14px;border-radius:99px}
+.ish-own{margin-top:7px;font-weight:900;font-size:12px;color:var(--green)}
+.ish-it.own{opacity:.85}
 /* store themes per collection */
 .card.store.col-xmas{background-image:radial-gradient(circle,rgba(255,255,255,.5) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.3) 0 1px,transparent 1.4px),radial-gradient(120% 22% at 50% 0%,rgba(239,68,68,.32),transparent 70%),linear-gradient(180deg,#14532d,#052e16);background-size:37px 41px,23px 29px,auto,auto;background-position:0 0,11px 17px,0 0,0 0;border-color:#dc2626}
 .store.col-xmas .st-k{color:#fecaca}.store.col-xmas .st-t{font-family:"Mountains of Christmas",cursive;font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 0 #dc2626,0 0 12px rgba(255,255,255,.4)}
@@ -1926,6 +1938,13 @@ const lockAch=(k,v)=>ACH.find(a=>a.rw.some(([rk,rv])=>rk===k&&rv===v));
 // Reserved: drawn items held back for future Store collections. Hidden in the Locker until a collection uses them (or you own them).
 const RESERVED=[['head','bigfella'],['logo','rocket'],['head','warrior'],['court','beach'],['head','flash'],['logo','anchor'],['board','arcade'],['ball','galaxy'],['kit','galaxy'],['pbg','starfield'],['atm','gold'],['atm','arcade'],['atm','sunset']];
 const isPrem=(k,v)=>RESERVED.some(([a,b])=>a===k&&b===v);
+// Item Shop: 4 single items from the reserved pool, rotating every Monday. Priced by rarity; items a collection uses leave the pool.
+const SHOP_RAR={'logo:rocket':'rare','logo:anchor':'rare','ball:galaxy':'rare','pbg:starfield':'rare','head:bigfella':'epic','head:warrior':'epic','head:flash':'epic','kit:galaxy':'epic','court:beach':'epic','board:arcade':'epic','atm:gold':'leg','atm:arcade':'leg','atm:sunset':'leg'};
+const SHOP_PRICE={rare:.49,epic:.79,leg:.99},SHOP_EPOCH='2026-01-05';
+const shopWeek=()=>Math.floor(diffDays(SHOP_EPOCH,weekStart(gameDate()))/7)+(S.shopShift||0);
+function shopItems(){const pool=RESERVED.filter(([k,v])=>!packOf(k,v)),r=rng('shop'+shopWeek()),a=pool.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,4)}
+const inShop=(k,v)=>shopItems().some(([a,b])=>a===k&&b===v);
+const shopPrice=(k,v)=>SHOP_PRICE[SHOP_RAR[k+':'+v]||'epic'];
 const owned=(k,v)=>!!(S.owned&&(S.owned[k+':'+v]||(k==='snd'&&v==='haunted'&&S.owned['cel:boo']&&S.owned['ball:candy'])));
 
 const EV_ICON={'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'};
@@ -1964,12 +1983,12 @@ const hidPack=(k,v)=>{const P=packOf(k,v);return !!P&&P.col!==activeCol().id&&!c
 const packOf=(k,v)=>PACKS.find(p=>p.items.some(([a,b])=>a===k&&b===v));
 const packOwned=p=>p.items.every(([k,v])=>owned(k,v));
 const packPrice=x=>x;
-const gbp=x=>'£'+x.toFixed(2);
+const gbp=x=>x<1?Math.round(x*100)+'p':'£'+x.toFixed(2);
 function cosUnlocked(k,v){if(S.unlockAll)return true;if(owned(k,v))return true;if(packOf(k,v))return false;if(k==='atm'&&v==='dynasty')return S.xp>=ATM_TOP()[0];if(k==='pbg'&&RANK_BG[v]!=null)return topRank()>=RANK_BG[v];if(EV_ONLY[k+':'+v])return owned(k,v);if(isPrem(k,v))return owned(k,v);const a=lockAch(k,v);return !a||!!(S.ach&&S.ach[a.id])}
 // Rarity: how hard an item is to get. Common = free, Rare = achievements, Epic = harder achievements, events, premium and Veteran/Legend backgrounds, Legendary = the very top.
 const RAR_N={com:'Common',rare:'Rare',epic:'Epic',leg:'Legendary'};
 const isEvReward=(k,v)=>Object.values(EV_REWARDS).some(L=>L.some(([a,b])=>a===k&&b===v));
-function rarity(k,v){if(packOf(k,v))return 'epic';if(k==='atm'&&v==='dynasty')return 'leg';if(k==='atm'&&v==='royale')return 'epic';if(k==='pbg'&&RANK_BG[v]!=null)return RANK_BG[v]>=5?'leg':'epic';if(EV_ONLY[k+':'+v]||isEvReward(k,v)||isPrem(k,v))return 'epic';const a=lockAch(k,v);if(!a)return 'com';if(['champ','iron','mvp'].includes(a.id))return 'leg';if(['onfire','seed1','series','allstar','clutch'].includes(a.id))return 'epic';return 'rare'}
+function rarity(k,v){if(packOf(k,v))return 'epic';if(isPrem(k,v))return SHOP_RAR[k+':'+v]||'epic';if(k==='atm'&&v==='dynasty')return 'leg';if(k==='atm'&&v==='royale')return 'epic';if(k==='pbg'&&RANK_BG[v]!=null)return RANK_BG[v]>=5?'leg':'epic';if(EV_ONLY[k+':'+v]||isEvReward(k,v)||isPrem(k,v))return 'epic';const a=lockAch(k,v);if(!a)return 'com';if(['champ','iron','mvp'].includes(a.id))return 'leg';if(['onfire','seed1','series','allstar','clutch'].includes(a.id))return 'epic';return 'rare'}
 // "New" gear: unlocked, not free, and not yet seen in the Locker.
 let lkShown=null;
 function allGear(){const out=[];for(const k of Object.keys(COS_LISTS))for(const [v] of COS_LISTS[k])out.push([k,v]);return out}
@@ -1983,14 +2002,14 @@ function lockSheet(k,v){
   else if(k==='atm'&&v==='dynasty'){const T=ATM_TOP();how=`Reach the <b>${T[1]}</b> club level (${T[0].toLocaleString('en-GB')} XP).`;prog=bar(S.xp,T[0],`${S.xp.toLocaleString('en-GB')} / ${T[0].toLocaleString('en-GB')} XP`)}
   else if(k==='pbg'&&RANK_BG[v]!=null){const R=PRANKS[RANK_BG[v]],best=Math.max(0,...S.squad.map(careerMakes));how=`Get any player to <b>${RSYM[RANK_BG[v]]} ${R.n}</b> (${R.at} career makes).`;prog=bar(best,R.at,`${best} / ${R.at} makes · your best player`)}
   else if(EV_ONLY[k+':'+v]){const e=EVENTS.find(x=>x.n===EV_ONLY[k+':'+v]);how=`Win the <b>${EV_ONLY[k+':'+v]}</b>${e?` (${nice(e.s,{day:'numeric',month:'short'})} – ${nice(e.e,{day:'numeric',month:'short'})})`:''}. Event-only: it can't be bought.`}
-  else if(isPrem(k,v)){how='Held back for a future Store collection.'}
+  else if(isPrem(k,v)){if(inShop(k,v)){how=`In this week's <b>Item Shop</b> for ${gbp(shopPrice(k,v))}.`;btn=`<button class="btn primary block" style="margin-top:12px" data-a="toStore">🛍️ View in the Store</button>`}else how='Comes and goes in the Item Shop. Check back on a Monday.'}
   else{const a=lockAch(k,v),st=stats(),val=Math.min(a.v(st),a.goal);how=`Earn the <b>${a.i} ${a.n}</b> achievement: ${a.d}.`;prog=a.goal>1?bar(val,a.goal):'<div class="ls-pl">Not done yet</div>';
     const o=a.rw.filter(([rk,rv])=>!(rk===k&&rv===v));if(o.length)more=`<div class="rssec">Also unlocks</div><div class="ls-more">${o.map(([rk,rv])=>`<div>${rewardPic(rk,rv)}<small>${cosName(rk,rv)}</small></div>`).join('')}</div>`}
   sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>
     <div class="ls-top"><div class="ls-pic rr-${r}">${itemPreview(k,v)}</div><span class="rar rr-${r}">${RAR_N[r]}</span><h2>${esc(nm)}</h2><div class="small muted">${COS_NAMES[k]} · 🔒 locked</div></div>
     <div class="ls-how">${how}</div>${k==='snd'?`<button class="btn block" style="margin-top:10px" data-a="sndDemo" data-v="${v}">🔊 Hear it</button>`:''}${prog}${btn}${more}`);
 }
-function lockMsg(k,v){if(packOf(k,v))return `🛍️ Part of the ${packOf(k,v).n} pack`;if(k==='atm'&&v==='dynasty')return `🏛️ Reach the ${ATM_TOP()[1]} club level to unlock`;if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `${EV_ICON[EV_ONLY[k+':'+v]]||'🏆'} Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return '🛍️ Coming in a future Store collection';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
+function lockMsg(k,v){if(packOf(k,v))return `🛍️ Part of the ${packOf(k,v).n} pack`;if(k==='atm'&&v==='dynasty')return `🏛️ Reach the ${ATM_TOP()[1]} club level to unlock`;if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `${EV_ICON[EV_ONLY[k+':'+v]]||'🏆'} Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inShop(k,v)?`🛍️ In this week's Item Shop`:'🛍️ Comes and goes in the Item Shop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
   const today=gameDate(),days=Object.keys(S.days).sort();
   let wins=0,run=0,bestWinRun=0,lossRun=0,comeback=0,perfect=0,clutchWins=0;
@@ -2698,7 +2717,13 @@ function storeView(){
     ${PK.map(p=>{const own=packOwned(p);return `<div class="pack ${own?'own':''}"><div class="pk-h"><div class="sp"><b>${p.n}</b><small>${p.d}</small></div>${own?'<span class="pk-own">✓ Owned</span>':`<button class="btn primary pk-buy" data-a="buyPack" data-v="${p.id}">${gbp(packPrice(p.price))}</button>`}</div>
       <div class="pk-grid">${p.items.map(tile).join('')}</div></div>`}).join('')}
     ${all?'':`<button class="pack bundle" data-a="buyPack" data-v="${C.bundle.id}"><div class="sp"><b>${C.ic[0]} Get all three packs</b><small>Every ${C.sh} item in one go · save ${gbp(packPrice(full)-packPrice(C.bundle.price))}</small></div><span class="btn primary">${gbp(packPrice(C.bundle.price))}</span></button>`}
-    <p class="small muted" style="margin:10px 2px 0">Packs are yours to keep and never change how you score. Prototype: no payment is taken.</p></div>`;
+    <p class="small muted" style="margin:10px 2px 0">Packs are yours to keep and never change how you score. Prototype: no payment is taken.</p></div>${itemShopHtml()}`;
+}
+function itemShopHtml(){
+  const next=addDays(weekStart(gameDate()),7),d=diffDays(gameDate(),next);
+  return `<div class="card ishop"><div class="ish-h"><div class="sp"><b>Item Shop</b><small>Single items · new picks every Monday</small></div><span class="ish-t">${d<=1?'New items tomorrow':`New in ${d} days`}</span></div>
+    <div class="ish-grid">${shopItems().map(([k,v])=>{const own=cosUnlocked(k,v),r=rarity(k,v);return `<button class="ish-it rr-${r} ${own?'own':''}" data-a="buyItem" data-k="${k}" data-v="${v}">${itemPreview(k,v)}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small><span class="rar rr-${r}">${RAR_N[r]}</span>${own?'<span class="ish-own">✓ Owned</span>':`<span class="ish-p">${gbp(shopPrice(k,v))}</span>`}</button>`}).join('')}</div>
+    <p class="small muted" style="margin:10px 2px 0">Rare ${gbp(SHOP_PRICE.rare)} · Epic ${gbp(SHOP_PRICE.epic)} · Legendary ${gbp(SHOP_PRICE.leg)}. Yours to keep.</p></div>`;
 }
 let clubTab='overview';
 // Club records, all worked out from saved games.
@@ -2819,7 +2844,7 @@ function testingHtml(){
     T('hsPreview','🎃','Halloween Shootout','Fast-forward the event')+T('mdPreview','📝','Mock draft','Next season\'s squad pick'))}
   ${sec('🛍️','Store & cosmetics','Switch the seasonal collection and unlock gear',
     COLLECTIONS.map(c=>T('tCol',c.ic[0],c.sh,c.when.split(' · ')[1],{on:activeCol().id===c.id,v:c.id})).join('')
-    +T('unlockAll','🔒','Unlock all',S.unlockAll?'Everything unlocked: tap to re-lock':'Every cosmetic, for testing',{on:S.unlockAll}))}
+    +T('tShop','🔁','Rotate item shop','Skip to next week\'s 4 items')+T('unlockAll','🔒','Unlock all',S.unlockAll?'Everything unlocked: tap to re-lock':'Every cosmetic, for testing',{on:S.unlockAll}))}
   </div>`;
 }
 function ballSvg(skin){
@@ -3330,6 +3355,13 @@ const A={
   careerSheet(){sheet(careerSheetHtml())},
   achInfo(d){const a=ACH.find(x=>x.id===d.v);if(!a)return;sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>${achList([a])}`)},
   tCol(d){S.storeCol=d.v;save();render();toast(`🛍️ ${colOf(d.v).n} is now in the Store`)},
+  buyItem(d){if(cosUnlocked(d.k,d.v))return A.cos?(d.k==='head'?A.headInfo({v:d.v}):A.cos(d)):0;const r=rarity(d.k,d.v);
+    sheet(`<div class="rshead"><span></span><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div>
+    <div class="ls-top"><div class="ls-pic rr-${r}">${itemPreview(d.k,d.v)}</div><span class="rar rr-${r}">${RAR_N[r]}</span><h2>${esc(cosName(d.k,d.v))}</h2><div class="small muted">${COS_NAMES[d.k]} · Item Shop</div></div>
+    ${d.k==='snd'?`<button class="btn block" style="margin-top:10px" data-a="sndDemo" data-v="${d.v}">🔊 Hear it</button>`:''}
+    <button class="btn primary block" style="margin-top:14px" data-a="confirmItem" data-k="${d.k}" data-v="${d.v}">Buy for ${gbp(shopPrice(d.k,d.v))}</button><p class="small muted" style="text-align:center;margin:8px 0 0">Prototype: no payment is taken.</p>`)},
+  confirmItem(d){S.owned={...(S.owned||{}),[d.k+':'+d.v]:true};save();closeSheet();render();sfx('cheer');toast(`🛍️ ${cosName(d.k,d.v)} is yours! Find it in the Locker`)},
+  tShop(){S.shopShift=(S.shopShift||0)+1;save();render();toast('🛍️ Item Shop rotated to next week\'s picks')},
   toStore(){closeSheet();lkTab='store';view='awards';render();scrollTo(0,0)},
   buyPack(d){const B=bundleCol(d.v),P=B?{n:B.n,price:B.bundle.price,items:B.packs.flatMap(p=>p.items)}:PACKS.find(p=>p.id===d.v);if(!P)return;
     sheet(`<div class="rshead"><h2>${P.n}</h2><button class="rsx" data-a="closeSheet" aria-label="Close">✕</button></div><p class="small muted" style="margin:6px 0 10px">${P.items.length} items, yours to keep.</p>
