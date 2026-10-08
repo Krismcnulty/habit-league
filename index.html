@@ -687,6 +687,17 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .retire.retired{border-color:var(--gold);background:radial-gradient(120% 140% at 0% 0%,rgba(251,191,36,.22),transparent 60%),linear-gradient(180deg,#1e1a10,#0f0d08)}
 .retire.retired b{color:#fde68a}
 .statcard{padding:8px}.statcard .stgrid{margin-top:8px!important}.statcard .stgrid div{background:var(--panel2)}
+.prank{display:inline-block;margin-left:6px;font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:5px;vertical-align:2px;border:1px solid}
+.prank.r-rookie{color:#cbd5e1;border-color:#475569;background:rgba(148,163,184,.10)}
+.prank.r-pro{color:#bfdbfe;border-color:#3b82f6;background:rgba(59,130,246,.15)}
+.prank.r-allstar{color:#1a1000;border-color:#f59e0b;background:linear-gradient(90deg,#fde68a,#fbbf24)}
+.prank.r-vet{color:#fff;border-color:#db2777;background:linear-gradient(90deg,#f472b6,#a855f7)}
+.prank.big{font-size:11px;padding:3px 8px;margin-left:0}
+.rankbar{margin:12px auto 0;max-width:280px}
+.rb-top{display:flex;align-items:center;justify-content:center;gap:8px}.rb-top small{font-size:12px;color:var(--muted)}
+.rb-bar{height:6px;border-radius:99px;background:#0b1020;border:1px solid var(--line);overflow:hidden;margin-top:7px}
+.rb-bar i{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.rankbar.r-pro .rb-bar i{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
 /* ---- themed page titles ---- */
 .top h1.t-spooky{font-family:Creepster,cursive;font-weight:400;font-size:30px;letter-spacing:.06em;color:#fb923c;text-shadow:0 0 12px rgba(249,115,22,.55),2px 2px 0 #3b0764}
 .top h1.t-playoffs{font-family:"Bebas Neue","Arial Narrow",sans-serif;font-weight:400;font-size:34px;letter-spacing:.08em;background:linear-gradient(180deg,#fff3c4,#fbbf24 50%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(251,191,36,.35))}
@@ -957,7 +968,7 @@ function save(){if(PREVIEW)return;try{localStorage.setItem(KEY,JSON.stringify(S)
 /* ===================== season engine ===================== */
 /* ===================== divisions ===================== */
 // Opponents score around the division average, not a share of your squad, so harder players genuinely help you win.
-const DIVS=[{id:'rookie',n:'Rookie',avg:45,xp:1,d:'Routines and small habits'},{id:'pro',n:'Pro',avg:80,xp:1.25,d:'A workout or two, reading, routines'},{id:'allstar',n:'All-Star',avg:120,xp:1.5,d:'Daily training and big players'},{id:'hof',n:'Hall of Fame',avg:170,xp:2,d:'Everything, every day'}];
+const DIVS=[{id:'rookie',n:'Underdogs',avg:45,xp:1,d:'Routines and small habits'},{id:'pro',n:'Contenders',avg:80,xp:1.25,d:'A workout or two, reading, routines'},{id:'allstar',n:'Powerhouse',avg:120,xp:1.5,d:'Daily training and big players'},{id:'hof',n:'Dynasty',avg:170,xp:2,d:'Everything, every day'}];
 const divById=id=>DIVS.find(x=>x.id===id);
 const fullMax=()=>S.squad.reduce((a,p)=>a+pv(p),0);
 function recDiv(){const m=fullMax()*.7;let r=DIVS[0];for(const d of DIVS)if(d.avg<=m)r=d;return r}
@@ -1342,7 +1353,7 @@ function render(){
   const nav=document.getElementById('nav');
   if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
   nav.hidden=false;
-  checkAch();if(view==='club')S.achNew=0;
+  checkAch();checkRanks();if(view==='club')S.achNew=0;
   pvBar();
   const nv=view==='profile'?'squad':view;nav.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===nv);b.classList.toggle('new',b.dataset.v==='club'&&(S.achNew||0)>0)});
   app.innerHTML=({today:todayView,league:leagueView,squad:squadView,awards:awardsView,club:clubView,profile:profileView})[view]();
@@ -1547,7 +1558,7 @@ function playerSection(title,slot,D,cs){
     return `<div><div class="pl ${done?'done':''} ${inj?'inj':''} ${cs&&cs.rem.has(p.id)?'need':''}" ${act} style="cursor:pointer">
       ${avatar(p)}
       <span class="mjs" title="${esc(ident(p).name)}">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
-      <div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
+      <div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}</div>
       <div class="meta">${esc(p.lvl)}${inj?' · 🩹 resting':''}</div></div>
       ${pts(p)}
       ${p.steps&&p.steps.length?`<button class="tick" data-a="steps" data-id="${p.id}" ${inj?'disabled':''} style="${done?'':'font-size:14px'}">${done?'✓':(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length+'/'+p.steps.length}</button>`:`<button class="tick" data-a="tick" data-id="${p.id}" ${inj?'disabled':''} aria-label="Complete ${esc(p.name)}">${done?'✓':''}</button>`}
@@ -1661,7 +1672,7 @@ function squadRow(p){
   const f=S.firstStart?pForm(p):[],sk=S.firstStart?streak(p):0,stt=pStatus(p,f,sk);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
   const dots=f.length?`<span class="pform">${f.map(x=>`<i class="${x}"></i>`).join('')}</span>`:'';
-  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div><div class="meta">${esc(p.lvl)}${(p.restDays||[]).length?` · <span class="rmeta">🩹 ${p.restDays.slice().sort().map(i=>WD[i]).join(' ')}</span>`:''}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${posTag(p)}</div></div>`}
+  return `<div class="pl pcard ${stt?'st-'+stt:''}" data-a="player" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><div class="sp" style="min-width:0"><div class="nm">${esc(p.name)}${p.custom?' <span class="chip">Custom</span>':''}${rankTag(p)}</div><div class="meta">${esc(p.lvl)}${(p.restDays||[]).length?` · <span class="rmeta">🩹 ${p.restDays.slice().sort().map(i=>WD[i]).join(' ')}</span>`:''}</div>${dots||sk||tag?`<div class="prow">${dots}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>`:''}</div><div class="rcol">${pts(p)}${posTag(p)}</div></div>`}
 function squadView(){
   const se=curSeason();const edit=canEditSquad();const t=gameDate();
   const D=ensureDay(t);const max=score(D).max,dv=divOf(se);
@@ -1964,7 +1975,7 @@ function clubView(){
   <div class="tabs">${[['nba','NBA names'],['fictional','Fictional']].map(([k,n])=>`<button class="${(S.teamSet||'nba')===k?'on':''}" data-a="teamSet" data-v="${k}">${n}</button>`).join('')}</div>
   <details class="card" style="margin-top:12px"><summary>How it works</summary><div class="small muted stack" style="margin-top:8px">
   <p>Each player scores by difficulty: 6, 11, 17 or 30 points, whether they start or come off the bench. Custom players are always worth 11.</p>
-  <p>When your squad locks for a season, your level is set: opponents average 75% of your squad's max points for the whole season. Sign harder players mid-season and you get ahead of them. Levels are labelled Rookie, Pro, All-Star or Hall of Fame, and higher levels earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
+  <p>When your squad locks for a season, your level is set: opponents average 75% of your squad's max points for the whole season. Sign harder players mid-season and you get ahead of them. Levels are labelled Underdogs, Contenders, Powerhouse or Dynasty, and higher levels earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
   <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
   <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
   <details class="card" style="margin-top:12px"><summary>Testing</summary><div class="stack" style="margin-top:10px">
@@ -2038,6 +2049,13 @@ function pastAwards(){
     const r=awardRace(k,addDays(monthEnd(k),1));S.awards[k]=Object.fromEntries(AWARDS.map(a=>[a.id,r[a.id][0]||null]))}
   return S.awards;
 }
+// Player ranks: Rookie → Pro (25 career makes) → All-Star (100) → Veteran (jersey retired). Ranks never go down.
+const PRANKS=[{id:'rookie',n:'Rookie',at:0,c:'#94a3b8'},{id:'pro',n:'Pro',at:25,c:'#60a5fa'},{id:'allstar',n:'All-Star',at:100,c:'#fbbf24'},{id:'vet',n:'Veteran',at:null,c:'#f472b6'}];
+function careerMakes(p){const today=gameDate();let n=0;for(const d in S.days){if(d>today)continue;if(p.signedAt&&d<p.signedAt)continue;const D=S.days[d];if(D.locked&&!restD(D)&&!D.inj.includes(p.id)&&isDone(p,D))n++}return n}
+function pRank(p){if((S.retired||[]).some(r=>r.id===p.id))return 3;const m=careerMakes(p);return m>=100?2:m>=25?1:0}
+const rankTag=p=>{const k=pRank(p);if(!k)return '';const r=PRANKS[k];return `<span class="prank r-${r.id}">${r.n}</span>`}; // Rookie is the default, so cards only show Pro and up
+// Celebrate rank-ups the first time they're noticed.
+function checkRanks(){let ch=false;for(const p of S.squad){const r=pRank(p);if(p.rk==null){p.rk=r;ch=true;continue}if(r>p.rk){p.rk=r;ch=true;const R=PRANKS[r];setTimeout(()=>{toast(`⭐ ${p.name} is now ${/^[AEIOU]/.test(R.n)?'an':'a'} ${R.n}!`);sfx('cheer');buzz([40,60,40])},600)}}if(ch)save()}
 function pCareer(p){
   const today=gameDate(),bym={};let att=0,made=0;
   for(const d of Object.keys(S.days).sort()){if(d>today)break;if(p.signedAt&&d<p.signedAt)continue;const D=S.days[d];if(!D.locked||restD(D)||D.inj.includes(p.id))continue;
@@ -2071,7 +2089,8 @@ function profileView(){
     <div class="prof-art"><span class="prof-head">${faceSvg(p)}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
     <div class="prof-name cond">${esc(id.name)}</div>
     <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
-    <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}${(p.seasons||0)>=3?'<span class="vet">VET</span>':''}</div>
+    <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
+    ${(()=>{const r=pRank(p),m=careerMakes(p),nx=PRANKS[r+1];return `<div class="rankbar r-${PRANKS[r].id}"><div class="rb-top"><span class="prank big r-${PRANKS[r].id}">${PRANKS[r].n}</span><small>${r===3?'Jersey retired · top rank':nx&&nx.at!=null?`${m} / ${nx.at} makes to ${nx.n}`:`${m} makes · retire their jersey to reach Veteran`}</small></div>${r<2?`<div class="rb-bar"><i style="width:${Math.min(100,m/nx.at*100)}%"></i></div>`:''}</div>`})()}
   </div>
   <div class="sect"><h3 class="cond">Stats</h3></div>
   <div class="card statcard"><div class="tabs ptabs">${[['season','This season'],['career','Career']].map(([k,n])=>`<button class="${profTab===k?'on':''}" data-a="profTab" data-v="${k}">${n}</button>`).join('')}</div>
