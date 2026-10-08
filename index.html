@@ -790,6 +790,11 @@ const SHOT_ORDER=['layup','jumper','three','dunk'];
 const POS=[{id:'fitness',n:'Fitness',a:'FIT',c:'#ef4444'},{id:'mind',n:'Mind',a:'MND',c:'#a78bfa'},{id:'routine',n:'Routine',a:'RTN',c:'#2dd4bf'},{id:'home',n:'Home',a:'HOM',c:'#fbbf24'},{id:'money',n:'Money',a:'MNY',c:'#22c55e'}];
 const posById=id=>POS.find(p=>p.id===id);
 const CUSTOM_SHOT='jumper', MAX_CUSTOM=2, BENCH_SIZE=5, INJURY_USES=3, TRANSFER_DAYS=7;
+// Trades: unlimited in pre-season, REG_TRADES during the regular season up to the trade deadline, none in tournaments or playoffs.
+const REG_TRADES=2;
+const tradeDeadline=se=>addDays(brkStart(se.key),-1);
+const tradesUsed=se=>se?(se.tradesUsed!=null?se.tradesUsed:(se.transferUsed?1:0)):0;
+const tradesLeft=se=>Math.max(0,REG_TRADES-tradesUsed(se));
 // Rest days: each player can rest up to INJURY_USES days per week (Mon–Sun). Good for habits that aren't daily, like the gym.
 const weekStart=d=>{const dt=parse(d),wd=(dt.getDay()+6)%7;return addDays(d,-wd)};
 const restsUsed=(id,d)=>{const w=weekStart(d||gameDate());let n=0;for(let i=0;i<7;i++){const D=S.days[addDays(w,i)];if(D&&D.inj&&D.inj.includes(id))n++}return n};
@@ -1057,7 +1062,7 @@ function processDays(){
 /* ===================== helpers ===================== */
 const curSeason=()=>{const t=gameDate();return S.firstStart&&t>=S.firstStart?ensureSeason(skey(t)):(S.firstStart?ensureSeason(skey(S.firstStart)):null)};
 function canEditSquad(){if(!S.firstStart)return true;const se=curSeason();return se&&!se.locked}
-function transferOpen(){const se=curSeason();if(!se||!se.locked||se.transferUsed)return false;const t=gameDate();if(t<regStart(se))return false;return diffDays(regStart(se),t)<TRANSFER_DAYS}
+function transferOpen(){const se=curSeason();if(!se||!se.locked||!tradesLeft(se))return false;const t=gameDate();return t>=regStart(se)&&t<=tradeDeadline(se)}
 const restD=D=>D.ph==='brk'&&!D.hsOpp;
 function streak(p){
   const today=gameDate();let n=0;const D0=S.days[today];if(D0&&isDone(p,D0))n++;
@@ -1321,7 +1326,7 @@ function setupView(){
   return `
   <div class="top"><h1 class="cond">Tip-off</h1><button class="small muted" data-a="setupBack1">Back</button></div>
   <div class="card stack">
-    <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>one trade in the first ${TRANSFER_DAYS} days</b> and <b>rest days</b> (each player can rest up to ${INJURY_USES} days a week). Renaming and editing steps are always allowed.</p>
+    <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>${REG_TRADES} trades before the trade deadline</b> (the end of the regular season) and <b>rest days</b> (each player can rest up to ${INJURY_USES} days a week). Renaming and editing steps are always allowed.</p>
     <p class="muted small" style="margin:0">Results lock at 4am. The playoffs run over the last days of each month: top 8, each round decided by a 2-day points total, then a rest day to close the season.</p>
     ${levelRow(null)}
     ${short?`<div class="banner small">It's too late in ${monthName(skey(t))} for a regular season, so you'll play friendlies until the new season starts on ${nice(addDays(monthEnd(skey(t)),1),{day:'numeric',month:'long'})}.</div>
@@ -1614,8 +1619,8 @@ function squadView(){
   const tile=(v,ic,lab,val,sub,cls='')=>`<button class="stile ${cls}" data-a="sinfo" data-v="${v}"><span class="st-lab"><i>${ic}</i>${lab}</span><b class="st-val">${val}</b><span class="st-sub">${sub}</span></button>`;
   const lvl=tile('level','🏀','Level',dv.n,`Opp ~${dv.avg} pts`,'lv-'+dv.id);
   const tr=edit?tile('pre','📝','Trades',preLeft?'Unlimited':'Open',preLeft?`${preLeft} day${preLeft===1?'':'s'} · tap to trade`:'Tap to trade','on').replace('data-a="sinfo" data-v="pre"','data-a="trWindow"')
-    :transferOpen()?tile('transfer','🔁','Trade',`${left} day${left===1?'':'s'}`,'Tap to swap','on').replace('data-a="sinfo" data-v="transfer"','data-a="trWindow"')
-    :tile('locked','🔒','Trade',se&&se.transferUsed?'Used':'Closed','Next season');
+    :transferOpen()?tile('transfer','🔁','Trades',`${tradesLeft(se)} left`,`Deadline ${nice(tradeDeadline(se),{weekday:'short',day:'numeric'})}`,'on').replace('data-a="sinfo" data-v="transfer"','data-a="trWindow"')
+    :tile('locked','🔒','Trades',se&&t>tradeDeadline(se)?'Closed':'0 left',se&&t>tradeDeadline(se)?'Deadline passed':'Used up · next season');
   const rs=tile('injury','🩹','Rests',`${INJURY_USES} a week`,'Per player','');
   const chips=[lvl,tr,rs];
   const K=KITDEF[myKit()]||KITDEF.home;
@@ -1652,9 +1657,9 @@ function squadInfo(k){
   const se=curSeason(),t=gameDate(),dv=divOf(se),left=se?TRANSFER_DAYS-diffDays(regStart(se),t):0;
   const body={
     level:`<h2>${dv.n} level</h2><p>Opponents average <b>${dv.avg} pts</b> a day, which is ${Math.round(PAR_SHARE*100)}% of your squad's ${dv.provisional?'':'starting '}max (${dv.provisional?fullMax():Math.round(dv.avg/PAR_SHARE)} pts).${dv.provisional?' It gets set when your squad locks.':' It stays fixed all season.'}</p><p>Knockouts get tougher each round: playoff opponents average 78%, 82% then 85% of your max, and tournament opponents 80%, 83% then 86%.</p><p>Sign harder players and you get ahead of it. Higher levels earn more XP (×${dv.xp} at ${dv.n}).</p>`,
-    pre:`<h2>Pre-season</h2><p>The first ${PRE_DAYS} days of each season are exhibition games: they don't count towards the table, so use them to try out players and habits.</p><p>Trades are unlimited: tap <b>Trade</b> on any player to swap in a different habit. The squad you finish pre-season with is locked in for the regular season, along with your level. After that you get one trade in the first ${TRANSFER_DAYS} days.</p>`,
-    transfer:`<h2>Trade window</h2><p>Open for <b>${left} more day${left===1?'':'s'}</b>. You get one swap: tap a player, sell, and sign someone of the same difficulty or harder.</p><p>Your opponents' level stays the same, so a harder signing helps you win.</p>`,
-    locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&se.transferUsed?' and your trade is used':''}. You can still rename players, edit their steps, change their look, or rest them on the injury list.</p>`,
+    pre:`<h2>Pre-season</h2><p>The first ${PRE_DAYS} days of each season are exhibition games: they don't count towards the table, so use them to try out players and habits.</p><p>Trades are unlimited: tap <b>Trade</b> on any player to swap in a different habit. The squad you finish pre-season with is locked in for the regular season, along with your level. After that you get ${REG_TRADES} trades up to the trade deadline at the end of the regular season, and none in the tournament or playoffs.</p>`,
+    transfer:`<h2>Trades</h2><p>You have <b>${tradesLeft(se)} of ${REG_TRADES} trades</b> left this regular season. The trade deadline is <b>${nice(tradeDeadline(se),{weekday:'long',day:'numeric',month:'short'})}</b>; after that your squad is frozen for the tournament and playoffs (subs and rest days still work).</p><p>Sell a player and sign someone of the same difficulty or harder. Your opponents' level stays the same, so a harder signing helps you win.</p>`,
+    locked:`<h2>Squad locked</h2><p>Your squad is set for ${se?monthName(se.key):'the season'}${se&&t>tradeDeadline(se)?': the trade deadline has passed, so there are no trades in the tournament or playoffs':se&&!tradesLeft(se)?' and both trades are used':''}. You can still sub players, rest them, rename them, edit their steps or change their look.</p>`,
     injury:`<h2>Rest days</h2><p>Each player can rest up to <b>${INJURY_USES} days a week</b> (Monday to Sunday). Handy for habits that aren't daily, like the gym. Rests must be set before the 4th quarter starts (${TIPOFF_H+12}pm). Tap a player and choose Rest today: they score nothing for or against you, and your opponent's score drops to match.</p>
       <div class="card" style="padding:4px 12px;margin-top:10px">${S.squad.map(p=>`<div class="res">${avatar(p)}<div class="sp">${esc(p.name)}</div><b style="color:${restsLeft(p.id)?'var(--text)':'var(--red)'}">${restsLeft(p.id)} left</b></div>`).join('')}</div>`,
   }[k];
@@ -2169,7 +2174,7 @@ function libSheet(ctx){
   const customs=S.squad.filter(p=>p.custom&&(!sell||p.id!==sell.id)).length;
   const canCustom=customs<MAX_CUSTOM&&SHOTS[CUSTOM_SHOT].pts>=minPts&&!(sell&&sell.custom);
   sheet(`${sell?`<button class="backbtn" style="font-size:14px;padding:0 0 6px" data-a="trWindow">‹ Pick a different player</button><div class="small cond" style="color:var(--orange2);font-weight:800">2 · Choose the replacement</div>`:''}<h2>${sell?`Trade: replace ${esc(sell.name)}`:ctx.slot==='court'?`Sign a ${posById(ctx.pos).n} starter`:'Sign a bench player'}</h2>
-  <p class="small muted" style="margin:0 0 6px">${sell?ctx.free?`Pre-season: trades are unlimited. Pick any habit${posFilter?` in ${posById(posFilter).n}`:''} to replace them.`:`Pick someone worth ${minPts}+ points${posFilter?` in ${posById(posFilter).n}`:''}. This uses your one trade for the season.`:'Pick a player and the level that stretches you.'}</p>
+  <p class="small muted" style="margin:0 0 6px">${sell?ctx.free?`Pre-season: trades are unlimited. Pick any habit${posFilter?` in ${posById(posFilter).n}`:''} to replace them.`:`Pick someone worth ${minPts}+ points${posFilter?` in ${posById(posFilter).n}`:''}. This uses one of your ${REG_TRADES} regular-season trades.`:'Pick a player and the level that stretches you.'}</p>
   ${canCustom?`<div class="card" style="margin:10px 0"><b>Custom player</b> <span class="small muted">(${customs}/${MAX_CUSTOM} used · always ${SHOTS[CUSTOM_SHOT].pts} pts)</span>
    <div class="row" style="margin-top:8px"><input id="cName" maxlength="28" placeholder="e.g. Exam study">${posFilter?'':`<select id="cPos" style="width:auto">${POS.map(p=>`<option value="${p.id}">${p.a}</option>`).join('')}</select>`}</div>
    <button class="btn block" style="margin-top:8px" data-a="signCustom">Sign custom player</button></div>`:''}
@@ -2187,7 +2192,7 @@ function playerSheet(id){
     else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="mvrow" data-a="bench" data-id="${p.id}"><span class="mvi">⬇️</span><span class="sp"><b>Move to bench</b><small>Still scores full points</small></span><span class="mvc">›</span></button>`;
     a+=`<button class="mvrow danger" data-a="release" data-id="${p.id}"><span class="mvi">✖️</span><span class="sp"><b>Release player</b><small>Frees up this spot</small></span><span class="mvc">›</span></button>`;
   }else a+=subRow(p,D);
-  if(!edit&&transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(regStart(se),t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
+  if(!edit&&transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${tradesLeft(se)} of ${REG_TRADES} left · deadline ${nice(tradeDeadline(se),{day:'numeric',month:'short'})}</small></span><span class="mvc">›</span></button>`;
   if(S.firstStart&&se&&t>=se.start){
     if(inj)a+=`<button class="mvrow" data-a="uninjure" data-id="${p.id}"><span class="mvi">↩️</span><span class="sp"><b>Bring back from injury list</b><small>Plays again today</small></span><span class="mvc">›</span></button>`;
     else if(D&&!isDone(p,D))a+=quarter(t)>=4?`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>Rests close when the 4th quarter starts (${TIPOFF_H+12}pm)</small></span></div>`:restsLeft(p.id,t)>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${restsLeft(p.id,t)} of ${INJURY_USES} left this week · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>Rested ${INJURY_USES} times this week · back to full rest on Monday</small></span></div>`;
@@ -2265,7 +2270,7 @@ const A={
   transfer(d){libSheet({transfer:d.id,free:canEditSquad()})},
   trWindow(){const free=canEditSquad();if(!free&&!transferOpen())return squadInfo('locked');const se=curSeason(),left=TRANSFER_DAYS-diffDays(regStart(se),gameDate()),preLeft=se&&gameDate()<regStart(se)?diffDays(gameDate(),regStart(se)):0;
     const row=p=>`<button class="trrow" data-a="transfer" data-id="${p.id}">${avatar(p)}<span class="mjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span><span class="sp" style="min-width:0"><b>${esc(p.name)}</b><small>${esc(p.lvl)}</small></span>${pts(p)}<span class="trgo">Swap ›</span></button>`;
-    sheet(`<h2>🔁 ${free?'Pre-season trades':'Trade window'}</h2><p class="small muted" style="margin:0 0 4px">${free?`Unlimited trades${preLeft?` for ${preLeft} more day${preLeft===1?'':'s'}`:''}. Pick a player to swap out, then any habit to replace them. The squad you finish pre-season with is locked in for the regular season.`:`${left} day${left===1?'':'s'} left · 1 swap this season. Pick the player to sell, then choose their replacement. The new player must be the same difficulty or harder.`}</p>
+    sheet(`<h2>🔁 ${free?'Pre-season trades':'Trade window'}</h2><p class="small muted" style="margin:0 0 4px">${free?`Unlimited trades${preLeft?` for ${preLeft} more day${preLeft===1?'':'s'}`:''}. Pick a player to swap out, then any habit to replace them. The squad you finish pre-season with is locked in for the regular season.`:`${tradesLeft(se)} of ${REG_TRADES} trades left · deadline ${nice(tradeDeadline(se),{weekday:'short',day:'numeric',month:'short'})}. Pick the player to sell, then choose their replacement. The new player must be the same difficulty or harder.`}</p>
       <div class="sect"><h3 class="cond">1 · Choose a player to swap out</h3></div>
       <div class="sect" style="margin-top:6px"><h3 class="cond" style="font-size:12px">Starting five</h3></div>${S.squad.filter(p=>p.slot==='court').map(row).join('')}
       <div class="sect" style="margin-top:10px"><h3 class="cond" style="font-size:12px">Bench</h3></div>${S.squad.filter(p=>p.slot==='bench').map(row).join('')}`)},
@@ -2335,9 +2340,9 @@ const A={
 function doTransfer(np){
   const se=curSeason();const sell=S.squad.find(p=>p.id===signCtx.transfer);
   const free=canEditSquad();if(!sell||(!free&&!transferOpen()))return;
-  if(!free&&!confirm(`Sell ${sell.name} and sign ${np.name}? This is your only trade this season.`))return;
+  if(!free&&!confirm(`Sell ${sell.name} and sign ${np.name}? This uses 1 of your ${tradesLeft(se)} remaining trade${tradesLeft(se)===1?'':'s'}.`))return;
   np.slot=sell.slot;if(sell.slot==='court')np.pos=sell.pos;
-  S.squad[S.squad.indexOf(sell)]=np;if(!free)se.transferUsed=true;save();closeSheet();render();toast(`${np.name} signed!`);
+  S.squad[S.squad.indexOf(sell)]=np;if(!free)se.tradesUsed=tradesUsed(se)+1;save();closeSheet();render();toast(`${np.name} signed!`);
 }
 const myCel=()=>(S.cos&&S.cos.cel)||'confetti';
 function celebrate(type,title,sub){
