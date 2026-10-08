@@ -17,6 +17,7 @@
 @font-face{font-family:"Creepster";src:url(fonts/creepster-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Permanent Marker";src:url(fonts/permanent-marker-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Press Start 2P";src:url(fonts/press-start-2p-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Cinzel";src:url(fonts/cinzel-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"VT323";src:url(fonts/vt323-latin-400-normal.woff2) format("woff2");font-display:swap}
 
 :root{
@@ -97,9 +98,6 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .setrow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--text);font:inherit}.setrow b{display:block;font-size:14px}.setrow small{font-size:12px}
 .court.court-haunted{background:radial-gradient(60% 30% at 82% 12%,rgba(254,249,195,.35),rgba(254,249,195,.08) 40%,transparent 70%),radial-gradient(100% 35% at 25% 100%,rgba(167,243,208,.32),transparent 70%),radial-gradient(80% 30% at 85% 95%,rgba(196,181,253,.3),transparent 70%),radial-gradient(70% 22% at 50% 55%,rgba(203,213,225,.14),transparent 70%),repeating-linear-gradient(90deg,#1c2420 0 22px,#18201c 22px 23px,#202a25 23px 47px,#141b17 47px 48px);border-color:#84cc16}
 .court.court-haunted svg.lines{stroke:#bbf7d0;stroke-opacity:.6}
-.sb-tomb{background:linear-gradient(180deg,#6b7280,#374151 60%,#1f2937)!important;border:3px solid #111827!important;border-radius:40px 40px 10px 10px!important;box-shadow:inset 0 3px 0 rgba(255,255,255,.18),0 6px 14px rgba(0,0,0,.5)}
-.sb-tomb .score,.sb-tomb.gboard{font-family:Creepster,cursive;color:#a3e635;text-shadow:0 2px 0 #3f6212,0 0 10px rgba(163,230,53,.6)}
-.sb-tomb.gboard{border-radius:16px 16px 6px 6px!important}
 .bench-coffin .pl{background:linear-gradient(90deg,#2b1a10,#4a2c17 18%,#3b2313 82%,#2b1a10);border:1.5px solid #6b4226;box-shadow:inset 0 0 0 3px #1a0f08,inset 0 0 0 4px rgba(168,85,247,.45)}
 .bench-coffin .pl .nm{color:#f3e8ff}.bench-coffin .pl .meta{color:#c4b5fd}
 .pbg-mist{--pbg:radial-gradient(80% 50% at 20% 90%,rgba(167,243,208,.35),transparent 70%),radial-gradient(70% 45% at 85% 80%,rgba(196,181,253,.4),transparent 70%),linear-gradient(180deg,#1e1b4b,#0f172a)}
@@ -461,6 +459,23 @@ td.tpos{white-space:nowrap}
 .sb-arcade .score .lead{color:#fffb00;text-shadow:3px 3px 0 #7a6a00}.sb-arcade .score .lead2{color:#ff3b3b;text-shadow:3px 3px 0 #6b0000}
 .sb-arcade .phase,.sb-arcade .clock,.sb-arcade .status,.sb-arcade .tmname,.sb-arcade .rec{font-family:"Courier New",ui-monospace,monospace;color:#fff;text-transform:uppercase}
 .sb-arcade.gboard{border-width:2px!important;text-shadow:2px 2px 0 #0a5c00}
+/* Tombstone */
+.sb-tomb{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 80'%3E%3Cpath d='M8 0 L14 14 L10 22 L18 34 L15 44' fill='none' stroke='%23262a31' stroke-width='1.6'/%3E%3Cpath d='M14 14 L22 18 M18 34 L26 36' fill='none' stroke='%23262a31' stroke-width='1.1'/%3E%3Cpath d='M9 1 L15 15 L11 22 L19 34' fill='none' stroke='rgba(255,255,255,.18)' stroke-width='.8'/%3E%3C/svg%3E") no-repeat 4% 0/52px 70px,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M40 6 L30 16 L33 24 L24 34' fill='none' stroke='%23262a31' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat 100% 60%/44px 44px,radial-gradient(circle at 30% 30%,rgba(0,0,0,.22) 0 1px,transparent 1.6px) 0 0/9px 11px,radial-gradient(circle at 70% 60%,rgba(255,255,255,.1) 0 1px,transparent 1.6px) 0 0/13px 7px,radial-gradient(60% 40% at 0% 100%,rgba(101,163,13,.6),transparent 70%),radial-gradient(45% 30% at 100% 100%,rgba(101,163,13,.5),transparent 70%),radial-gradient(30% 22% at 0% 0%,rgba(101,163,13,.35),transparent 70%),linear-gradient(180deg,#959ca7 0%,#666e7b 45%,#3f4550 100%)!important;border:4px solid #23272e!important;border-bottom-width:6px!important;border-radius:50% 50% 12px 12px/64px 64px 12px 12px!important;padding:40px 14px 22px!important;box-shadow:inset 0 4px 0 rgba(255,255,255,.25),inset 0 -12px 20px rgba(0,0,0,.35),0 6px 0 #1c1f24,0 12px 18px rgba(0,0,0,.55)}
+.board.sb-tomb:after{content:"R · I · P"!important;position:absolute;inset:12px 0 auto 0!important;width:auto!important;height:auto!important;border:0!important;border-radius:0!important;text-align:center;font:700 14px/1 Cinzel,Georgia,serif;letter-spacing:.32em;color:#2a2f37;text-shadow:0 1px 0 rgba(255,255,255,.3),0 -1px 0 rgba(0,0,0,.35)}
+.board.sb-tomb:before{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14' preserveAspectRatio='none'%3E%3Cpath d='M0 14 L0 9 L2 4 L4 9 L6 2 L8 9 L11 5 L13 10 L15 3 L17 9 L20 6 L22 10 L24 1 L26 9 L29 5 L31 10 L33 3 L35 9 L37 4 L40 8 L40 14Z' fill='%234d7c0f'/%3E%3Cpath d='M0 14 L0 11 L3 7 L5 11 L9 6 L12 11 L16 7 L19 11 L23 6 L27 11 L30 8 L34 11 L38 6 L40 10 L40 14Z' fill='%23365314'/%3E%3C/svg%3E") repeat-x 0 100%/60px 14px}
+.sb-tomb .phase{font-family:Creepster,cursive;font-weight:400;font-size:16px;letter-spacing:.1em;color:#bef264;text-shadow:0 2px 0 #1f2937,0 0 8px rgba(163,230,53,.5);margin-bottom:8px}
+.sb-tomb .score{font-family:Creepster,cursive;font-weight:400;font-size:50px;letter-spacing:.02em;color:#d9f99d;text-shadow:0 2px 0 #365314,0 0 12px rgba(163,230,53,.55);background:linear-gradient(180deg,rgba(17,24,39,.55),rgba(17,24,39,.3));padding:6px 12px 4px;border-radius:12px;box-shadow:inset 0 3px 6px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.2)}
+.sb-tomb .score .lead{color:#a3e635;text-shadow:0 2px 0 #365314,0 0 14px rgba(163,230,53,.9)}
+.sb-tomb .score .lead2{color:#fca5a5;text-shadow:0 2px 0 #7f1d1d,0 0 12px rgba(239,68,68,.6)}
+.sb-tomb .score .dash{color:#9ca3af;text-shadow:none}
+.sb-tomb .tmname,.sb-tomb .clock,.sb-tomb .rec,.sb-tomb .status{font-family:Cinzel,Georgia,serif;font-weight:700;color:#1d2128;text-shadow:0 1px 0 rgba(255,255,255,.28)}
+.sb-tomb .tmname{font-size:12px;letter-spacing:.04em}
+.sb-tomb .rec{color:#2f3540;font-size:11px}
+.sb-tomb .clock{color:#262b33;letter-spacing:.06em;font-size:10.5px}
+.sb-tomb .status{color:#111418;font-size:13px}
+.sb-tomb .clock b,.sb-tomb .status b{color:#111418}
+.sb-tomb.gboard{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14' preserveAspectRatio='none'%3E%3Cpath d='M0 14 L0 9 L2 4 L4 9 L6 2 L8 9 L11 5 L13 10 L15 3 L17 9 L20 6 L22 10 L24 1 L26 9 L29 5 L31 10 L33 3 L35 9 L37 4 L40 8 L40 14Z' fill='%234d7c0f'/%3E%3C/svg%3E") repeat-x 0 100%/26px 6px,radial-gradient(circle at 30% 30%,rgba(0,0,0,.22) 0 1px,transparent 1.6px) 0 0/7px 8px,radial-gradient(60% 50% at 0% 100%,rgba(101,163,13,.6),transparent 70%),linear-gradient(180deg,#959ca7,#5b6370 55%,#3f4550)!important;border:2px solid #23272e!important;border-bottom-width:3px!important;border-radius:50% 50% 5px 5px/14px 14px 5px 5px!important;padding-top:3px!important;font-family:Creepster,cursive;font-weight:400;letter-spacing:.03em;color:#d9f99d;text-shadow:0 1px 0 #1f2937,0 0 6px rgba(163,230,53,.7)}
+.sb-tomb.gboard i{color:#1f2937;opacity:.8;text-shadow:none}
 /* ---- win celebrations ---- */
 .gcel{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:24px;background:var(--well);border:1px solid var(--line)}
 .gcel.c-stamp{font-weight:900;font-size:22px;color:#fff;background:#dc2626;border-radius:50%;border:3px solid #fff;font-family:system-ui}
@@ -929,6 +944,7 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .top h1.t-broadcast{display:inline-block;color:#fff;font-style:italic;padding:3px 14px 3px 10px;background:linear-gradient(90deg,#1e3a8a 0 55%,#7f1d1d 55%);border-left:4px solid #dc2626;border-radius:3px;font-size:21px}
 .top h1.t-gold{background:linear-gradient(180deg,#fff3c4,#fbbf24 45%,#b45309);-webkit-background-clip:text;background-clip:text;color:transparent}
 .top h1.t-neon{color:#f5d0fe;text-shadow:0 0 4px #e879f9,0 0 12px #d946ef,0 0 24px #a21caf}
+.top h1.t-tomb{font-family:Creepster,cursive;font-weight:400;font-size:31px;letter-spacing:.07em;color:#bef264;text-shadow:0 0 10px rgba(163,230,53,.5),2px 2px 0 #374151,4px 4px 0 #1f2937}
 .top h1.t-arcade{font-family:"Press Start 2P","Courier New",monospace;font-weight:400;font-size:16px;line-height:1.5;letter-spacing:0;color:#39ff14;text-shadow:3px 3px 0 #0a5c00}
 /* themed scoreboard fonts */
 .sb-spooky .phase,.sb-spooky .clock{font-family:Creepster,cursive;font-weight:400;letter-spacing:.08em;font-size:14px}
