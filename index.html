@@ -744,7 +744,7 @@ details summary{cursor:pointer;font-weight:700}
 <script>
 'use strict';
 /* ===================== constants ===================== */
-const SHOTS={layup:{n:'Layup',pts:8},jumper:{n:'Jumper',pts:14},three:{n:'Three',pts:22},dunk:{n:'Slam dunk',pts:40}};
+const SHOTS={layup:{n:'Layup',pts:6},jumper:{n:'Jumper',pts:11},three:{n:'Three',pts:17},dunk:{n:'Slam dunk',pts:30}};
 const SHOT_ORDER=['layup','jumper','three','dunk'];
 const POS=[{id:'fitness',n:'Fitness',a:'FIT',c:'#ef4444'},{id:'mind',n:'Mind',a:'MND',c:'#a78bfa'},{id:'routine',n:'Routine',a:'RTN',c:'#2dd4bf'},{id:'home',n:'Home',a:'HOM',c:'#fbbf24'},{id:'money',n:'Money',a:'MNY',c:'#22c55e'}];
 const posById=id=>POS.find(p=>p.id===id);
@@ -935,7 +935,7 @@ function ensureDay(d){
   D.f=+clamp(rating(se,D.oppId)+(r()-.5)*.12+bump,.35,.93).toFixed(3);
   return D;
 }
-const pv=p=>Math.round(SHOTS[p.shot].pts*(p.slot==='court'?1:.5));
+const pv=p=>SHOTS[p.shot].pts; // every player scores full points; starters vs bench is a role, not a value
 function isDone(p,D){const v=D.t[p.id];return p.steps&&p.steps.length?Array.isArray(v)&&p.steps.every((_,i)=>v[i]):v===true}
 function score(D){let me=0,max=0,full=0;for(const p of S.squad){const v=pv(p);full+=v;if(D.inj.includes(p.id))continue;max+=v;if(isDone(p,D))me+=v}
   if(D.ph==='brk')return{me,max,opp:D.hsOpp&&full?Math.round(hsTarget(D.d,D.hsOpp)*max/full):0};
@@ -1244,7 +1244,7 @@ function setupView(){
   <p class="small muted" style="text-align:center;margin-top:14px">Already playing on another phone? <button class="small" style="color:var(--orange2);font-weight:700" data-a="restore">Restore a backup</button></p>`;
   if(setupStep===1)return `
   <div class="top"><h1 class="cond">Sign your squad</h1><button class="small muted" data-a="setupBack">Back</button></div>
-  <p class="muted small" style="margin:-6px 2px 12px">Five starters, one per position, score full points. Five bench players score half. Each player has levels: pick the one that stretches you.</p>
+  <p class="muted small" style="margin:-6px 2px 12px">Five starters, one per position, play on the court. Five bench players back them up. Every player scores full points. Each player has levels: pick the one that stretches you.</p>
   ${squadLists(true)}
   <button class="btn primary block" style="margin-top:18px" data-a="toTipoff" ${squadReady()?'':'disabled'}>${squadReady()?'Next: tip-off':`Fill all ${5+BENCH_SIZE} spots to continue`}</button>`;
   const t=gameDate(),ps=poStart(skey(t));const regLeft=diffDays(t,ps);
@@ -1318,7 +1318,7 @@ function todayView(){
     <div class="status" style="margin-top:6px">${status2}</div>
   </div>
   <div class="sect"><h3 class="cond">Starting five · tap to score</h3></div>${courtView(D,cs)}
-  <div class="benchwrap bench-${arenaTheme()||(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench · half points','bench',D,cs)}</div>`;
+  <div class="benchwrap bench-${arenaTheme()||(S.cos&&S.cos.bench)||'classic'}">${playerSection('Bench','bench',D,cs)}</div>`;
 }
 
 const SPOTS=[[50,22],[17,48],[83,48],[29,79],[71,79]];
@@ -1380,7 +1380,7 @@ function courtView(D,cs){
     return `<div class="spot ${cs&&cs.rem.has(p.id)?'need':''}" style="left:${x}%;top:${y}%">
       <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
-      <div class="tag" data-a="editPlayer" data-id="${p.id}">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
+      <div class="tag" data-a="${canEditSquad()?'editPlayer':'subSheet'}" data-id="${p.id}">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
   return `<div class="court court-${arenaTheme()||(S.cos&&S.cos.court)||'wood'} ${cs?'clutch':''}">${lines}${cs?'<div class="spotdim"></div>':''}${spots}</div>`;
 }
 function shoot(id,bz){
@@ -1503,7 +1503,7 @@ function squadLists(edit){
   const bench=S.squad.filter(x=>x.slot==='bench');
   let bh=bench.map(squadRow).join('');
   for(let i=bench.length;i<BENCH_SIZE;i++)bh+=`<button class="pl empty" style="width:100%" ${edit?'':'disabled'} data-a="sign" data-slot="bench">+ Sign a bench player</button>`;
-  return `<div class="sect"><h3 class="cond">Starting five · full points</h3></div>${court}<div class="sect"><h3 class="cond">Bench · half points</h3></div>${bh}`;
+  return `<div class="sect"><h3 class="cond">Starting five</h3></div>${court}<div class="sect"><h3 class="cond">Bench</h3></div>${bh}`;
 }
 
 function pStats(p){
@@ -1829,7 +1829,7 @@ function clubView(){
   <div class="sect"><h3 class="cond">League teams</h3></div>
   <div class="tabs">${[['nba','NBA names'],['fictional','Fictional']].map(([k,n])=>`<button class="${(S.teamSet||'nba')===k?'on':''}" data-a="teamSet" data-v="${k}">${n}</button>`).join('')}</div>
   <details class="card" style="margin-top:12px"><summary>How it works</summary><div class="small muted stack" style="margin-top:8px">
-  <p>Each player scores by difficulty: 8, 14, 22 or 40 points. Bench players score half. Custom players are always worth 14.</p>
+  <p>Each player scores by difficulty: 6, 11, 17 or 30 points, whether they start or come off the bench. Custom players are always worth 11.</p>
   <p>When your squad locks for a season, your level is set: opponents average 75% of your squad's max points for the whole season. Sign harder players mid-season and you get ahead of them. Levels are labelled Rookie, Pro, All-Star or Hall of Fame, and higher levels earn more XP. A tie goes to overtime, which you win if all your starters are done.</p>
   <p>Results lock at 4am. Wins earn 50 XP, friendlies 20, plus XP equal to your points. Each playoff series win earns 100 XP, a title 500.</p>
   <p>The last 9 days of each month are the playoffs. A new season starts on the 1st with a short pre-season.</p></div></details>
@@ -1912,7 +1912,7 @@ function profileView(){
     return `<div class="aw-row ${pos===0?'lead':''}"><span class="aw-ic">${a.i}</span><div class="sp"><b>${a.n}</b><div class="small muted">${a.d}</div></div>${tag}</div>`}).join('');
   const mine=[];for(const k of Object.keys(won).sort().reverse())for(const a of AWARDS)if(won[k][a.id]===p.id)mine.push(`<span class="aw-chip">${a.i} ${a.n} <small>${monthName(k).split(' ')[0].slice(0,3)} ${k.slice(2,4)}</small></span>`);
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
-  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></div>
+  return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><span class="row" style="gap:6px">${!canEditSquad()&&S.days[t]&&!S.days[t].locked&&subOptions(p,S.days[t]).length?`<button class="btn" data-a="subSheet" data-id="${p.id}">⇄ Sub ${p.slot==='court'?'off':'on'}</button>`:''}<button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></span></div>
   <div class="prof" style="--pc:${ps.c}">
     <div class="prof-art"><span class="prof-head">${faceSvg(p)}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
     <div class="prof-name cond">${esc(id.name)}</div>
@@ -2012,6 +2012,32 @@ function sfx(name){
   if(name==='cheer'){noise(c,t,1.8,.55,'bandpass',900,1500,.6,out);noise(c,t+.1,1.6,.3,'bandpass',2200,1800,.8,out);for(let i=0;i<6;i++)noise(c,t+.2+i*.17,.07,.5,'bandpass',1800+Math.random()*800,0,3,out)}
 }
 
+/* ===================== subs ===================== */
+// In-season subs: swap a starter with a bench player of the same category, any time, even mid-game.
+// Points never depend on the role, so subs can't be gamed. A player subbed off can't come back on the same day.
+const subbedOff=(D,id)=>!!(D&&D.subOff&&D.subOff.includes(id));
+function subOptions(p,D){
+  if(p.slot==='court')return S.squad.filter(x=>x.slot==='bench'&&x.pos===p.pos&&!subbedOff(D,x.id));
+  const st=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);return st&&!subbedOff(D,p.id)?[st]:[];
+}
+function subRow(p,D){
+  const o=subOptions(p,D),off=subbedOff(D,p.id)&&p.slot==='bench';
+  if(off)return `<div class="mvrow off"><span class="mvi">⇄</span><span class="sp"><b>Sub on</b><small>Subbed off today · can come back on tomorrow</small></span></div>`;
+  if(!o.length)return p.slot==='court'?`<div class="mvrow off"><span class="mvi">⇄</span><span class="sp"><b>Sub off</b><small>No ${posById(p.pos).n} player on the bench</small></span></div>`:'';
+  return `<button class="mvrow" data-a="subSheet" data-id="${p.id}"><span class="mvi">⇄</span><span class="sp"><b>${p.slot==='court'?'Sub off':'Sub on'}</b><small>${p.slot==='court'?`Bring on a ${posById(p.pos).n} player from the bench`:`Replaces ${esc(o[0].name)} in the starting five`}</small></span><span class="mvc">›</span></button>`;
+}
+function subSheet(id){
+  const p=S.squad.find(x=>x.id===id);if(!p)return;const D=ensureDay(gameDate());
+  if(canEditSquad())return playerSheet(id);
+  const starter=p.slot==='court'?p:S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);
+  const opts=p.slot==='court'?subOptions(p,D):[p];
+  const row=x=>`<button class="trrow" data-a="doSub" data-out="${starter.id}" data-in="${x.id}">${avatar(x)}<span class="mjs">${jerseySvg(myKit(),ident(x).name,ident(x).num)}</span><span class="sp" style="min-width:0"><b>${esc(x.name)}</b><small>${esc(x.lvl)}${isDone(x,D)?' · ✓ done today':''}</small></span>${pts(x)}<span class="trgo">Sub on ›</span></button>`;
+  const blocked=S.squad.filter(x=>x.slot==='bench'&&x.pos===starter.pos&&subbedOff(D,x.id));
+  sheet(`<h2>⇄ Sub off ${esc(starter.name)}</h2><p class="small muted" style="margin:0 0 10px">Swap with a ${posById(starter.pos).n} player from the bench. Points don't change, only who's on the court. ${esc(starter.name)} can't come back on until tomorrow.</p>
+    ${opts.length?opts.map(row).join(''):`<p class="muted">No ${posById(starter.pos).n} players available on the bench.</p>`}
+    ${blocked.length?`<p class="small muted" style="margin-top:6px">Subbed off earlier today: ${blocked.map(x=>esc(x.name)).join(', ')}</p>`:''}`);
+}
+
 /* ===================== sheets ===================== */
 function sheet(html){closeSheet();const s=document.createElement('div');s.className='scrim';s.id='scrim';s.innerHTML=`<div class="sheet"><div class="grab"></div>${html}</div>`;s.addEventListener('click',e=>{if(e.target===s)closeSheet()});document.body.appendChild(s)}
 function closeSheet(){const s=document.getElementById('scrim');if(s)s.remove()}
@@ -2046,9 +2072,10 @@ function playerSheet(id){
   if(edit&&lib&&lib.lv.length>1)a+=`<label class="flab">Level</label><div class="lvls">${lib.lv.map((l,i)=>`<button class="lvl ${l.l===p.lvl?'on':''}" data-a="setLvl" data-id="${p.id}" data-i="${i}">${esc(l.l)} · <span class="shot-${l.shot}">${SHOTS[l.shot].pts}</span></button>`).join('')}</div>`;
   if(edit){
     if(p.slot==='bench'){const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);a+=`<button class="mvrow" data-a="promote" data-id="${p.id}"><span class="mvi">⬆️</span><span class="sp"><b>Move to starting five</b><small>${cur?`Swaps places with ${esc(cur.name)}`:`Starts at ${posById(p.pos).n}`}</small></span><span class="mvc">›</span></button>`}
-    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="mvrow" data-a="bench" data-id="${p.id}"><span class="mvi">⬇️</span><span class="sp"><b>Move to bench</b><small>Scores half points</small></span><span class="mvc">›</span></button>`;
+    else if(S.squad.filter(x=>x.slot==='bench').length<BENCH_SIZE)a+=`<button class="mvrow" data-a="bench" data-id="${p.id}"><span class="mvi">⬇️</span><span class="sp"><b>Move to bench</b><small>Still scores full points</small></span><span class="mvc">›</span></button>`;
     a+=`<button class="mvrow danger" data-a="release" data-id="${p.id}"><span class="mvi">✖️</span><span class="sp"><b>Release player</b><small>Frees up this spot</small></span><span class="mvc">›</span></button>`;
-  }else if(transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
+  }else if(S.firstStart&&se&&t>=se.start&&!(D&&D.locked))a+=subRow(p,D);
+  if(!edit&&transferOpen())a+=`<button class="mvrow" data-a="transfer" data-id="${p.id}"><span class="mvi">🔁</span><span class="sp"><b>Trade this player</b><small>${TRANSFER_DAYS-diffDays(se.start,t)}d left · same difficulty or harder</small></span><span class="mvc">›</span></button>`;
   if(S.firstStart&&se&&t>=se.start){
     if(inj)a+=`<button class="mvrow" data-a="uninjure" data-id="${p.id}"><span class="mvi">↩️</span><span class="sp"><b>Bring back from injury list</b><small>Plays again today</small></span><span class="mvc">›</span></button>`;
     else if(D&&!isDone(p,D))a+=se.injLeft>0?`<button class="mvrow" data-a="injure" data-id="${p.id}"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>${se.injLeft} of ${INJURY_USES} left this season · opponent adjusts</small></span><span class="mvc">›</span></button>`:`<div class="mvrow off"><span class="mvi">🩹</span><span class="sp"><b>Rest today</b><small>No injury rests left this season</small></span></div>`;
@@ -2117,6 +2144,10 @@ const A={
   look(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));const p=S.squad.find(x=>x.id===d.id);p.look={...(p.look||{}),[d.k]:d.v};save();render();playerSheet(p.id)},
   cos(d){if(!cosUnlocked(d.k,d.v))return toast(lockMsg(d.k,d.v));if(ARENA.includes(d.k)&&arenaLocked())return toast('Scoreboard, court and bench are locked until the new season on the 1st');const same=S.cos&&S.cos[d.k]===d.v;S.cos={...(S.cos||{}),[d.k]:d.v};save();render();if(d.k==='cel')celebrate(d.v,same?'PREVIEW':'WIN','96–87')},
   setLvl(d){const p=S.squad.find(x=>x.id===d.id),l=libById(p.lib).lv[+d.i];p.lvl=l.l;p.shot=l.shot;save();render();playerSheet(p.id)},
+  subSheet(d){subSheet(d.id)},
+  doSub(d){const out=S.squad.find(x=>x.id===d.out),inn=S.squad.find(x=>x.id===d.in);if(!out||!inn||out.pos!==inn.pos)return;const D=ensureDay(gameDate());
+    if(subbedOff(D,inn.id))return toast(`${inn.name} was subbed off today`);
+    out.slot='bench';inn.slot='court';D.subOff=[...(D.subOff||[]),out.id];save();closeSheet();render();sfx('whistle');buzz(30);toast(`⇄ ${inn.name} on for ${out.name}`)},
   promote(d){const p=S.squad.find(x=>x.id===d.id);const cur=S.squad.find(x=>x.slot==='court'&&x.pos===p.pos);if(cur)cur.slot='bench';p.slot='court';save();closeSheet();render()},
   bench(d){const p=S.squad.find(x=>x.id===d.id);p.slot='bench';save();closeSheet();render()},
   release(d){if(!confirm('Release this player?'))return;S.squad=S.squad.filter(x=>x.id!==d.id);save();closeSheet();render()},
