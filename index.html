@@ -703,6 +703,13 @@ button.rtd{color:#93c5fd;border-color:rgba(96,165,250,.45)}
 .rkb.r-pro{background:#3b82f6;color:#fff}
 .rkb.r-allstar{background:linear-gradient(180deg,#fde68a,#f59e0b);color:#78350f;font-size:11px}
 .rkb.r-vet{background:linear-gradient(135deg,#f472b6,#a855f7);color:#fff;font-size:10px}
+.rkb.r-legend{background:linear-gradient(135deg,#67e8f9,#0891b2);color:#fff;font-size:10px;box-shadow:0 0 8px rgba(34,211,238,.6)}
+.rkb.r-goat{background:radial-gradient(circle at 35% 30%,#fff7c2,#facc15 55%,#a16207);font-size:11px;box-shadow:0 0 10px rgba(250,204,21,.8);animation:goatglow 1.6s ease-in-out infinite}
+@keyframes goatglow{50%{box-shadow:0 0 18px rgba(250,204,21,1)}}
+.prank.r-legend{color:#ecfeff;border-color:#06b6d4;background:linear-gradient(90deg,#22d3ee,#0e7490)}
+.prank.r-goat{color:#1a1000;border-color:#eab308;background:linear-gradient(90deg,#fef08a,#facc15,#fde047);box-shadow:0 0 10px rgba(250,204,21,.6)}
+.rankbar.r-vet .rb-bar i{background:linear-gradient(90deg,#22d3ee,#0891b2)}
+.rankbar.r-legend .rb-bar i{background:linear-gradient(90deg,#facc15,#fde047)}
 .prof-head{position:relative}
 .rkb.big{width:32px;height:32px;top:-10px;left:-10px;font-size:16px;border-width:3px}
 .rkb.big.r-allstar{font-size:18px}
@@ -2059,14 +2066,14 @@ function pastAwards(){
     const r=awardRace(k,addDays(monthEnd(k),1));S.awards[k]=Object.fromEntries(AWARDS.map(a=>[a.id,r[a.id][0]||null]))}
   return S.awards;
 }
-// Player ranks: Rookie → Pro (25 career makes) → All-Star (100) → Veteran (250). Ranks never go down. Separate from retiring a jersey.
-const PRANKS=[{id:'rookie',n:'Rookie',at:0,c:'#94a3b8'},{id:'pro',n:'Pro',at:25,c:'#60a5fa'},{id:'allstar',n:'All-Star',at:100,c:'#fbbf24'},{id:'vet',n:'Veteran',at:250,c:'#f472b6'}];
+// Player ranks by career makes, never going down; separate from retiring a jersey.
+const PRANKS=[{id:'rookie',n:'Rookie',at:0,c:'#94a3b8'},{id:'pro',n:'Pro',at:25,c:'#60a5fa'},{id:'allstar',n:'All-Star',at:100,c:'#fbbf24'},{id:'vet',n:'Veteran',at:250,c:'#f472b6'},{id:'legend',n:'Legend',at:500,c:'#22d3ee'},{id:'goat',n:'G.O.A.T.',at:1000,c:'#fde047'}];
 function careerMakes(p){const today=gameDate();let n=0;for(const d in S.days){if(d>today)continue;if(p.signedAt&&d<p.signedAt)continue;const D=S.days[d];if(D.locked&&!restD(D)&&!D.inj.includes(p.id)&&isDone(p,D))n++}return n}
-function pRank(p){const m=careerMakes(p);return m>=250?3:m>=100?2:m>=25?1:0}
-const RSYM=['','▲','★','♛'];
+function pRank(p){const m=careerMakes(p);let r=0;PRANKS.forEach((x,i)=>{if(m>=x.at)r=i});return r}
+const RSYM=['','▲','★','♛','◆','🐐'];
 const rankTag=p=>{const k=pRank(p);if(!k)return '';const r=PRANKS[k];return `<span class="prank r-${r.id}">${r.n}</span>`}; // Rookie is the default, so cards only show Pro and up
 // Celebrate rank-ups the first time they're noticed.
-function checkRanks(){let ch=false;for(const p of S.squad){const r=pRank(p);if(p.rk==null){p.rk=r;ch=true;continue}if(r>p.rk){p.rk=r;ch=true;const R=PRANKS[r];setTimeout(()=>{toast(`⭐ ${p.name} is now ${/^[AEIOU]/.test(R.n)?'an':'a'} ${R.n}!`);sfx('cheer');buzz([40,60,40])},600)}}if(ch)save()}
+function checkRanks(){let ch=false;for(const p of S.squad){const r=pRank(p);if(p.rk==null){p.rk=r;ch=true;continue}if(r>p.rk){p.rk=r;ch=true;const R=PRANKS[r];setTimeout(()=>{toast(R.id==='goat'?`🐐 ${p.name} is the G.O.A.T.!`:`⭐ ${p.name} is now ${/^[AEIOU]/.test(R.n)?'an':'a'} ${R.n}!`);sfx('cheer');buzz([40,60,40])},600)}}if(ch)save()}
 function pCareer(p){
   const today=gameDate(),bym={};let att=0,made=0;
   for(const d of Object.keys(S.days).sort()){if(d>today)break;if(p.signedAt&&d<p.signedAt)continue;const D=S.days[d];if(!D.locked||restD(D)||D.inj.includes(p.id))continue;
@@ -2101,7 +2108,7 @@ function profileView(){
     <div class="prof-name cond">${esc(id.name)}</div>
     <div class="prof-habit">${esc(p.name)} <span class="muted">· ${esc(p.lvl)}</span></div>
     <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
-    ${(()=>{const r=pRank(p),m=careerMakes(p),nx=PRANKS[r+1];return `<div class="rankbar r-${PRANKS[r].id}"><div class="rb-top"><span class="prank big r-${PRANKS[r].id}">${r?`<i class="rk-sym">${RSYM[r]}</i>`:''}${PRANKS[r].n}</span><small>${r===3?`${m} makes · top rank`:`${m} / ${nx.at} makes to ${nx.n}`}</small></div>${r<3?`<div class="rb-bar"><i style="width:${Math.min(100,m/nx.at*100)}%"></i></div>`:''}</div>`})()}
+    ${(()=>{const r=pRank(p),m=careerMakes(p),nx=PRANKS[r+1];return `<div class="rankbar r-${PRANKS[r].id}"><div class="rb-top"><span class="prank big r-${PRANKS[r].id}">${r?`<i class="rk-sym">${RSYM[r]}</i>`:''}${PRANKS[r].n}</span><small>${!nx?`${m} career makes · top rank`:`${m} / ${nx.at} makes to ${nx.n}`}</small></div>${nx?`<div class="rb-bar"><i style="width:${Math.min(100,m/nx.at*100)}%"></i></div>`:''}</div>`})()}
   </div>
   <div class="sect"><h3 class="cond">Stats</h3></div>
   <div class="card statcard"><div class="tabs ptabs">${[['season','This season'],['career','Career']].map(([k,n])=>`<button class="${profTab===k?'on':''}" data-a="profTab" data-v="${k}">${n}</button>`).join('')}</div>
