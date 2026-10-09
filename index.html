@@ -1657,7 +1657,7 @@ const HAIRS=['#1b120c','#3b2416','#6b3e1f','#c98b2e','#e8c36a','#b4441b','#8e8e8
 const HAIR_STYLES=[['short','Short'],['buzz','Buzz'],['flat','Flat top'],['bald','Bald'],['curly','Curly'],['mohawk','Mohawk'],['afro','Afro'],['spiky','Spiky'],['topknot','Top knot']];
 const BANDS=[['none','None'],['#ef4444','Red'],['#ffffff','White'],['#2563eb','Blue'],['#22c55e','Green'],['#a78bfa','Purple'],['#fbbf24','Gold'],['#22d3ee','Neon'],['#ec4899','Pink']];
 const EXTRAS=[['none','None'],['glasses','Glasses'],['beard','Beard'],['stache','Moustache'],['shades','Shades'],['crown','Crown'],['goggles','Goggles'],['warpaint','Face paint']];
-// Collectible heads: original legend-style looks (not based on real people). A head overrides a player's scouted face.
+// Collectible heads: original legend-style looks (not based on real people). A head replaces the player's default head.
 const HEADS=[
  {id:'hothand',n:'Hot Hand',sk:2,hair:'#1b120c',style:'flat',band:'#ef4444',fx:[],mouth:'grin'},
  {id:'retro',n:'Retro Ace',sk:3,hair:'#4a2c17',style:'afro',band:'#ffffff',fx:['stache'],mouth:'smile'},
@@ -1683,20 +1683,9 @@ const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
 function faceParams(p){
   const H=p.head&&HEADS.find(h=>h.id===p.head);
   if(H){const[sk,sh]=H.skin||SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx,shape:H.shape||'std'}}
-  const r=rng('face'+(p.face||p.id));const pick=a=>a[Math.floor(r()*a.length)];
-  const [sk,sh]=pick(SKINS),hair=pick(HAIRS);
-  let style=pick(['short','short','bald','flat','afro','mohawk','buzz','curly']);
-  const beard=r()<.3,stache=!beard&&r()<.2,glasses=r()<.14,mouth=pick(['smile','flat','grin','smile']);
-  const hasBand=r()<.25,bandC=pick(['#ef4444','#ffffff','#2563eb','#fbbf24','#22c55e','#a78bfa']);
-  let band=hasBand?bandC:'none';
-  let fx={beard,stache,glasses,shades:false,crown:false};
-  let extra=beard?'beard':stache?'stache':glasses?'glasses':'none';
-  const L=p.look||{};
-  if(L.hair)style=L.hair;
-  if(L.band)band=L.band;
-  if(L.extra){extra=L.extra;fx={beard:false,stache:false,glasses:false,shades:false,crown:false};if(extra!=='none')fx[extra]=true}
-  const shape=pick(['std','std','long','round','square']); // scouted players get a little variety too
-  return{sk,sh,hair,style,mouth,band,extra,fx,shape};
+  // No head equipped: every player wears the same default head (no random scouted faces), so heads stay a cosmetic worth collecting.
+  const [sk,sh]=SKINS[2];
+  return{sk,sh,hair:'#2a1a12',style:'short',mouth:'smile',band:'none',extra:'none',fx:{},shape:'std'};
 }
 // ===== HD heads (32x32): same face parameters as the 16x16 heads, drawn with more shading and detail =====
 function hexMix(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
@@ -2501,7 +2490,7 @@ function jerseyBlock(p){
       <button class="headbtn ${headOpen?'open':''}" data-a="toggleHeads" style="border-color:${posById(p.pos).c}" aria-label="Change head">${faceSvg(p)}<span class="hedit">${headOpen?'✕ Close':'✏️ Change'}</span></button>
       <div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div>
     </div>
-    <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head<span><button class="lnk" data-a="newLook" data-id="${p.id}">🎲 New scouted face</button></span></div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
+    <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head</div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
     <div class="nmrow"><div class="sp"><label class="flab">Player name</label><input id="pPlayer" maxlength="20" value="${esc(id.name)}"></div>
       <div style="width:84px"><label class="flab">Number</label><input id="pNum" type="number" inputmode="numeric" min="0" max="99" value="${id.num}" ${R?'disabled':''}></div></div>
 </div>`;
@@ -2581,7 +2570,7 @@ function achSummary(){
 }
 const COURT_MINI=`<svg viewBox="0 0 400 330" fill="none" stroke="#fff" stroke-width="10" stroke-opacity=".85"><rect x="10" y="8" width="380" height="314"/><path d="M155 8a45 45 0 0 0 90 0"/><rect x="148" y="196" width="104" height="126"/><circle cx="200" cy="196" r="44"/><path d="M38 322V262A170 170 0 0 1 362 262V322"/></svg>`;
 function headGrid(p){
-  const tiles=[`<button class="gtile ${!p.head?'on':''}" data-a="setHead" data-id="${p.id}" data-v="scouted"><span class="glogo">${faceSvg({...p,head:null})}</span><span class="gn">Scouted</span></button>`];
+  const tiles=[`<button class="gtile ${!p.head?'on':''}" data-a="setHead" data-id="${p.id}" data-v="scouted"><span class="glogo">${faceSvg({...p,head:null})}</span><span class="gn">Default</span></button>`];
   for(const h of HEADS){const ok=cosUnlocked('head',h.id),pr=isPrem('head',h.id);if(!ok)continue;
     tiles.push(`<button class="gtile ${p.head===h.id?'on':''} ${ok?'':'locked'}" data-a="setHead" data-id="${p.id}" data-v="${h.id}"><span class="glogo">${faceSvg({id:'x',head:h.id})}</span>${!ok?'<i class="gb">🔒</i>':''}<span class="gn">${h.n}</span></button>`)}
   return `<div class="ggrid">${tiles.join('')}</div>`;
