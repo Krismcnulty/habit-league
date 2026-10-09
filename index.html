@@ -47,7 +47,7 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .btn.block{width:100%}
 .btn:disabled{opacity:.4}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--panel2);border:1px solid var(--line)}
-.av{width:64px;height:64px;flex:none;border-radius:12px;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.av{width:68px;height:68px;flex:none;border-radius:12px;background:var(--pbg);background-size:var(--pbgs,auto);border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
 .shn{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none}
 .shn::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:60%;transform:translateX(-160%) skewX(-18deg);animation:shnsweep 3.6s ease-in-out infinite;animation-delay:var(--sd,0s)}
 .shn.r-vet::after{background:linear-gradient(90deg,transparent,rgba(244,114,182,.45),rgba(255,255,255,.35),transparent)}
@@ -727,7 +727,7 @@ td.tpos{white-space:nowrap}
 .rcol .posn{font-size:11.5px}
 .hidden{display:none}
 .lookrow{display:flex;justify-content:center;align-items:center;gap:22px}
-.headbtn{position:relative;width:96px;height:96px;border-radius:20px;border:3px solid;background:var(--pbg);display:grid;place-items:center;padding:0;box-shadow:0 6px 14px rgba(0,0,0,.35);transition:transform .15s}
+.headbtn{position:relative;width:102px;height:102px;border-radius:20px;border:3px solid;background:var(--pbg);display:grid;place-items:center;padding:0;box-shadow:0 6px 14px rgba(0,0,0,.35);transition:transform .15s}
 .headbtn svg{width:82px;height:82px;image-rendering:pixelated}
 .headbtn:active{transform:scale(.96)}
 .headbtn .hedit{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);white-space:nowrap;background:var(--orange);color:#1a0d00;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
@@ -834,7 +834,7 @@ td.tpos{white-space:nowrap}
 .backbtn{background:none;border:0;color:var(--orange2);font-weight:800;font-size:16px;padding:6px 0}
 .prof{position:relative;text-align:center;padding:16px 14px 14px;border-radius:20px;border:1px solid var(--line);background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--pc) 28%,transparent),transparent 70%),linear-gradient(180deg,var(--panel),var(--deep))}
 .prof-art{display:flex;justify-content:center;align-items:center;gap:10px;margin-bottom:8px}
-.prof-head{width:128px;height:128px;border-radius:24px;border:3px solid var(--pc);background:var(--pbg);background-size:var(--pbgs,auto);padding:4px;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
+.prof-head{width:134px;height:134px;border-radius:24px;border:3px solid var(--pc);background:var(--pbg);background-size:var(--pbgs,auto);padding:0;display:grid;place-items:center;box-shadow:0 0 22px color-mix(in srgb,var(--pc) 35%,transparent)}
 .prof-head svg{width:100%;height:100%}
 .prof-jsy{width:95px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
 .prof-name{font-size:26px;line-height:1.1}
@@ -1867,7 +1867,7 @@ function faceGridHD(p){
   return G;
 }
 // Outline and crop a 32x32 head grid into an SVG. Shared by drawn heads and hand-made pixel heads from the Studio.
-function headGridSvg(G){
+function headGridSvg(G,scale){
   const N=32,ink='#140b06',out=G.map(r=>r.slice());
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
   let rects='';
@@ -1875,13 +1875,15 @@ function headGridSvg(G){
   // crop to the face so it fills its frame (never tighter than 25px, so plain heads don't look oversized)
   let x0=N,y0=N,x1=0,y1=0;for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(out[y][x]){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)}
   const side=Math.min(N,Math.max(25,x1-x0+1,y1-y0+1)),vx=Math.max(0,Math.min(N-side,(x0+x1+1)/2-side/2)),vy=Math.max(0,Math.min(N-side,(y0+y1+1)/2-side/2));
-  return `<svg viewBox="${vx} ${vy} ${side} ${side}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+  // optional scale = screen pixels per art pixel: fixes the svg's size so every art pixel is the same whole number of pixels wide
+  const sz=scale>0?` width="${side*scale}" height="${side*scale}" style="width:${side*scale}px;height:${side*scale}px;flex:none"`:'';
+  return `<svg viewBox="${vx} ${vy} ${side} ${side}"${sz} shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
 }
 // Hand-made heads store their pixels as 32 rows of palette letters ('.' = empty).
 const pxGrid=H=>H.px.map(r=>[...r].map(c=>c==='.'?null:(H.pal[c]||null)));
-function faceSvgHD(p){const H=p.head&&HEADS.find(h=>h.id===p.head);return headGridSvg(H&&H.px?pxGrid(H):faceGridHD(p))}
-function faceSvg(p){
-  if(!(S&&S.oldHeads)||p.head&&(HEADS.find(h=>h.id===p.head)||{}).px)return faceSvgHD(p);
+function faceSvgHD(p,scale){const H=p.head&&HEADS.find(h=>h.id===p.head);return headGridSvg(H&&H.px?pxGrid(H):faceGridHD(p),scale)}
+function faceSvg(p,scale){
+  if(!(S&&S.oldHeads)||p.head&&(HEADS.find(h=>h.id===p.head)||{}).px)return faceSvgHD(p,scale);
   const {sk,sh,hair,style,mouth,band,fx}=faceParams(p),ink='#140b06';
   const G=Array.from({length:16},()=>Array(16).fill(null));
   const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
@@ -2121,7 +2123,7 @@ function ident(p){const r=rng('name'+p.id);const ini='ABCDEFGHJKLMNOPRSTW'[Math.
 const shine=p=>{const r=pRank(p);if(r<3)return '';const d=([...String(p.id)].reduce((a,c)=>a+c.charCodeAt(0),0)%40)/10;return `<span class="shn r-${PRANKS[r].id}" style="--sd:${d}s"></span>`};
 const rkBadge=p=>{const rk=pRank(p);return rk?`<i class="rkb r-${PRANKS[rk].id}" title="${PRANKS[rk].n}">${RSYM[rk]}</i>`:''};
 const avAndRank=p=>{const av=avatar(p),rb=rkBadge(p);return rb?av.slice(0,av.lastIndexOf('</span>'))+rb+'</span>':av};
-const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p)}${shine(p)}</span>`};
+const avatar=p=>{const c=(posById(p.pos)||POS[0]).c,id=ident(p);return `<span class="av" style="border-color:${c};box-shadow:inset 0 0 0 1px ${c}55">${faceSvg(p,2)}${shine(p)}</span>`};
 const pts=p=>`<span class="ptsb shot-${p.shot}">${pv(p)}<small> pts</small></span>`;
 const posTag=p=>{const ps=posById(p.pos);return `<span class="posn" style="color:${ps.c}">${ps.n}</span>`};
 
@@ -2332,7 +2334,7 @@ function courtView(D,cs){
     const [x,y]=SPOTS[i];const inj=D.inj.includes(p.id),done=!inj&&isDone(p,D),st=streak(p);
     const hasSteps=p.steps&&p.steps.length;const n=hasSteps?(Array.isArray(D.t[p.id])?D.t[p.id]:[]).filter(Boolean).length:0;
     return `<div class="spot ${cs&&cs.rem.has(p.id)?'need':''}" style="left:${x}%;top:${y}%">
-      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p)}${shine(p)}${rkBadge(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
+      <button class="tok ${done?'done':''} ${inj?'inj':''}" style="border-color:${posById(p.pos).c}" data-a="${hasSteps?'steps':'tick'}" data-id="${p.id}" ${inj?'disabled':''} aria-label="Score ${esc(p.name)}">${faceSvg(p,2)}${shine(p)}${rkBadge(p)}<span class="tjs">${jerseySvg(myKit(),ident(p).name,ident(p).num)}</span>
         ${done?'<span class="ck">✓</span>':hasSteps&&!inj?`<span class="stc">${n}/${p.steps.length}</span>`:''}</button>
       <div class="tag">${esc(p.name)}<span class="pn"><b class="shot-${p.shot}">${pv(p)} pts</b></span></div></div>`}).join('');
   return `<div class="court court-${arenaTheme()||(S.cos&&S.cos.court)||'wood'} ${cs?'clutch':''}">${lines}${cs?'<div class="spotdim"></div>':''}${spots}</div>`;
@@ -2555,7 +2557,7 @@ function jerseyBlock(p){
     :'';
   return `<div class="ecard"><div class="ehead">Player</div>
     <div class="lookrow">
-      <button class="headbtn ${headOpen?'open':''}" data-a="toggleHeads" style="border-color:${posById(p.pos).c}" aria-label="Change head">${faceSvg(p)}<span class="hedit">${headOpen?'✕ Close':'✏️ Change'}</span></button>
+      <button class="headbtn ${headOpen?'open':''}" data-a="toggleHeads" style="border-color:${posById(p.pos).c}" aria-label="Change head">${faceSvg(p,3)}<span class="hedit">${headOpen?'✕ Close':'✏️ Change'}</span></button>
       <div class="jbig">${jerseySvg(myKit(),id.name,id.num)}</div>
     </div>
     <div id="headpick" class="${headOpen?'':'hidden'}"><div class="ehead" style="margin:12px 0 8px">Choose a head</div>${headGrid(p)}<div class="small muted" style="margin-top:6px">More heads in the Locker.</div></div>
@@ -3081,7 +3083,7 @@ function profileView(){
   const tag=stt==='fire'?'<span class="ptag fire">On fire</span>':stt==='cold'?'<span class="ptag cold">Slumping</span>':'';
   return `<div class="top"><button class="backbtn" data-a="go" data-v="squad">‹ Squad</button><span class="row" style="gap:6px">${subOptions(p,null).length?`<button class="btn" data-a="subSheet" data-id="${p.id}">⇄ Sub</button>`:''}<button class="btn" data-a="editPlayer" data-id="${p.id}">✏️ Edit</button></span></div>
   <div class="prof" style="--pc:${ps.c}">
-    <div class="prof-art"><span class="prof-head">${faceSvg(p)}${pRank(p)?`<i class="rkb big r-${PRANKS[pRank(p)].id}">${RSYM[pRank(p)]}</i>`:''}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
+    <div class="prof-art"><span class="prof-head">${faceSvg(p,4)}${pRank(p)?`<i class="rkb big r-${PRANKS[pRank(p)].id}">${RSYM[pRank(p)]}</i>`:''}</span><span class="prof-jsy">${jerseySvg(myKit(),id.name,id.num)}</span></div>
     <div class="prof-name cond">${esc(p.name)}</div>
     <div class="prof-habit">${esc(p.lvl)}</div>
     <div class="prof-tags"><span class="ptag pos" style="color:${ps.c};border-color:${ps.c}">${ps.n}</span><span class="ptag slot">${p.slot==='court'?'Starter':'Bench'} · ${pv(p)} pts</span>${rankChip(pRank(p))}${sk>=2?`<span class="pstk">🔥 ${sk}</span>`:''}${tag}</div>
@@ -3621,7 +3623,7 @@ function addArt(lib){let n=0;for(const a of lib||[]){if(a.type!=='head'||!a.px||
   if(a.where==='shop'){RESERVED.push(['head',a.id]);SHOP_RAR['head:'+a.id]=a.rarity||'epic'}n++}return n}
 fetch('art/library.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).then(l=>{if(addArt(l)&&S.team&&S.firstStart)render()}).catch(()=>{});
 // Used by the Studio page (studio.html), which loads the app in a hidden frame to draw with the app's own code.
-window.HL_ART={grid:p=>faceGridHD(p),svg:G=>headGridSvg(G),heads:()=>HEADS.map(h=>({id:h.id,n:h.n})),
+window.HL_ART={grid:p=>faceGridHD(p),svg:(G,scale)=>headGridSvg(G,scale),heads:()=>HEADS.map(h=>({id:h.id,n:h.n})),
   headGrid:id=>{const H=HEADS.find(h=>h.id===id);return H&&H.px?pxGrid(H):faceGridHD({id:'x',head:id})},
   base:(skin,shape)=>faceGridHD({id:'x',params:{sk:SKINS[skin][0],sh:SKINS[skin][1],shape}}),skins:SKINS,hairs:HAIRS,shapes:Object.keys(HD_SHAPES),
   // parts kit: build a head from parts with the app's own drawing code
