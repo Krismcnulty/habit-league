@@ -1703,6 +1703,7 @@ const HEADS=[
 ];
 const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
 function faceParams(p){
+  if(p.params)return{sk:'#d39a6a',sh:'#b07a4e',hair:'#1b120c',style:'bald',mouth:'flat',band:'none',extra:'none',shape:'std',...p.params,fx:{}};
   const H=p.head&&HEADS.find(h=>h.id===p.head);
   if(H){const[sk,sh]=H.skin||SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx,shape:H.shape||'std'}}
   // No head equipped: each player has their own plain default head, fixed to them (skin, hair colour, a simple haircut and expression).
@@ -1726,7 +1727,7 @@ const hdHalf=y=>y<6||y>HDS.end?0:Math.round(HDS.rows[y]||HDS.w);
 const hdIn=(x,y)=>{const h=hdHalf(y);return h>0&&x>=16-h&&x<=15+h};
 const HD_CROWN=["...............WW...............","........WW.....YY.....WW........","........YY..W.YLLY.W..YY........",".......YYYY.YYYLLYYY.YYYY.......",".......YLYYYYYYYYYYYYYYYYo......",".......LLLLLLLLLLLLLLLLLLo......",".......YYbBYYYYrRYYYYbBYYo......",".......YYBBYYYYRRYYYYBBYYo......",".......OOOOOOOOOOOOOOOOOOO......"];
 const HD_CROWN_C={W:'#fffbeb',Y:'#fbbf24',L:'#fde68a',O:'#b45309',o:'#d97706',R:'#ef4444',r:'#fecaca',B:'#3b82f6',b:'#bfdbfe'};
-function faceSvgHD(p){
+function faceGridHD(p){
   const {sk,sh,hair,style,mouth,band,fx,shape}=faceParams(p),ink='#140b06';HDS=HD_SHAPES[shape]||HD_SHAPES.std;
   const N=32,G=Array.from({length:N},()=>Array(N).fill(null));
   const set=(x,y,c)=>{if(x>=0&&x<N&&y>=0&&y<N)G[y][x]=c};
@@ -1862,8 +1863,11 @@ function faceSvgHD(p){
   // nose bridge highlight, nostril wings, upper eyelids
   if(!fx.ghost&&!fx.zombie&&!fx.snowman){set(15,15,T5.hl);set(15,16,T5.l);set(15,17,T5.hl);if(SKIN.has(get(13,19)))set(13,19,T5.s);if(SKIN.has(get(18,19)))set(18,19,T5.d);set(16,18,T5.s);
     if(!fx.shades&&!fx.goggles&&!fx.sportspecs)[9,19].forEach(ex=>{if(get(ex,15)==='#f4f1ea'||get(ex+3,15)==='#f4f1ea')for(let x=ex;x<=ex+3;x++)if(SKIN.has(get(x,14)))set(x,14,T5.d)})}
-  // outline
-  const out=G.map(r=>r.slice());
+  return G;
+}
+// Outline and crop a 32x32 head grid into an SVG. Shared by drawn heads and hand-made pixel heads from the Studio.
+function headGridSvg(G){
+  const N=32,ink='#140b06',out=G.map(r=>r.slice());
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!G[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>G[y+dy]&&G[y+dy][x+dx]))out[y][x]=ink;
   let rects='';
   for(let y=0;y<N;y++){let x=0;while(x<N){const c=out[y][x];if(!c){x++;continue}let w=1;while(x+w<N&&out[y][x+w]===c)w++;rects+=`<rect x="${x}" y="${y}" width="${w}" height="1" fill="${c}"/>`;x+=w}}
@@ -1872,8 +1876,11 @@ function faceSvgHD(p){
   const side=Math.min(N,Math.max(25,x1-x0+1,y1-y0+1)),vx=Math.max(0,Math.min(N-side,(x0+x1+1)/2-side/2)),vy=Math.max(0,Math.min(N-side,(y0+y1+1)/2-side/2));
   return `<svg viewBox="${vx} ${vy} ${side} ${side}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
 }
+// Hand-made heads store their pixels as 32 rows of palette letters ('.' = empty).
+const pxGrid=H=>H.px.map(r=>[...r].map(c=>c==='.'?null:(H.pal[c]||null)));
+function faceSvgHD(p){const H=p.head&&HEADS.find(h=>h.id===p.head);return headGridSvg(H&&H.px?pxGrid(H):faceGridHD(p))}
 function faceSvg(p){
-  if(!(S&&S.oldHeads))return faceSvgHD(p);
+  if(!(S&&S.oldHeads)||p.head&&(HEADS.find(h=>h.id===p.head)||{}).px)return faceSvgHD(p);
   const {sk,sh,hair,style,mouth,band,fx}=faceParams(p),ink='#140b06';
   const G=Array.from({length:16},()=>Array(16).fill(null));
   const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
@@ -3606,6 +3613,16 @@ setInterval(()=>{if(gameDate()!==lastDay){lastDay=gameDate();render()}else if(vi
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&gameDate()!==lastDay){lastDay=gameDate();render()}});
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+// Hand-made pixel art from the Studio lives in art/library.json. Each entry: {type:'head',id,name,rarity,where,pal,px}.
+// It's loaded at start and the app redraws once it arrives (not during team setup, so typing isn't lost).
+function addArt(lib){let n=0;for(const a of lib||[]){if(a.type!=='head'||!a.px||HEADS.some(h=>h.id===a.id))continue;
+  HEADS.push({id:a.id,n:a.name,px:a.px,pal:a.pal,shape:'std',fx:[],skin:['#d39a6a','#b07a4e'],hair:'#1b120c',style:'bald',band:'none',mouth:'flat'});HEAD_LIST.push([a.id,a.name]);
+  if(a.where==='shop'){RESERVED.push(['head',a.id]);SHOP_RAR['head:'+a.id]=a.rarity||'epic'}n++}return n}
+fetch('art/library.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).then(l=>{if(addArt(l)&&S.team&&S.firstStart)render()}).catch(()=>{});
+// Used by the Studio page (studio.html), which loads the app in a hidden frame to draw with the app's own code.
+window.HL_ART={grid:p=>faceGridHD(p),svg:G=>headGridSvg(G),heads:()=>HEADS.map(h=>({id:h.id,n:h.n})),
+  headGrid:id=>{const H=HEADS.find(h=>h.id===id);return H&&H.px?pxGrid(H):faceGridHD({id:'x',head:id})},
+  base:(skin,shape)=>faceGridHD({id:'x',params:{sk:SKINS[skin][0],sh:SKINS[skin][1],shape}}),skins:SKINS,hairs:HAIRS,shapes:Object.keys(HD_SHAPES)};
 render();
 </script>
 </body>

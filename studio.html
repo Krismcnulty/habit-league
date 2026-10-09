@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Habit League Studio</title>
+<meta name="theme-color" content="#0b1020">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+@font-face{font-family:"Press Start 2P";src:url(fonts/press-start-2p-latin-400-normal.woff2) format("woff2");font-display:swap}
+:root{--bg:#0b1020;--panel:#141b2e;--panel2:#1a2340;--line:#26304d;--text:#eef2ff;--muted:#8d96b5;--orange:#ff7a1a;--well:#0c1226;--green:#22c55e}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1100px;margin:0 auto;padding:14px 16px 40px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+header h1{font-family:"Press Start 2P",monospace;font-weight:400;font-size:15px;margin:0;letter-spacing:.02em;text-shadow:2px 2px 0 #c2410c}
+header a{margin-left:auto;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+.card h2{font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tb{padding:7px 11px;border-radius:10px;background:var(--well);border:1px solid var(--line);font-size:13px;font-weight:700}
+.tb.on{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 18%,var(--well))}
+.tb:disabled{opacity:.4}
+#cv{width:100%;max-width:560px;aspect-ratio:1;display:block;margin:0 auto;touch-action:none;image-rendering:pixelated;border-radius:10px;background:#0f1424;cursor:crosshair}
+.pal{display:flex;flex-wrap:wrap;gap:5px}
+.sw{width:28px;height:28px;border-radius:7px;border:2px solid rgba(255,255,255,.12);padding:0}
+.sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--orange)}
+.pal-l{font-size:11px;color:var(--muted);margin:8px 0 4px;font-weight:700}
+.cur{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--muted)}
+.cur .sw{width:36px;height:36px}
+.prev{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.av{border-radius:12px;overflow:hidden;background:linear-gradient(180deg,#232c4a,#0c1226);border:1px solid var(--line);display:grid;place-items:center}
+.av svg{width:100%;height:100%;display:block}
+.big{width:150px;height:150px}.sm{width:52px;height:52px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label{font-size:12px;color:var(--muted);font-weight:700;display:block;margin:8px 0 3px}
+input,select,textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+textarea{min-height:110px;font:12px/1.35 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+.btn{padding:9px 14px;border-radius:11px;background:var(--panel2);border:1px solid var(--line);font-weight:800}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#1a1000}
+.list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.it{display:flex;align-items:center;gap:8px;padding:6px;border-radius:10px;background:var(--well);border:1px solid var(--line)}
+.it .av{width:40px;height:40px;flex:none}.it b{flex:1;font-size:13px}.it small{color:var(--muted);font-size:11px;display:block;font-weight:400}
+.note{font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#eef2ff;color:#0b1020;font-weight:800;padding:9px 16px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+#loading{padding:40px;text-align:center;color:var(--muted)}
+iframe{position:absolute;width:390px;height:844px;left:-9999px;top:0;border:0;visibility:hidden}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>HL Studio</h1><span class="note">Pixel art for Habit League</span><a href="./">Open the app →</a></header>
+  <div id="loading">Loading the app's drawing engine…</div>
+  <div id="ui" hidden>
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="tools">
+          <button class="tb on" data-tool="pen">✏️ Pen</button><button class="tb" data-tool="erase">🧽 Erase</button><button class="tb" data-tool="fill">🪣 Fill</button><button class="tb" data-tool="pick">💧 Pick</button>
+          <button class="tb" id="mirror">↔ Mirror</button><button class="tb" id="gridT">Grid</button>
+          <button class="tb" id="undo">↶ Undo</button><button class="tb" id="redo">↷ Redo</button>
+        </div>
+        <canvas id="cv" width="512" height="512"></canvas>
+        <p class="note" style="margin:8px 2px 0">Draw on the 32×32 grid. Leave the background empty: the dark outline is added automatically, exactly as the app does. Mirror copies each pixel to the other side of the face.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>Colours</h2>
+        <div id="pals"></div>
+        <div class="cur"><span class="sw on" id="curSw"></span><span id="curHex"></span><input type="color" id="custom" style="width:46px;height:36px;padding:2px"><span>Custom</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Preview (as the app draws it)</h2>
+        <div class="prev"><div class="av big" id="pvBig"></div><div><div class="row" id="pvRow"></div><p class="note" style="margin:6px 0 0">Card size, next to existing heads</p></div></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>Start from</h2>
+        <div class="row"><select id="baseSkin"></select><select id="baseShape"></select></div>
+        <div class="row" style="margin-top:6px"><button class="btn" id="startBase">Blank head</button><button class="btn" id="startEmpty">Empty grid</button></div>
+        <label>Or an existing head</label>
+        <div class="row"><select id="baseHead" style="flex:1"></select><button class="btn" id="startHead">Load</button></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>Details</h2>
+        <label>Name</label><input id="fName" placeholder="e.g. Sky Hook" maxlength="20">
+        <div class="row"><div style="flex:1"><label>Rarity</label><select id="fRar"><option value="rare">Rare · 49p</option><option value="epic" selected>Epic · 79p</option><option value="leg">Legendary · 99p</option></select></div>
+          <div style="flex:1"><label>Where</label><select id="fWhere"><option value="shop">Item Shop</option><option value="none">Not for sale yet</option></select></div></div>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="save">💾 Save</button><button class="btn" id="export">📋 Copy code</button><button class="btn" id="png">🖼 PNG</button></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>My designs</h2>
+        <div class="list" id="list"></div>
+        <p class="note">Saved in this browser. Copy the code to keep a design anywhere, or to send it to Claude to add to the app.</p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h2>Code</h2>
+        <textarea id="code" placeholder="Paste a design's code here to load it, or press Copy code to fill this in."></textarea>
+        <div class="row" style="margin-top:6px"><button class="btn" id="import">Load from code</button></div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<iframe id="eng" src="index.html" title="engine"></iframe>
+<script>
+'use strict';
+const N=32,KEY='hlStudio.v1';
+let ART=null,grid=empty(),tool='pen',mirror=false,showGrid=true,color='#d39a6a',hist=[],fut=[],curId=null;
+function empty(){return Array.from({length:N},()=>Array(N).fill(null))}
+const clone=g=>g.map(r=>r.slice());
+const $=id=>document.getElementById(id);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
+const hexMix=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+
+// ---- drawing ----
+const cv=$('cv'),cx=cv.getContext('2d');
+function draw(){
+  const s=cv.width/N;cx.clearRect(0,0,cv.width,cv.height);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){cx.fillStyle=(x+y)%2?'#121a30':'#0f1628';cx.fillRect(x*s,y*s,s,s)}
+  // outline ghost so you can see where the app adds it
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!grid[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>grid[y+dy]&&grid[y+dy][x+dx])){cx.fillStyle='rgba(20,11,6,.85)';cx.fillRect(x*s,y*s,s,s)}
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(grid[y][x]){cx.fillStyle=grid[y][x];cx.fillRect(x*s,y*s,s,s)}
+  if(showGrid){cx.strokeStyle='rgba(255,255,255,.07)';cx.lineWidth=1;for(let i=1;i<N;i++){cx.beginPath();cx.moveTo(i*s+.5,0);cx.lineTo(i*s+.5,cv.height);cx.stroke();cx.beginPath();cx.moveTo(0,i*s+.5);cx.lineTo(cv.width,i*s+.5);cx.stroke()}
+    cx.strokeStyle='rgba(255,122,26,.25)';cx.beginPath();cx.moveTo(16*s,0);cx.lineTo(16*s,cv.height);cx.stroke()}
+  preview();
+}
+function preview(){if(!ART)return;const svg=ART.svg(grid);$('pvBig').innerHTML=svg;
+  const others=['hothand','enforcer','oldtimer'].filter(id=>ART.heads().some(h=>h.id===id));
+  $('pvRow').innerHTML=`<div class="av sm">${svg}</div>`+others.map(id=>`<div class="av sm">${ART.svg(ART.headGrid(id))}</div>`).join('')}
+function push(){hist.push(clone(grid));if(hist.length>80)hist.shift();fut=[];btns()}
+function btns(){$('undo').disabled=!hist.length;$('redo').disabled=!fut.length}
+function setPx(x,y,c){if(x<0||y<0||x>=N||y>=N)return;grid[y][x]=c;if(mirror)grid[y][N-1-x]=c}
+function fill(x,y,c){const t=grid[y][x];if(t===c)return;const q=[[x,y]];while(q.length){const [a,b]=q.pop();if(a<0||b<0||a>=N||b>=N||grid[b][a]!==t)continue;grid[b][a]=c;q.push([a+1,b],[a-1,b],[a,b+1],[a,b-1])}}
+function cell(e){const r=cv.getBoundingClientRect();return[Math.floor((e.clientX-r.left)/r.width*N),Math.floor((e.clientY-r.top)/r.height*N)]}
+let down=false,last=null;
+cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);const [x,y]=cell(e);
+  if(tool==='pick'){if(grid[y]&&grid[y][x]){setColor(grid[y][x]);tool='pen';tools()}return}
+  push();if(tool==='fill'){fill(x,y,color);draw();return}down=true;last=[x,y];setPx(x,y,tool==='erase'?null:color);draw()});
+cv.addEventListener('pointermove',e=>{if(!down)return;const [x,y]=cell(e);if(last&&x===last[0]&&y===last[1])return;
+  // line between points so fast strokes don't leave gaps
+  const [x0,y0]=last,n=Math.max(Math.abs(x-x0),Math.abs(y-y0));for(let i=1;i<=n;i++)setPx(Math.round(x0+(x-x0)*i/n),Math.round(y0+(y-y0)*i/n),tool==='erase'?null:color);last=[x,y];draw()});
+addEventListener('pointerup',()=>{down=false;last=null});
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;tools()});
+function tools(){document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===tool));$('mirror').classList.toggle('on',mirror);$('gridT').classList.toggle('on',showGrid)}
+$('mirror').onclick=()=>{mirror=!mirror;tools()};$('gridT').onclick=()=>{showGrid=!showGrid;tools();draw()};
+$('undo').onclick=()=>{if(!hist.length)return;fut.push(clone(grid));grid=hist.pop();btns();draw()};
+$('redo').onclick=()=>{if(!fut.length)return;hist.push(clone(grid));grid=fut.pop();btns();draw()};
+addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();(e.shiftKey?$('redo'):$('undo')).onclick()}});
+
+// ---- colours ----
+function setColor(c){color=c;$('curSw').style.background=c;$('curHex').textContent=c;$('custom').value=c;document.querySelectorAll('.pal .sw').forEach(s=>s.classList.toggle('on',s.dataset.c===c))}
+$('custom').oninput=e=>setColor(e.target.value);
+function palettes(){
+  const groups=[];
+  // skin: the same five tones the app lights heads with
+  const skins=ART.skins.map(([sk,sh])=>{const lum=(h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .3*v[0]+.59*v[1]+.11*v[2]})(sk),dark=lum<.42;
+    return[hexMix(sk,dark?'#f2b47e':'#fff1e0',dark?.34:.4),hexMix(sk,dark?'#e0a070':'#ffe6cc',dark?.17:.18),sk,hexMix(sh,'#7a2e1a',.2),hexMix(sh,'#2a0c06',.45)]});
+  groups.push(['Skin (highlight → deep shadow)',skins.flat()]);
+  groups.push(['Hair',ART.hairs.flatMap(h=>[hexMix(h,'#ffffff',.22),h,hexMix(h,'#000000',.35)])]);
+  groups.push(['Eyes, mouth and outline',['#ffffff','#f4f1ea','#1d130c','#140b06','#3a0f0a','#7f1d1d','#e7e2c0']]);
+  groups.push(['Accents',['#fde68a','#fbbf24','#d97706','#fca5a5','#ef4444','#991b1b','#86efac','#22c55e','#15803d','#7dd3fc','#3b82f6','#1e3a8a','#c4b5fd','#a855f7','#6b21a8','#f9a8d4','#ec4899','#e5e7eb','#cbd5e1','#64748b','#334155','#111827']]);
+  const used=[...new Set(grid.flat().filter(Boolean))];if(used.length)groups.unshift(['In this design',used]);
+  $('pals').innerHTML=groups.map(([l,cs])=>`<div class="pal-l">${l}</div><div class="pal">${cs.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" title="${c}"></button>`).join('')}</div>`).join('');
+  document.querySelectorAll('.pal .sw').forEach(b=>b.onclick=()=>setColor(b.dataset.c));setColor(color);
+}
+
+// ---- start points ----
+function load(g){push();grid=clone(g);draw();palettes()}
+$('startBase').onclick=()=>{load(ART.base(+$('baseSkin').value,$('baseShape').value));curId=null};
+$('startEmpty').onclick=()=>{load(empty());curId=null};
+$('startHead').onclick=()=>{load(ART.headGrid($('baseHead').value));curId=null;toast('Loaded: edit away, then save it under a new name')};
+
+// ---- save / export ----
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,16)||'head';
+function encode(){const cols=[...new Set(grid.flat().filter(Boolean))],L='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  if(cols.length>L.length)throw new Error('Too many colours');const pal={};cols.forEach((c,i)=>pal[L[i]]=c);const inv=Object.fromEntries(Object.entries(pal).map(([k,v])=>[v,k]));
+  const name=$('fName').value.trim()||'Untitled';
+  return{type:'head',id:curId||slug(name),name,rarity:$('fRar').value,where:$('fWhere').value,pal,px:grid.map(r=>r.map(c=>c?inv[c]:'.').join(''))}}
+function decode(d){if(!d||!Array.isArray(d.px)||d.px.length!==N)throw new Error('bad');return d.px.map(r=>[...r].map(c=>c==='.'?null:(d.pal[c]||null)))}
+const store=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(_){return[]}};
+const keep=l=>{try{localStorage.setItem(KEY,JSON.stringify(l))}catch(_){toast('Could not save in this browser')}};
+function list(){const l=store();$('list').innerHTML=l.length?l.map((d,i)=>`<div class="it"><div class="av">${ART.svg(decode(d))}</div><b>${d.name.replace(/</g,'&lt;')}<small>${d.rarity} · ${d.where==='shop'?'Item Shop':'not for sale'}</small></b><button class="tb" data-open="${i}">Open</button><button class="tb" data-del="${i}">✕</button></div>`).join(''):'<p class="note" style="margin:0">Nothing saved yet.</p>';
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openD(store()[+b.dataset.open]));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(!confirm('Delete this design?'))return;const l=store();l.splice(+b.dataset.del,1);keep(l);list()})}
+function openD(d){load(decode(d));curId=d.id;$('fName').value=d.name;$('fRar').value=d.rarity||'epic';$('fWhere').value=d.where||'shop';$('code').value=JSON.stringify(d)}
+$('save').onclick=()=>{if(!grid.flat().some(Boolean))return toast('Draw something first');if(!$('fName').value.trim())return toast('Give it a name first');
+  const d=encode();curId=d.id;const l=store().filter(x=>x.id!==d.id);l.unshift(d);keep(l);list();$('code').value=JSON.stringify(d);toast('Saved')};
+$('export').onclick=async()=>{if(!grid.flat().some(Boolean))return toast('Draw something first');const t=JSON.stringify(encode());$('code').value=t;
+  try{await navigator.clipboard.writeText(t);toast('Code copied: paste it to Claude')}catch(_){$('code').select();toast('Code is in the box below: copy it from there')}};
+$('import').onclick=()=>{try{openD(JSON.parse($('code').value));toast('Loaded')}catch(_){toast("That code isn't a Studio design")}};
+$('png').onclick=()=>{const c=document.createElement('canvas'),k=16;c.width=c.height=N*k;const x=c.getContext('2d');
+  const out=grid.map(r=>r.slice());for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(!grid[y][i]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>grid[y+dy]&&grid[y+dy][i+dx]))out[y][i]='#140b06';
+  for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(out[y][i]){x.fillStyle=out[y][i];x.fillRect(i*k,y*k,k,k)}
+  const a=document.createElement('a');a.download=(slug($('fName').value)||'head')+'.png';a.href=c.toDataURL('image/png');a.click()};
+
+// ---- start up: wait for the app (hidden frame) so we draw with its exact code ----
+const eng=$('eng');
+function ready(){const w=eng.contentWindow;if(!w||!w.HL_ART)return setTimeout(ready,150);ART=w.HL_ART;
+  $('baseSkin').innerHTML=ART.skins.map((s,i)=>`<option value="${i}">Skin ${i+1}</option>`).join('');$('baseSkin').value='2';
+  $('baseShape').innerHTML=ART.shapes.map(s=>`<option value="${s}">${s[0].toUpperCase()+s.slice(1)} shape</option>`).join('');
+  $('baseHead').innerHTML=ART.heads().map(h=>`<option value="${h.id}">${h.n}</option>`).join('');
+  $('loading').hidden=true;$('ui').hidden=false;grid=ART.base(2,'std');tools();btns();palettes();draw();list()}
+eng.addEventListener('load',ready);
+</script>
+</body>
+</html>
