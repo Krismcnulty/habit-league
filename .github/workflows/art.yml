@@ -1,0 +1,45 @@
+# Art intake: HL Studio's "Submit" button opens an issue labelled "art" (add to the app) or "art-draft" (save as a draft).
+# This checks the design, commits it, replies with a preview and closes the issue. Only the repo owner's issues are processed.
+name: Art intake
+on:
+  issues:
+    types: [opened, edited]
+permissions:
+  contents: write
+  issues: write
+concurrency: art-intake
+jobs:
+  intake:
+    if: github.event.issue.user.login == github.repository_owner && (contains(github.event.issue.labels.*.name, 'art') || contains(github.event.issue.labels.*.name, 'art-draft'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check and add the design
+        id: add
+        continue-on-error: true
+        env:
+          BODY: ${{ github.event.issue.body }}
+          LABELS: ${{ toJson(github.event.issue.labels.*.name) }}
+        run: node tools/art-intake.js
+      - name: Commit
+        if: steps.add.outcome == 'success'
+        run: |
+          git config user.name "hl-art-bot"
+          git config user.email "hl-art-bot@users.noreply.github.com"
+          git add art sw.js
+          git diff --cached --quiet || git commit -m "$(cat .art-commit-msg)"
+          git push
+      - name: Reply on the issue
+        uses: actions/github-script@v7
+        env:
+          OK: ${{ steps.add.outcome }}
+        with:
+          script: |
+            const fs = require('fs');
+            const ok = process.env.OK === 'success';
+            const msg = fs.existsSync('.art-result.md') ? fs.readFileSync('.art-result.md', 'utf8') : 'Something went wrong running the art intake.';
+            await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body: msg });
+            if (ok) await github.rest.issues.update({ ...context.repo, issue_number: context.issue.number, state: 'closed' });

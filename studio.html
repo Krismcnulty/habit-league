@@ -13,19 +13,22 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-.wrap{max-width:1100px;margin:0 auto;padding:14px 16px 40px}
-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.wrap{max-width:1280px;margin:0 auto;padding:14px 16px 40px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 header h1{font-family:"Press Start 2P",monospace;font-weight:400;font-size:15px;margin:0;letter-spacing:.02em;text-shadow:2px 2px 0 #c2410c}
 header a{margin-left:auto;color:var(--muted);font-size:13px}
-.grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px}
-@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px}
+.card+.card{margin-top:14px}
 .card h2{font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
 .tools{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .tb{padding:7px 11px;border-radius:10px;background:var(--well);border:1px solid var(--line);font-size:13px;font-weight:700}
 .tb.on{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 18%,var(--well))}
 .tb:disabled{opacity:.4}
+.tb kbd{font:10px ui-monospace,monospace;color:var(--muted);margin-left:4px}
 #cv{width:100%;max-width:560px;aspect-ratio:1;display:block;margin:0 auto;touch-action:none;image-rendering:pixelated;border-radius:10px;background:#0f1424;cursor:crosshair}
+@media (min-width:1100px){#cv{max-width:720px}}
 .pal{display:flex;flex-wrap:wrap;gap:5px}
 .sw{width:28px;height:28px;border-radius:7px;border:2px solid rgba(255,255,255,.12);padding:0}
 .sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--orange)}
@@ -39,14 +42,24 @@ header a{margin-left:auto;color:var(--muted);font-size:13px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 label{font-size:12px;color:var(--muted);font-weight:700;display:block;margin:8px 0 3px}
 input,select,textarea{width:100%;background:var(--well);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+input[type=file]{padding:6px}
 textarea{min-height:110px;font:12px/1.35 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
 .btn{padding:9px 14px;border-radius:11px;background:var(--panel2);border:1px solid var(--line);font-weight:800}
 .btn.primary{background:var(--orange);border-color:var(--orange);color:#1a1000}
-.list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+.btn.go{background:var(--green);border-color:var(--green);color:#052e16}
+.list{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
 .it{display:flex;align-items:center;gap:8px;padding:6px;border-radius:10px;background:var(--well);border:1px solid var(--line)}
-.it .av{width:40px;height:40px;flex:none}.it b{flex:1;font-size:13px}.it small{color:var(--muted);font-size:11px;display:block;font-weight:400}
+.it .av{width:40px;height:40px;flex:none}.it b{flex:1;font-size:13px;min-width:0}.it small{color:var(--muted);font-size:11px;display:block;font-weight:400}
+.it select{width:auto;padding:4px 6px;font-size:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chip{padding:4px 10px;border-radius:99px;background:var(--well);border:1px solid var(--line);font-size:12px;font-weight:700}
+.chip.on{border-color:var(--orange);color:var(--orange)}
 .note{font-size:12px;color:var(--muted)}
-.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#eef2ff;color:#0b1020;font-weight:800;padding:9px 16px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+.xs{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.xs label{display:flex;align-items:center;gap:4px;margin:0;padding:4px 8px;border-radius:99px;background:var(--well);border:1px solid var(--line);font-size:12px;color:var(--text);cursor:pointer}
+.xs input{width:auto;margin:0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#eef2ff;color:#0b1020;font-weight:800;padding:9px 16px;border-radius:99px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 #loading{padding:40px;text-align:center;color:var(--muted)}
 iframe{position:absolute;width:390px;height:844px;left:-9999px;top:0;border:0;visibility:hidden}
@@ -61,14 +74,14 @@ iframe{position:absolute;width:390px;height:844px;left:-9999px;top:0;border:0;vi
     <div>
       <div class="card">
         <div class="tools">
-          <button class="tb on" data-tool="pen">✏️ Pen</button><button class="tb" data-tool="erase">🧽 Erase</button><button class="tb" data-tool="fill">🪣 Fill</button><button class="tb" data-tool="pick">💧 Pick</button>
-          <button class="tb" id="mirror">↔ Mirror</button><button class="tb" id="gridT">Grid</button>
-          <button class="tb" id="undo">↶ Undo</button><button class="tb" id="redo">↷ Redo</button>
+          <button class="tb on" data-tool="pen">✏️ Pen<kbd>B</kbd></button><button class="tb" data-tool="erase">🧽 Erase<kbd>E</kbd></button><button class="tb" data-tool="fill">🪣 Fill<kbd>G</kbd></button><button class="tb" data-tool="pick">💧 Pick<kbd>I</kbd></button>
+          <button class="tb" id="mirror">↔ Mirror<kbd>M</kbd></button><button class="tb" id="gridT">Grid</button>
+          <button class="tb" id="undo">↶ Undo<kbd>Ctrl Z</kbd></button><button class="tb" id="redo">↷ Redo<kbd>Ctrl Y</kbd></button>
         </div>
-        <canvas id="cv" width="512" height="512"></canvas>
-        <p class="note" style="margin:8px 2px 0">Draw on the 32×32 grid. Leave the background empty: the dark outline is added automatically, exactly as the app does. Mirror copies each pixel to the other side of the face.</p>
+        <canvas id="cv" width="640" height="640"></canvas>
+        <p class="note" style="margin:8px 2px 0">Draw on the 32×32 grid. Leave the background empty: the dark outline is added automatically, exactly as the app does. Mirror copies each pixel to the other side of the face. Right-click erases on a computer.</p>
       </div>
-      <div class="card" style="margin-top:14px">
+      <div class="card">
         <h2>Colours</h2>
         <div id="pals"></div>
         <div class="cur"><span class="sw on" id="curSw"></span><span id="curHex"></span><input type="color" id="custom" style="width:46px;height:36px;padding:2px"><span>Custom</span></div>
@@ -79,26 +92,56 @@ iframe{position:absolute;width:390px;height:844px;left:-9999px;top:0;border:0;vi
         <h2>Preview (as the app draws it)</h2>
         <div class="prev"><div class="av big" id="pvBig"></div><div><div class="row" id="pvRow"></div><p class="note" style="margin:6px 0 0">Card size, next to existing heads</p></div></div>
       </div>
-      <div class="card" style="margin-top:14px">
-        <h2>Start from</h2>
-        <div class="row"><select id="baseSkin"></select><select id="baseShape"></select></div>
-        <div class="row" style="margin-top:6px"><button class="btn" id="startBase">Blank head</button><button class="btn" id="startEmpty">Empty grid</button></div>
-        <label>Or an existing head</label>
-        <div class="row"><select id="baseHead" style="flex:1"></select><button class="btn" id="startHead">Load</button></div>
+      <div class="card">
+        <h2>Parts kit</h2>
+        <div class="two">
+          <div><label>Skin</label><select id="kSkin"></select></div>
+          <div><label>Head shape</label><select id="kShape"></select></div>
+          <div><label>Hairstyle</label><select id="kStyle"></select></div>
+          <div><label>Hair colour</label><select id="kHair"></select></div>
+          <div><label>Headband</label><select id="kBand"></select></div>
+          <div><label>Mouth</label><select id="kMouth"></select></div>
+        </div>
+        <label>Extras</label><div class="xs" id="kExtras"></div>
+        <div class="row" style="margin-top:10px;align-items:flex-end"><div class="av sm" id="kPrev"></div>
+          <button class="btn primary" id="kBuild">Build head</button><button class="btn" id="kStamp">Stamp onto drawing</button></div>
+        <p class="note" style="margin:6px 0 0"><b>Build</b> replaces the grid with a head made from these parts. <b>Stamp</b> adds just the hair, headband, mouth and extras on top of what you've drawn.</p>
       </div>
-      <div class="card" style="margin-top:14px">
+      <div class="card">
+        <h2>Start from</h2>
+        <div class="row"><button class="btn" id="startEmpty">Empty grid</button></div>
+        <label>An existing head</label>
+        <div class="row"><select id="baseHead" style="flex:1"></select><button class="btn" id="startHead">Load</button></div>
+        <label>An image (AI art, a drawing or a photo)</label>
+        <input type="file" id="imgFile" accept="image/*">
+        <div class="two">
+          <div><label>Colours</label><select id="imgPal"><option value="snap">Snap to the app palette</option><option value="keep">Keep its own colours</option></select></div>
+          <div><label>Background</label><select id="imgBg"><option value="auto">Remove (auto)</option><option value="keep">Keep</option></select></div>
+        </div>
+        <p class="note" style="margin:6px 0 0">The image is cropped to the head, shrunk to 32×32 and cleaned up. Expect to tidy it by hand: it's a starting point, not a finished head.</p>
+      </div>
+      <div class="card">
         <h2>Details</h2>
         <label>Name</label><input id="fName" placeholder="e.g. Sky Hook" maxlength="20">
         <div class="row"><div style="flex:1"><label>Rarity</label><select id="fRar"><option value="rare">Rare · 49p</option><option value="epic" selected>Epic · 79p</option><option value="leg">Legendary · 99p</option></select></div>
           <div style="flex:1"><label>Where</label><select id="fWhere"><option value="shop">Shop pool</option><option value="none">Held back</option></select></div></div>
-        <div class="row" style="margin-top:10px"><button class="btn primary" id="save">💾 Save</button><button class="btn" id="export">📋 Copy code</button><button class="btn" id="png">🖼 PNG</button></div>
+        <div class="row" style="margin-top:10px"><button class="btn primary" id="save">💾 Save</button><button class="btn" id="export">📋 Copy code</button><button class="btn" id="png">🖼 PNG</button><button class="btn" id="dl">⬇ File</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn go" id="submit">🚀 Submit to app</button><button class="btn" id="submitDraft">☁ Save draft to repo</button></div>
+        <p class="note" style="margin:6px 0 0"><b>Submit to app</b> opens a ready-made GitHub issue: press <i>Submit new issue</i> and it's checked, added and live in about a minute. <b>Save draft to repo</b> keeps it in the repo without adding it to the app, so you can open it on any device.</p>
       </div>
-      <div class="card" style="margin-top:14px">
+      <div class="card">
         <h2>My designs</h2>
+        <div class="chips" id="folders"></div>
         <div class="list" id="list"></div>
-        <p class="note">Saved in this browser. Copy the code to keep a design anywhere, or to send it to Claude to add to the app.</p>
+        <div class="row" style="margin-top:8px"><button class="btn" id="newFolder">+ Folder</button><button class="btn" id="dlFolder">⬇ Download folder</button><label class="btn" style="margin:0;color:var(--text);font-size:15px">📂 Open file<input type="file" id="openFile" accept=".json,application/json" hidden></label></div>
+        <p class="note">Saved in this browser. Use folders for designs that aren't ready. <b>Download folder</b> saves them as a file you can keep anywhere, like a folder on your computer, and <b>Open file</b> loads it back.</p>
       </div>
-      <div class="card" style="margin-top:14px">
+      <div class="card">
+        <h2>Repo drafts</h2>
+        <div class="list" id="repoDrafts"><p class="note" style="margin:0">Loading…</p></div>
+        <p class="note">Saved to the repo with <b>Save draft to repo</b>. Not in the app until you submit them.</p>
+      </div>
+      <div class="card">
         <h2>Code</h2>
         <textarea id="code" placeholder="Paste a design's code here to load it, or press Copy code to fill this in."></textarea>
         <div class="row" style="margin-top:6px"><button class="btn" id="import">Load from code</button></div>
@@ -111,20 +154,23 @@ iframe{position:absolute;width:390px;height:844px;left:-9999px;top:0;border:0;vi
 <iframe id="eng" src="index.html" title="engine"></iframe>
 <script>
 'use strict';
-const N=32,KEY='hlStudio.v1';
-let ART=null,grid=empty(),tool='pen',mirror=false,showGrid=true,color='#d39a6a',hist=[],fut=[],curId=null;
+const N=32,KEY='hlStudio.v1',REPO='Krismcnulty/habit-league';
+let ART=null,grid=empty(),tool='pen',mirror=false,showGrid=true,color='#d39a6a',hist=[],fut=[],curId=null,folder='All',curFolder='Unsorted',ALLPAL=[];
 function empty(){return Array.from({length:N},()=>Array(N).fill(null))}
 const clone=g=>g.map(r=>r.slice());
 const $=id=>document.getElementById(id);
-function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),1800)}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)}
 const hexMix=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')};
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const toHex=([r,g,b])=>'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+function cdist([r1,g1,b1],[r2,g2,b2]){const rm=(r1+r2)/2,dr=r1-r2,dg=g1-g2,db=b1-b2;return Math.sqrt((2+rm/256)*dr*dr+4*dg*dg+(2+(255-rm)/256)*db*db)}
 
 // ---- drawing ----
 const cv=$('cv'),cx=cv.getContext('2d');
 function draw(){
   const s=cv.width/N;cx.clearRect(0,0,cv.width,cv.height);
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){cx.fillStyle=(x+y)%2?'#121a30':'#0f1628';cx.fillRect(x*s,y*s,s,s)}
-  // outline ghost so you can see where the app adds it
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!grid[y][x]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>grid[y+dy]&&grid[y+dy][x+dx])){cx.fillStyle='rgba(20,11,6,.85)';cx.fillRect(x*s,y*s,s,s)}
   for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(grid[y][x]){cx.fillStyle=grid[y][x];cx.fillRect(x*s,y*s,s,s)}
   if(showGrid){cx.strokeStyle='rgba(255,255,255,.07)';cx.lineWidth=1;for(let i=1;i<N;i++){cx.beginPath();cx.moveTo(i*s+.5,0);cx.lineTo(i*s+.5,cv.height);cx.stroke();cx.beginPath();cx.moveTo(0,i*s+.5);cx.lineTo(cv.width,i*s+.5);cx.stroke()}
@@ -139,74 +185,148 @@ function btns(){$('undo').disabled=!hist.length;$('redo').disabled=!fut.length}
 function setPx(x,y,c){if(x<0||y<0||x>=N||y>=N)return;grid[y][x]=c;if(mirror)grid[y][N-1-x]=c}
 function fill(x,y,c){const t=grid[y][x];if(t===c)return;const q=[[x,y]];while(q.length){const [a,b]=q.pop();if(a<0||b<0||a>=N||b>=N||grid[b][a]!==t)continue;grid[b][a]=c;q.push([a+1,b],[a-1,b],[a,b+1],[a,b-1])}}
 function cell(e){const r=cv.getBoundingClientRect();return[Math.floor((e.clientX-r.left)/r.width*N),Math.floor((e.clientY-r.top)/r.height*N)]}
-let down=false,last=null;
-cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);const [x,y]=cell(e);
-  if(tool==='pick'){if(grid[y]&&grid[y][x]){setColor(grid[y][x]);tool='pen';tools()}return}
-  push();if(tool==='fill'){fill(x,y,color);draw();return}down=true;last=[x,y];setPx(x,y,tool==='erase'?null:color);draw()});
+let down=false,last=null,erasing=false;
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);const [x,y]=cell(e);erasing=e.button===2||tool==='erase';
+  if(tool==='pick'&&!erasing){if(grid[y]&&grid[y][x]){setColor(grid[y][x]);tool='pen';tools()}return}
+  push();if(tool==='fill'&&!erasing){fill(x,y,color);draw();palettes();return}down=true;last=[x,y];setPx(x,y,erasing?null:color);draw()});
 cv.addEventListener('pointermove',e=>{if(!down)return;const [x,y]=cell(e);if(last&&x===last[0]&&y===last[1])return;
-  // line between points so fast strokes don't leave gaps
-  const [x0,y0]=last,n=Math.max(Math.abs(x-x0),Math.abs(y-y0));for(let i=1;i<=n;i++)setPx(Math.round(x0+(x-x0)*i/n),Math.round(y0+(y-y0)*i/n),tool==='erase'?null:color);last=[x,y];draw()});
-addEventListener('pointerup',()=>{down=false;last=null});
+  const [x0,y0]=last,n=Math.max(Math.abs(x-x0),Math.abs(y-y0));for(let i=1;i<=n;i++)setPx(Math.round(x0+(x-x0)*i/n),Math.round(y0+(y-y0)*i/n),erasing?null:color);last=[x,y];draw()});
+addEventListener('pointerup',()=>{if(down)palettes();down=false;last=null});
 document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;tools()});
 function tools(){document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===tool));$('mirror').classList.toggle('on',mirror);$('gridT').classList.toggle('on',showGrid)}
 $('mirror').onclick=()=>{mirror=!mirror;tools()};$('gridT').onclick=()=>{showGrid=!showGrid;tools();draw()};
-$('undo').onclick=()=>{if(!hist.length)return;fut.push(clone(grid));grid=hist.pop();btns();draw()};
-$('redo').onclick=()=>{if(!fut.length)return;hist.push(clone(grid));grid=fut.pop();btns();draw()};
-addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();(e.shiftKey?$('redo'):$('undo')).onclick()}});
+$('undo').onclick=()=>{if(!hist.length)return;fut.push(clone(grid));grid=hist.pop();btns();draw();palettes()};
+$('redo').onclick=()=>{if(!fut.length)return;hist.push(clone(grid));grid=fut.pop();btns();draw();palettes()};
+addEventListener('keydown',e=>{if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const k=e.key.toLowerCase();
+  if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();(e.shiftKey?$('redo'):$('undo')).onclick();return}
+  if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();$('redo').onclick();return}
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  const T={b:'pen',p:'pen',e:'erase',g:'fill',f:'fill',i:'pick'};if(T[k]){tool=T[k];tools()}else if(k==='m'){mirror=!mirror;tools()}});
 
 // ---- colours ----
 function setColor(c){color=c;$('curSw').style.background=c;$('curHex').textContent=c;$('custom').value=c;document.querySelectorAll('.pal .sw').forEach(s=>s.classList.toggle('on',s.dataset.c===c))}
 $('custom').oninput=e=>setColor(e.target.value);
+function skinRamps(){return ART.skins.map(([sk,sh])=>{const v=rgb(sk).map(x=>x/255),dark=.3*v[0]+.59*v[1]+.11*v[2]<.42;
+  return[hexMix(sk,dark?'#f2b47e':'#fff1e0',dark?.34:.4),hexMix(sk,dark?'#e0a070':'#ffe6cc',dark?.17:.18),sk,hexMix(sh,'#7a2e1a',.2),hexMix(sh,'#2a0c06',.45)]})}
+function palGroups(){return[['Skin (highlight → deep shadow)',skinRamps().flat()],['Hair',ART.hairs.flatMap(h=>[hexMix(h,'#ffffff',.22),h,hexMix(h,'#000000',.35)])],
+  ['Eyes, mouth and outline',['#ffffff','#f4f1ea','#1d130c','#140b06','#3a0f0a','#7f1d1d','#e7e2c0','#f8f5ee']],
+  ['Accents',['#fde68a','#fbbf24','#d97706','#fca5a5','#ef4444','#991b1b','#86efac','#22c55e','#15803d','#7dd3fc','#3b82f6','#1e3a8a','#c4b5fd','#a855f7','#6b21a8','#f9a8d4','#ec4899','#e5e7eb','#cbd5e1','#64748b','#334155','#111827']]]}
 function palettes(){
-  const groups=[];
-  // skin: the same five tones the app lights heads with
-  const skins=ART.skins.map(([sk,sh])=>{const lum=(h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .3*v[0]+.59*v[1]+.11*v[2]})(sk),dark=lum<.42;
-    return[hexMix(sk,dark?'#f2b47e':'#fff1e0',dark?.34:.4),hexMix(sk,dark?'#e0a070':'#ffe6cc',dark?.17:.18),sk,hexMix(sh,'#7a2e1a',.2),hexMix(sh,'#2a0c06',.45)]});
-  groups.push(['Skin (highlight → deep shadow)',skins.flat()]);
-  groups.push(['Hair',ART.hairs.flatMap(h=>[hexMix(h,'#ffffff',.22),h,hexMix(h,'#000000',.35)])]);
-  groups.push(['Eyes, mouth and outline',['#ffffff','#f4f1ea','#1d130c','#140b06','#3a0f0a','#7f1d1d','#e7e2c0']]);
-  groups.push(['Accents',['#fde68a','#fbbf24','#d97706','#fca5a5','#ef4444','#991b1b','#86efac','#22c55e','#15803d','#7dd3fc','#3b82f6','#1e3a8a','#c4b5fd','#a855f7','#6b21a8','#f9a8d4','#ec4899','#e5e7eb','#cbd5e1','#64748b','#334155','#111827']]);
-  const used=[...new Set(grid.flat().filter(Boolean))];if(used.length)groups.unshift(['In this design',used]);
+  const groups=palGroups();const used=[...new Set(grid.flat().filter(Boolean))];if(used.length)groups.unshift(['In this design',used]);
   $('pals').innerHTML=groups.map(([l,cs])=>`<div class="pal-l">${l}</div><div class="pal">${cs.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" title="${c}"></button>`).join('')}</div>`).join('');
   document.querySelectorAll('.pal .sw').forEach(b=>b.onclick=()=>setColor(b.dataset.c));setColor(color);
 }
 
+// ---- parts kit ----
+const NAMES={bald:'Bald',buzz:'Buzz cut',short:'Short',flat:'Flat top',curly:'Curly',coils:'Tight curls',spiky:'Spiky',mohawk:'Mohawk',afro:'Afro',topknot:'Top knot',long:'Long',horseshoe:'Balding (sides)',
+  flat_m:'Straight',smile:'Smile',grin:'Grin',open:'Open',beard:'Full beard',stache:'Moustache',thinstache:'Thin moustache',goatee:'Goatee',vandyke:'Chin beard',glasses:'Glasses',shades:'Shades',goggles:'Goggles',sportspecs:'Sports goggles',scowl:'Scowl',cap:'Backwards cap',lephat:'Top hat',crown:'Crown'};
+function kit(){return{skin:+$('kSkin').value,shape:$('kShape').value,style:$('kStyle').value,hair:$('kHair').value,band:$('kBand').value,mouth:$('kMouth').value,fx:[...document.querySelectorAll('#kExtras input:checked')].map(i=>i.value)}}
+function kitPrev(){$('kPrev').innerHTML=ART.svg(ART.build(kit()))}
+function setupKit(){const P=ART.parts;
+  $('kSkin').innerHTML=ART.skins.map((s,i)=>`<option value="${i}">Skin ${i+1}</option>`).join('');$('kSkin').value='2';
+  $('kShape').innerHTML=ART.shapes.map(s=>`<option value="${s}">${s[0].toUpperCase()+s.slice(1)}</option>`).join('');
+  $('kStyle').innerHTML=P.styles.map(s=>`<option value="${s}">${NAMES[s]||s}</option>`).join('');$('kStyle').value='short';
+  const HN=['Black','Dark brown','Brown','Ginger blonde','Blonde','Auburn','Grey','Blue-black'];
+  $('kHair').innerHTML=ART.hairs.map((h,i)=>`<option value="${h}">${HN[i]||h}</option>`).join('')+'<option value="#e5e7eb">White</option>';
+  $('kBand').innerHTML=P.bands.map(b=>`<option value="${b}">${b==='none'?'None':b}</option>`).join('');
+  $('kMouth').innerHTML=P.mouths.map(m=>`<option value="${m}">${m==='flat'?'Straight':NAMES[m]}</option>`).join('');
+  $('kExtras').innerHTML=P.extras.map(x=>`<label><input type="checkbox" value="${x}">${NAMES[x]||x}</label>`).join('');
+  document.querySelectorAll('#kSkin,#kShape,#kStyle,#kHair,#kBand,#kMouth,#kExtras input').forEach(el=>el.onchange=kitPrev);kitPrev()}
+$('kBuild').onclick=()=>{load(ART.build(kit()));curId=null;toast('Built: now make it your own')};
+$('kStamp').onclick=()=>{const o=kit(),A=ART.build(o),B=ART.build({...o,style:'bald',band:'none',mouth:'flat',fx:[]});push();let n=0;
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(A[y][x]!==B[y][x]&&A[y][x]){grid[y][x]=A[y][x];n++}
+  draw();palettes();toast(n?'Parts stamped on':'Pick a hairstyle, headband, mouth or extra to stamp')};
+
 // ---- start points ----
 function load(g){push();grid=clone(g);draw();palettes()}
-$('startBase').onclick=()=>{load(ART.base(+$('baseSkin').value,$('baseShape').value));curId=null};
 $('startEmpty').onclick=()=>{load(empty());curId=null};
 $('startHead').onclick=()=>{load(ART.headGrid($('baseHead').value));curId=null;toast('Loaded: edit away, then save it under a new name')};
 
-// ---- save / export ----
+// ---- image import: crop to the subject, shrink to 32x32, snap colours, tidy ----
+$('imgFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const img=new Image();img.onload=()=>{try{load(fromImage(img));curId=null;toast('Imported: tidy it up by hand')}catch(err){toast(err.message)}};img.onerror=()=>toast("Couldn't read that image");img.src=URL.createObjectURL(f)};
+function fromImage(img){
+  const W=Math.min(img.naturalWidth,800),H=Math.round(img.naturalHeight*W/img.naturalWidth),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.drawImage(img,0,0,W,H);
+  const D=x.getImageData(0,0,W,H).data,px=(i,j)=>{const o=(j*W+i)*4;return[D[o],D[o+1],D[o+2],D[o+3]]};
+  const removeBg=$('imgBg').value==='auto';
+  const corners=[px(2,2),px(W-3,2),px(2,H-3),px(W-3,H-3)],bg=[0,1,2].map(k=>corners.reduce((a,c)=>a+c[k],0)/4);
+  const isBg=p=>p[3]<100||(removeBg&&cdist(p,bg)<60);
+  let x0=W,y0=H,x1=0,y1=0;for(let j=0;j<H;j+=2)for(let i=0;i<W;i+=2)if(!isBg(px(i,j))){x0=Math.min(x0,i);y0=Math.min(y0,j);x1=Math.max(x1,i);y1=Math.max(y1,j)}
+  if(x1<=x0)throw new Error('Nothing found in that image');
+  // fit the subject's height into 30 rows, centred
+  const side=Math.max(x1-x0,y1-y0)*1.02,cxm=(x0+x1)/2,sx=cxm-side/2,sy=y0,cellS=side/30,G=empty(),cols=[];
+  for(let gy=0;gy<30;gy++)for(let gx=0;gx<30;gx++){let r=0,g=0,b=0,n=0,tot=0;
+    for(let j=Math.floor(sy+gy*cellS);j<sy+(gy+1)*cellS;j++)for(let i=Math.floor(sx+gx*cellS);i<sx+(gx+1)*cellS;i++){if(i<0||j<0||i>=W||j>=H)continue;tot++;const p=px(i,j);if(isBg(p))continue;r+=p[0];g+=p[1];b+=p[2];n++}
+    if(n&&n/Math.max(1,tot)>.45){G[gy][gx+1]=[r/n,g/n,b/n]}}
+  // colours
+  if($('imgPal').value==='snap'){ALLPAL=palGroups().flatMap(g=>g[1]).map(h=>[h,rgb(h)]);for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(G[y][i]){let best=null,bd=1e9;for(const [h,c] of ALLPAL){const d=cdist(G[y][i],c);if(d<bd){bd=d;best=h}}G[y][i]=best}}
+  else{const keep=[];for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(G[y][i]){let m=keep.find(k=>cdist(k,G[y][i])<26);if(!m){m=G[y][i];keep.push(m)}G[y][i]=toHex(m)}}
+  // tidy: drop lonely pixels
+  for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(G[y][i]&&[[1,0],[-1,0],[0,1],[0,-1]].filter(([a,b])=>G[y+b]&&G[y+b][i+a]).length<=1)G[y][i]=null;
+  return G;
+}
+
+// ---- save / export / folders ----
 const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,16)||'head';
 function encode(){const cols=[...new Set(grid.flat().filter(Boolean))],L='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  if(cols.length>L.length)throw new Error('Too many colours');const pal={};cols.forEach((c,i)=>pal[L[i]]=c);const inv=Object.fromEntries(Object.entries(pal).map(([k,v])=>[v,k]));
+  if(cols.length>L.length)throw new Error('Too many colours (max 62)');const pal={};cols.forEach((c,i)=>pal[L[i]]=c);const inv=Object.fromEntries(Object.entries(pal).map(([k,v])=>[v,k]));
   const name=$('fName').value.trim()||'Untitled';
   return{type:'head',id:curId||slug(name),name,rarity:$('fRar').value,where:$('fWhere').value,pal,px:grid.map(r=>r.map(c=>c?inv[c]:'.').join(''))}}
 function decode(d){if(!d||!Array.isArray(d.px)||d.px.length!==N)throw new Error('bad');return d.px.map(r=>[...r].map(c=>c==='.'?null:(d.pal[c]||null)))}
 const store=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(_){return[]}};
 const keep=l=>{try{localStorage.setItem(KEY,JSON.stringify(l))}catch(_){toast('Could not save in this browser')}};
-function list(){const l=store();$('list').innerHTML=l.length?l.map((d,i)=>`<div class="it"><div class="av">${ART.svg(decode(d))}</div><b>${d.name.replace(/</g,'&lt;')}<small>${d.rarity} · ${d.where==='shop'?'Shop pool':'held back'}</small></b><button class="tb" data-open="${i}">Open</button><button class="tb" data-del="${i}">✕</button></div>`).join(''):'<p class="note" style="margin:0">Nothing saved yet.</p>';
+const foldersOf=()=>{let f=[];try{f=JSON.parse(localStorage.getItem(KEY+'.folders'))||[]}catch(_){}return[...new Set(['Unsorted',...f,...store().map(d=>d.folder||'Unsorted')])]};
+function saveFolders(f){try{localStorage.setItem(KEY+'.folders',JSON.stringify(f))}catch(_){}}
+function list(){const all=store(),F=foldersOf();
+  $('folders').innerHTML=['All',...F].map(f=>`<button class="chip ${folder===f?'on':''}" data-f="${esc(f)}">${esc(f)} ${f==='All'?all.length:all.filter(d=>(d.folder||'Unsorted')===f).length}</button>`).join('');
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{folder=b.dataset.f;list()});
+  const shown=all.map((d,i)=>[d,i]).filter(([d])=>folder==='All'||(d.folder||'Unsorted')===folder);
+  $('list').innerHTML=shown.length?shown.map(([d,i])=>`<div class="it"><div class="av">${ART.svg(decode(d))}</div><b>${esc(d.name)}<small>${d.rarity} · ${d.where==='shop'?'Shop pool':'held back'}</small></b>
+    <select data-mv="${i}">${F.map(f=>`<option ${(d.folder||'Unsorted')===f?'selected':''}>${esc(f)}</option>`).join('')}</select><button class="tb" data-open="${i}">Open</button><button class="tb" data-del="${i}">✕</button></div>`).join(''):'<p class="note" style="margin:0">Nothing here yet.</p>';
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openD(store()[+b.dataset.open]));
+  document.querySelectorAll('[data-mv]').forEach(s=>s.onchange=()=>{const l=store();l[+s.dataset.mv].folder=s.value;keep(l);list()});
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(!confirm('Delete this design?'))return;const l=store();l.splice(+b.dataset.del,1);keep(l);list()})}
-function openD(d){load(decode(d));curId=d.id;$('fName').value=d.name;$('fRar').value=d.rarity||'epic';$('fWhere').value=d.where||'shop';$('code').value=JSON.stringify(d)}
-$('save').onclick=()=>{if(!grid.flat().some(Boolean))return toast('Draw something first');if(!$('fName').value.trim())return toast('Give it a name first');
-  const d=encode();curId=d.id;const l=store().filter(x=>x.id!==d.id);l.unshift(d);keep(l);list();$('code').value=JSON.stringify(d);toast('Saved')};
+function openD(d){load(decode(d));curId=d.id;curFolder=d.folder||'Unsorted';$('fName').value=d.name;$('fRar').value=d.rarity||'epic';$('fWhere').value=d.where||'shop';$('code').value=JSON.stringify(strip(d))}
+const strip=d=>({type:'head',id:d.id,name:d.name,rarity:d.rarity,where:d.where,pal:d.pal,px:d.px});
+const ready2=()=>{if(!grid.flat().some(Boolean)){toast('Draw something first');return false}if(!$('fName').value.trim()){toast('Give it a name first');$('fName').focus();return false}return true};
+$('save').onclick=()=>{if(!ready2())return;const d=encode();curId=d.id;const l=store().filter(x=>x.id!==d.id);
+  l.unshift({...d,folder:folder!=='All'?folder:curFolder,saved:Date.now()});keep(l);list();$('code').value=JSON.stringify(d);toast(`Saved to ${folder!=='All'?folder:curFolder}`)};
+$('newFolder').onclick=()=>{const n=(prompt('Folder name (e.g. Not ready, Halloween ideas)')||'').trim().slice(0,24);if(!n)return;saveFolders([...new Set([...foldersOf(),n])]);folder=n;curFolder=n;list();toast(`Folder "${n}" added: designs you save now go in it`)};
+function download(name,obj){const a=document.createElement('a');a.download=name;a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,1)],{type:'application/json'}));a.click()}
+$('dl').onclick=()=>{if(!ready2())return;const d=encode();download(d.id+'.hlart.json',d)};
+$('dlFolder').onclick=()=>{const l=store().filter(d=>folder==='All'||(d.folder||'Unsorted')===folder);if(!l.length)return toast('Nothing in this folder');download(slug(folder)+'-designs.hlart.json',l)};
+$('openFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{let d=JSON.parse(await f.text());const arr=Array.isArray(d)?d:[d];arr.forEach(decode);
+  const l=store();for(const x of arr){const i=l.findIndex(y=>y.id===x.id);const v={...x,folder:x.folder||(folder!=='All'?folder:'Unsorted')};if(i>=0)l[i]=v;else l.push(v)}keep(l);list();if(arr.length===1)openD(arr[0]);toast(`Loaded ${arr.length} design${arr.length>1?'s':''}`)}catch(_){toast("That file isn't a Studio design")}};
 $('export').onclick=async()=>{if(!grid.flat().some(Boolean))return toast('Draw something first');const t=JSON.stringify(encode());$('code').value=t;
-  try{await navigator.clipboard.writeText(t);toast('Code copied: paste it to Claude')}catch(_){$('code').select();toast('Code is in the box below: copy it from there')}};
-$('import').onclick=()=>{try{openD(JSON.parse($('code').value));toast('Loaded')}catch(_){toast("That code isn't a Studio design")}};
+  try{await navigator.clipboard.writeText(t);toast('Code copied')}catch(_){$('code').select();toast('Code is in the box below: copy it from there')}};
+$('import').onclick=()=>{try{const d=JSON.parse($('code').value);openD(Array.isArray(d)?d[0]:d);toast('Loaded')}catch(_){toast("That code isn't a Studio design")}};
 $('png').onclick=()=>{const c=document.createElement('canvas'),k=16;c.width=c.height=N*k;const x=c.getContext('2d');
   const out=grid.map(r=>r.slice());for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(!grid[y][i]&&[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>grid[y+dy]&&grid[y+dy][i+dx]))out[y][i]='#140b06';
   for(let y=0;y<N;y++)for(let i=0;i<N;i++)if(out[y][i]){x.fillStyle=out[y][i];x.fillRect(i*k,y*k,k,k)}
   const a=document.createElement('a');a.download=(slug($('fName').value)||'head')+'.png';a.href=c.toDataURL('image/png');a.click()};
 
+// ---- submit to the repo (GitHub issue picked up by the art intake action) ----
+async function submit(draft){if(!ready2())return;const d=encode(),code=JSON.stringify(d);
+  const title=`${draft?'Art draft':'Art'}: ${d.name}`,lead=draft?'Save this design as a draft in the repo (not added to the app).':'Add this design to the app.';
+  let body=`${lead}\n\n\`\`\`json\n${code}\n\`\`\`\n\n_Sent from HL Studio. Press **Submit new issue**; the art intake checks it and replies within a minute._`;
+  let url=`https://github.com/${REPO}/issues/new?labels=${draft?'art-draft':'art'}&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  if(url.length>7800){try{await navigator.clipboard.writeText(code)}catch(_){}body=`${lead}\n\nPaste the code here between the lines:\n\n\`\`\`json\n\n\`\`\``;
+    url=`https://github.com/${REPO}/issues/new?labels=${draft?'art-draft':'art'}&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;toast('Big design: the code is copied, paste it into the issue')}
+  // keep a local copy too
+  const l=store().filter(x=>x.id!==d.id);l.unshift({...d,folder:draft?(folder!=='All'?folder:curFolder):'Submitted',saved:Date.now()});keep(l);if(!draft){folder='Submitted';curFolder='Submitted'}list();
+  window.open(url,'_blank')}
+$('submit').onclick=()=>submit(false);$('submitDraft').onclick=()=>submit(true);
+
+// ---- repo drafts (art/drafts.json on the site) ----
+async function repoDrafts(){try{const r=await fetch('art/drafts.json',{cache:'no-cache'});const l=r.ok?await r.json():[];
+  $('repoDrafts').innerHTML=l.length?l.map((d,i)=>`<div class="it"><div class="av">${ART.svg(decode(d))}</div><b>${esc(d.name)}<small>${d.rarity} · ${d.where==='shop'?'Shop pool':'held back'}</small></b><button class="tb" data-rd="${i}">Open</button></div>`).join(''):'<p class="note" style="margin:0">No drafts in the repo yet.</p>';
+  document.querySelectorAll('[data-rd]').forEach(b=>b.onclick=()=>openD(l[+b.dataset.rd]))}catch(_){$('repoDrafts').innerHTML='<p class="note" style="margin:0">Couldn\'t load the repo drafts.</p>'}}
+
 // ---- start up: wait for the app (hidden frame) so we draw with its exact code ----
 const eng=$('eng');
-function ready(){const w=eng.contentWindow;if(!w||!w.HL_ART)return setTimeout(ready,150);ART=w.HL_ART;
-  $('baseSkin').innerHTML=ART.skins.map((s,i)=>`<option value="${i}">Skin ${i+1}</option>`).join('');$('baseSkin').value='2';
-  $('baseShape').innerHTML=ART.shapes.map(s=>`<option value="${s}">${s[0].toUpperCase()+s.slice(1)} shape</option>`).join('');
-  $('baseHead').innerHTML=ART.heads().map(h=>`<option value="${h.id}">${h.n}</option>`).join('');
-  $('loading').hidden=true;$('ui').hidden=false;grid=ART.base(2,'std');tools();btns();palettes();draw();list()}
+function ready(){const w=eng.contentWindow;if(!w||!w.HL_ART||!w.HL_ART.build)return setTimeout(ready,150);ART=w.HL_ART;
+  $('baseHead').innerHTML=ART.heads().map(h=>`<option value="${h.id}">${esc(h.n)}</option>`).join('');
+  setupKit();$('loading').hidden=true;$('ui').hidden=false;grid=ART.base(2,'std');tools();btns();palettes();draw();list();repoDrafts()}
 eng.addEventListener('load',ready);
 </script>
 </body>

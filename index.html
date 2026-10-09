@@ -1703,7 +1703,7 @@ const HEADS=[
 ];
 const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
 function faceParams(p){
-  if(p.params)return{sk:'#d39a6a',sh:'#b07a4e',hair:'#1b120c',style:'bald',mouth:'flat',band:'none',extra:'none',shape:'std',...p.params,fx:{}};
+  if(p.params)return{sk:'#d39a6a',sh:'#b07a4e',hair:'#1b120c',style:'bald',mouth:'flat',band:'none',extra:'none',shape:'std',...p.params,fx:Object.fromEntries((p.params.fx||[]).map(k=>[k,true]))};
   const H=p.head&&HEADS.find(h=>h.id===p.head);
   if(H){const[sk,sh]=H.skin||SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx,shape:H.shape||'std'}}
   // No head equipped: each player has their own plain default head, fixed to them (skin, hair colour, a simple haircut and expression).
@@ -3622,7 +3622,11 @@ fetch('art/library.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).then(l=>{
 // Used by the Studio page (studio.html), which loads the app in a hidden frame to draw with the app's own code.
 window.HL_ART={grid:p=>faceGridHD(p),svg:G=>headGridSvg(G),heads:()=>HEADS.map(h=>({id:h.id,n:h.n})),
   headGrid:id=>{const H=HEADS.find(h=>h.id===id);return H&&H.px?pxGrid(H):faceGridHD({id:'x',head:id})},
-  base:(skin,shape)=>faceGridHD({id:'x',params:{sk:SKINS[skin][0],sh:SKINS[skin][1],shape}}),skins:SKINS,hairs:HAIRS,shapes:Object.keys(HD_SHAPES)};
+  base:(skin,shape)=>faceGridHD({id:'x',params:{sk:SKINS[skin][0],sh:SKINS[skin][1],shape}}),skins:SKINS,hairs:HAIRS,shapes:Object.keys(HD_SHAPES),
+  // parts kit: build a head from parts with the app's own drawing code
+  build:o=>faceGridHD({id:'x',params:{sk:SKINS[o.skin][0],sh:SKINS[o.skin][1],shape:o.shape,hair:o.hair,style:o.style,band:o.band||'none',mouth:o.mouth,fx:o.fx||[]}}),
+  parts:{styles:['bald','buzz','short','flat','curly','coils','spiky','mohawk','afro','topknot','long','horseshoe'],mouths:['flat','smile','grin','open'],
+    extras:['beard','stache','thinstache','goatee','vandyke','glasses','shades','goggles','sportspecs','scowl','cap','lephat','crown'],bands:BANDS.map(b=>b[0])}};
 render();
 </script>
 </body>
