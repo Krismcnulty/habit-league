@@ -114,6 +114,17 @@ h1,h2,h3{margin:0;letter-spacing:.02em}
 .pack.own{border-color:rgba(34,197,94,.45)}.pk-h{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}.pk-h b{display:block;font-size:15px}.pk-h small{display:block;font-size:12px;color:var(--muted);line-height:1.35;margin-top:2px}
 .pk-buy{white-space:nowrap;padding:8px 14px}.pk-own{font-size:12px;font-weight:900;color:var(--green);white-space:nowrap}
 .pk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.pk-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 3px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--text);font:inherit;text-align:center;min-width:0}
+.sprev{width:64px;height:64px;display:grid;place-items:center;margin:0 0 3px;flex:none}
+.si-logo{font-size:46px;line-height:1}.si-logo>svg{width:56px;height:56px;image-rendering:pixelated}.si-logo .pxi svg,.si-ic .pxi svg{width:100%;height:100%}
+.si-kit .gjersey{width:54px;height:59px}
+.si-ball .gshot{width:56px;height:56px}.si-ball .gshot .ball{width:48px;height:48px}
+.si-bench .gbench{width:62px;gap:6px}
+.si-ic{font-size:42px;line-height:1;display:grid;place-items:center}.si-ic>svg{width:50px;height:50px}
+.si-cel .gcel{width:54px;height:54px;font-size:30px}
+.si-board .gboard{width:64px;height:44px;font-size:19px}
+.si-court .gcourt{position:relative;width:64px;height:53px}
+.si-atm .gatm{width:64px;height:50px;gap:3px;padding:6px}
+.si-pbg .gpbg{width:58px;height:58px}
 .pk-item .dprev{width:46px;height:46px;margin:0}.pk-item .dprev svg{width:38px;height:38px}.pk-item b{font-size:10.5px;line-height:1.15}.pk-item small{font-size:9.5px;color:var(--muted)}
 .pack.bundle{display:flex;align-items:center;gap:10px;border-color:rgba(249,115,22,.6);background:radial-gradient(100% 140% at 0% 0%,rgba(249,115,22,.2),transparent 60%),rgba(8,6,16,.55)}.pack.bundle b{display:block;font-size:15px}.pack.bundle small{display:block;font-size:12px;color:var(--muted)}
 .gtile.locked .gpbg{opacity:.4;filter:grayscale(.5)}
@@ -2594,7 +2605,16 @@ const brkStart=key=>addDays(poStart(key),-BREAK_DAYS);
 const EVENTS=[{n:'Halloween Shootout',k:'2026-10',play:true,d:'Three spooky knockout games on a haunted court, for a pumpkin trophy'},{n:'Winter Classic',k:'2026-12',d:'Three games on an outdoor ice court. Win the snow globe'},{n:'New Year Cup',k:'2027-01',d:'Start the year strong: three games, one cup'},{n:'Spring Slam',k:'2027-03',d:'A slam-dunk contest where your biggest players count double'}].map(e=>({...e,s:brkStart(e.k),e:addDays(poStart(e.k),-1)}));
 const evFor=key=>EVENTS.find(e=>e.k===key&&e.play&&(EV_FREE||S.premium));
 function atmSwatch(v,cls=''){const t=THEMES.find(x=>x[0]===v)||THEMES[0],T=t[3];return `<span class="gatm ${cls}" style="--tb:${T.bg};--tp:${T.panel};--tp2:${T.panel2};--tl:${T.line};--ta:${T.ac||'#ff7a1a'};--ta2:${T.ac2||'#ffb066'};--tt:${T.tex||'none'}"><i></i><i></i><i></i></span>`}
-function itemPreview(k,v){
+function itemPreview(k,v,mode){
+  if(mode==='store'){// Store tiles: just the item, bigger, no tile behind it
+    const ic={boo:1,confetti:1,buzzer:1,fireworks:1,crowd:1,goldrain:1,lasers:1,presents:1,potofgold:1,tag:1};
+    const inner=k==='head'?faceSvg({id:'x',head:v},2):k==='logo'?logoSvg(v):k==='kit'?`<span class="gjersey">${jerseySvg(v,'Player',23)}</span>`:
+      k==='ball'?`<span class="gshot">${ballSvg(v)}</span>`:k==='bench'?`<span class="gbench bench-${v}"><span class="pl"></span><span class="pl"></span></span>`:
+      k==='cel'?(ic[v]?`<span class="si-ic">${CEL_ICON[v]}</span>`:`<span class="gcel c-${v}">${CEL_ICON[v]}</span>`):
+      k==='snd'?`<span class="si-ic">${pixIcon(SND_ICON[v])}</span>`:k==='shot'?`<span class="si-ic">${{lightning:'⚡',confetti:'🎉',bats:'🦇',snow:'❄️',shamrock:'☘️',spray:'🧴',neonstreak:'⚡'}[v]||'🏀'}</span>`:
+      k==='board'?`<span class="gboard sb-${v}"><b>88</b><i>–</i><b>72</b></span>`:k==='court'?`<span class="court court-${v} gcourt">${COURT_MINI}</span>`:
+      k==='atm'?atmSwatch(v):k==='pbg'?`<span class="gpbg pbg-${v}"></span>`:faceSvg({id:'x',head:v},2);
+    return `<span class="sprev si-${k}">${inner}</span>`}
   if(k==='atm')return `<span class="dprev" style="display:grid;place-items:center;border:0">${atmSwatch(v,'big')}</span>`;
   if(k==='pbg')return `<span class="dprev gpbg pbg-${v}"></span>`;
   if(k==='logo')return `<span class="dprev" style="background:var(--well);display:grid;place-items:center">${logoSvg(v)}</span>`;
@@ -2826,7 +2846,7 @@ function awardsView(){
   </div>`:''}`;
 }
 function storeView(){
-  const tile=([k,v])=>{const ok=cosUnlocked(k,v);return `<button class="pk-item ${ok?'own':''}" data-a="${k==='head'?'headInfo':'cos'}" data-k="${k}" data-v="${v}">${itemPreview(k,v)}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small></button>`};
+  const tile=([k,v])=>{const ok=cosUnlocked(k,v);return `<button class="pk-item ${ok?'own':''}" data-a="${k==='head'?'headInfo':'cos'}" data-k="${k}" data-v="${v}">${itemPreview(k,v,'store')}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small></button>`};
   const C=activeCol(),PK=PACKS.filter(p=>p.col===C.id),all=PK.every(packOwned),full=PK.reduce((a,p)=>a+p.price,0);
   return `<div class="card store col-${C.id}">
     <div class="st-hero"><span class="st-ic">${C.ic[0]}</span><div class="sp"><div class="st-k">${C.when}</div><b class="st-t">${C.n}</b></div><span class="st-ic">${C.ic[1]}</span></div>
@@ -2843,7 +2863,7 @@ function storePage(){if(S.storeSeen!==storeKey()){S.storeSeen=storeKey();save()}
 function itemShopHtml(){
   const h=Math.max(1,Math.ceil((parse(addDays(gameDate(),1)).getTime()+4*3600e3-nowMs())/3600e3));
   return `<div class="card ishop"><div class="ish-h"><div class="sp"><b>Item Shop</b><small>Single items · new picks every day</small></div><span class="ish-t">New in ${h}h</span></div>
-    <div class="ish-grid">${shopItems().map(([k,v])=>{const own=cosUnlocked(k,v),r=shopRar(k,v);return `<button class="ish-it rr-${r} ${own?'own':''}" data-a="buyItem" data-k="${k}" data-v="${v}">${fromVault(k,v)?`<i class="ish-v">${esc(colOf(packOf(k,v).col).sh)}</i>`:''}${itemPreview(k,v)}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small><span class="rar rr-${r}">${RAR_N[r]}</span>${own?'<span class="ish-own">✓ Owned</span>':`<span class="ish-p"><i>${gbp(shopPrice(k,v))}</i></span>`}</button>`}).join('')}</div>
+    <div class="ish-grid">${shopItems().map(([k,v])=>{const own=cosUnlocked(k,v),r=shopRar(k,v);return `<button class="ish-it rr-${r} ${own?'own':''}" data-a="buyItem" data-k="${k}" data-v="${v}">${fromVault(k,v)?`<i class="ish-v">${esc(colOf(packOf(k,v).col).sh)}</i>`:''}${itemPreview(k,v,'store')}<b>${cosName(k,v)}</b><small>${COS_NAMES[k]}</small><span class="rar rr-${r}">${RAR_N[r]}</span>${own?'<span class="ish-own">✓ Owned</span>':`<span class="ish-p"><i>${gbp(shopPrice(k,v))}</i></span>`}</button>`}).join('')}</div>
     </div>`;
 }
 let clubTab='overview';
