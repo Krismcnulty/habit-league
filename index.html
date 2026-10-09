@@ -606,6 +606,28 @@ td.tpos{white-space:nowrap}
 .tt-i{flex:none;font-size:20px;line-height:1;width:24px;text-align:center}.tt-t{min-width:0}.tt-t b{display:block;font-size:12.5px;line-height:1.2}.tt-t small{display:block;font-size:10.5px;color:var(--muted);line-height:1.25;margin-top:2px}
 .tt.on{border-color:var(--orange);background:color-mix(in srgb,var(--orange) 12%,var(--panel))}
 .tt-on{position:absolute;top:5px;right:6px;font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.06em;color:var(--bg);background:var(--orange);padding:1px 5px;border-radius:99px}
+.stp{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0 4px;font-size:11.5px;font-weight:800;color:var(--muted)}
+.stp span{display:flex;align-items:center;gap:5px}.stp span b{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10px;background:var(--well);border:1px solid var(--line)}
+.stp span.on{color:var(--text)}.stp span.on b{background:var(--orange);border-color:var(--orange);color:#1a1000}.stp span.done b{background:var(--green);border-color:var(--green);color:#052e16}
+.stp i{width:18px;height:2px;border-radius:1px;background:var(--line)}
+.sh{padding:8px 8px 4px}.sh-ball{display:block;width:52px;height:52px;margin:0 auto 4px}.sh-ball svg{width:100%;height:100%}
+.sh-title{font-family:"Press Start 2P","Courier New",monospace;font-weight:400;font-size:19px;line-height:1.3;letter-spacing:.02em;margin:4px 0 6px;color:#fff;text-shadow:3px 3px 0 #c2410c,0 0 18px rgba(255,122,26,.35);text-transform:uppercase}
+.sp-prev{margin-bottom:12px;padding:12px}
+.sp-board{display:flex;align-items:center;gap:8px;justify-content:center;padding:8px 12px;border-radius:12px;background:radial-gradient(120% 140% at 50% -20%,#2a1a0e,#141b2e 60%);border:1px solid #3a2a1c;font-weight:900;letter-spacing:.06em}
+.sp-board b{font-size:16px}.sp-sc{font-size:22px;color:var(--orange);font-variant-numeric:tabular-nums}.sp-sc i{font-style:normal;color:var(--muted);margin:0 4px}
+.sp-logo{width:30px;height:30px;flex:none}.sp-logo svg{width:100%;height:100%}
+.sp-row{display:flex;align-items:center;gap:12px;margin-top:10px}.sp-jsy{width:64px;flex:none}.sp-jsy svg{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.sp-id{display:flex;flex-direction:column;min-width:0}.sp-id small{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--orange2)}.sp-id b{font-size:22px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp-logos{display:flex;gap:8px;flex-wrap:wrap}.sp-lg{display:flex;flex-direction:column;align-items:center;gap:3px;width:72px;padding:8px 4px;border-radius:12px;background:var(--well);border:1px solid var(--line);color:var(--text);font:inherit}.sp-lg svg{width:36px;height:36px}.sp-lg small{font-size:10.5px}.sp-lg.on{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange)}
+.intro{display:flex;flex-direction:column;min-height:calc(100vh - 40px);padding-top:8px}
+.in-top{display:flex;align-items:center;gap:8px}.in-logo{width:28px;height:28px}.in-logo svg{width:100%;height:100%}.in-top b{font-size:18px;flex:1;letter-spacing:.04em}
+.in-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 10px}
+.in-card h2{font-size:28px;line-height:1.1;margin:22px 0 10px}.in-card p{font-size:15px;line-height:1.45;margin:0;max-width:320px}
+.in-heads{display:flex;align-items:flex-end;gap:10px}.in-h{width:78px;height:78px;border-radius:16px;overflow:hidden;background:var(--pbg);border:2px solid var(--line);display:block}.in-h.mid{width:100px;height:100px;border-color:var(--orange)}.in-h svg{width:100%;height:100%}
+.in-board{display:flex;align-items:center;gap:10px;padding:12px 22px;border-radius:16px;background:radial-gradient(120% 140% at 50% -20%,#2a1a0e,#141b2e 60%);border:1px solid #3a2a1c;font-weight:900;font-size:44px;font-variant-numeric:tabular-nums}.in-board b:first-child{color:var(--orange)}.in-board i{font-style:normal;color:var(--muted);font-size:26px}
+.in-shots{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;justify-content:center}.in-shots span{display:flex;flex-direction:column;align-items:center;font-size:11px;font-weight:700;color:var(--muted);background:var(--well);border:1px solid var(--line);border-radius:10px;padding:6px 10px}.in-shots b{font-size:16px;color:var(--text)}
+.in-cup{width:120px;height:120px}.in-cup svg{width:100%;height:100%}
+.in-dots{display:flex;justify-content:center;gap:7px;margin:4px 0 14px}.in-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.in-dots i.on{width:22px;border-radius:4px;background:var(--orange)}
 /* ---- win celebrations ---- */
 .gcel{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:24px;background:var(--well);border:1px solid var(--line)}
 .gcel.c-stamp{font-weight:900;font-size:22px;color:#fff;background:#dc2626;border-radius:50%;border:3px solid #fff;font-family:system-ui}
@@ -2102,7 +2124,7 @@ function render(){
   processDays();applyTheme();if(!window.__icx){window.__icx=1;cssIcons()}
   {const b=document.body,v=(S.cos&&S.cos.pbg)||'classic';[...b.classList].forEach(c=>{if(c.startsWith('pbg-')&&c!=='pbg-'+v)b.classList.remove(c)});b.classList.add('pbg-'+v)}
   const nav=document.getElementById('nav');
-  if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();return}
+  if(!S.team||!S.firstStart){nav.hidden=true;app.innerHTML=setupView();setupPrev();return}
   nav.hidden=false;
   checkAch();checkRanks();if(view==='club')S.achNew=0;initSeen();
   if(view!=='awards'&&lkShown){if(S.seen)lkShown.forEach(x=>S.seen[x]=1);lkShown=null;save()}
@@ -2112,24 +2134,59 @@ function render(){
   if(view==='today')gdMoments();
 }
 
+// ===== first run: how-it-works slides, then team setup with a live preview =====
+let introIdx=0,draftTeam=null;
+const setupSteps=n=>`<div class="stp">${['Team','Squad','Tip-off'].map((t,i)=>`<span class="${i<n?'done':i===n?'on':''}"><b>${i+1}</b>${t}</span>`).join('<i></i>')}</div>`;
+function introView(){
+  const H=(h,c='')=>`<span class="in-h ${c}">${faceSvg({id:'x',head:h})}</span>`;
+  const slides=[
+    {t:'Your habits are your players',d:'Every habit you want to keep becomes a player on your team: the gym, reading, a tidy room, saving money.',v:`<div class="in-heads">${H('hothand')}${H('neon','mid')}${H('retro')}</div>`},
+    {t:'Do them to score',d:'Each day is a game against another team. Every habit you do scores points: bigger habits, bigger shots.',v:`<div class="in-board"><b>64</b><i>–</i><b>51</b></div><div class="in-shots">${SHOT_ORDER.map(k=>`<span>${SHOTS[k].n}<b>+${SHOTS[k].pts}</b></span>`).join('')}</div>`},
+    {t:'Win, climb, lift the trophy',d:'Wins move you up the league table. Each month ends in playoffs, with cups, trophies and gear to earn along the way.',v:`<div class="in-cup">${pixArt(CUP,'allstar')}</div>`}];
+  const s=slides[introIdx],last=introIdx===slides.length-1;
+  return `<div class="intro">
+    <div class="in-top"><span class="in-logo">${logoSvg('ball')}</span><b class="cond">Habit League</b><button class="small muted" data-a="introSkip">Skip</button></div>
+    <div class="in-card">${s.v}<h2 class="cond">${s.t}</h2><p class="muted">${s.d}</p></div>
+    <div class="in-dots">${slides.map((_,i)=>`<i class="${i===introIdx?'on':''}"></i>`).join('')}</div>
+    <button class="btn primary block" data-a="introNext">${last?"Let's build your team":'Next'}</button>
+  </div>`;
+}
+function setupPrev(){
+  const v=id=>(document.getElementById(id)||{}).value||'',city=v('fCity').trim(),name=v('fName').trim();
+  let ab=v('fAb').trim().toUpperCase().replace(/[^A-Z]/g,'');if(ab.length<2)ab=(city.replace(/[^A-Za-z]/g,'').slice(0,3)||'YOU').toUpperCase();
+  const set=(id,h)=>{const e=document.getElementById(id);if(e)e.innerHTML=h};
+  set('spAb',esc(ab));set('spCity',esc(city||'Your town'));set('spName',esc(name||'Your team'));
+  set('spJsy',jerseySvg(myKit(),name||'Team',1));
+}
 function setupView(){
-  if(!S.team||setupStep===0)return `
-  <div class="hero">
-    ${ballSvg()}
-    <h1 class="cond" style="font-size:34px">Habit League</h1>
+  if(!S.team&&!S.seenIntro)return introView();
+  if(!S.team||setupStep===0){const T=draftTeam||S.team||{city:'',name:'',ab:''};
+    const freeLogos=LOGOS.filter(([v])=>cosUnlocked('logo',v));
+    return `
+  ${setupSteps(0)}
+  <div class="hero sh">
+    <span class="sh-ball">${logoSvg('ball')}</span>
+    <h1 class="sh-title">Habit League</h1>
     <p class="muted">Your habits are your squad. Every day is a game.</p>
+  </div>
+  <div class="card sp-prev">
+    <div class="sp-board"><span class="sp-logo">${logoSvg(myLogo())}</span><b id="spAb">YOU</b><span class="sp-sc">0<i>–</i>0</span><b>OPP</b></div>
+    <div class="sp-row"><div class="sp-jsy" id="spJsy"></div><div class="sp-id"><small id="spCity"></small><b id="spName" class="cond"></b><span class="small muted">Live preview</span></div></div>
   </div>
   <div class="card stack">
     <label class="small muted">Team city or town</label>
-    <input id="fCity" maxlength="20" placeholder="e.g. Belfast" value="${esc(S.team?S.team.city:'')}">
+    <input id="fCity" maxlength="20" placeholder="e.g. Belfast" value="${esc(T.city)}" oninput="setupPrev()">
     <label class="small muted">Team name</label>
-    <input id="fName" maxlength="20" placeholder="e.g. Night Owls" value="${esc(S.team?S.team.name:'')}">
+    <input id="fName" maxlength="20" placeholder="e.g. Night Owls" value="${esc(T.name)}" oninput="setupPrev()">
     <label class="small muted">Short code (3 letters)</label>
-    <input id="fAb" maxlength="3" placeholder="Auto" value="${esc(S.team?S.team.ab:'')}" style="text-transform:uppercase">
+    <input id="fAb" maxlength="3" placeholder="Auto" value="${esc(T.ab)}" style="text-transform:uppercase" oninput="setupPrev()">
+    <label class="small muted">Team logo <span style="opacity:.7">· more to earn later</span></label>
+    <div class="sp-logos">${freeLogos.map(([v,n])=>`<button class="sp-lg ${myLogo()===v?'on':''}" data-a="setupLogo" data-v="${v}">${logoSvg(v)}<small>${n}</small></button>`).join('')}</div>
     <button class="btn primary block" data-a="saveTeam">Next: sign your squad</button>
-  </div>
-  <p class="small muted" style="text-align:center;margin-top:14px">Already playing on another phone? <button class="small" style="color:var(--orange2);font-weight:700" data-a="restore">Restore a backup</button></p>`;
+    <p class="small muted" style="text-align:center;margin:2px 0 0">Already playing on another phone? <button class="small" style="color:var(--orange2);font-weight:700" data-a="restore">Restore a backup</button></p>
+  </div>`;}
   if(setupStep===1)return `
+  ${setupSteps(1)}
   <div class="top"><h1 class="cond">Sign your squad</h1><button class="small muted" data-a="setupBack">Back</button></div>
   <p class="muted small" style="margin:-6px 2px 12px">Five starters, one per position, play on the court. Five bench players back them up. Every player scores full points. Each player has levels: pick the one that stretches you.</p>
   ${squadLists(true)}
@@ -2137,6 +2194,7 @@ function setupView(){
   const t=gameDate(),ps=poStart(skey(t));const regLeft=diffDays(t,ps);
   const short=regLeft<6;
   return `
+  ${setupSteps(2)}
   <div class="top"><h1 class="cond">Tip-off</h1><button class="small muted" data-a="setupBack1">Back</button></div>
   <div class="card stack">
     <p style="margin:0">Your squad locks when you tip off. After that, the only changes are <b>${REG_TRADES} trades before the trade deadline</b> (the end of the regular season) and <b>rest days</b> (each player can rest up to ${INJURY_USES} days a week). Renaming and editing steps are always allowed.</p>
@@ -3318,7 +3376,7 @@ const A={
     if(!city||!name)return toast('Add a city and a team name');
     let ab=document.getElementById('fAb').value.trim().toUpperCase().replace(/[^A-Z]/g,'');
     if(ab.length<2)ab=(city.replace(/[^A-Za-z]/g,'').slice(0,3)||'YOU').toUpperCase();
-    const first=!S.team;S.team={city,name,ab};
+    const first=!S.team;S.team={city,name,ab};draftTeam=null;
     if(first&&!S.squad.length){
       S.squad.push(newPlayer(libById('morning'),0,'court'),newPlayer(libById('night'),0,'bench'),newPlayer(libById('water'),1,'bench'));
     }
@@ -3326,7 +3384,10 @@ const A={
     setupStep=1;save();render();scrollTo(0,0);
   },
   editTeam(){sheet(`<h2>Edit team</h2><div class="stack" style="margin-top:10px"><input id="fCity" maxlength="20" value="${esc(S.team.city)}"><input id="fName" maxlength="20" value="${esc(S.team.name)}"><input id="fAb" maxlength="3" value="${esc(S.team.ab)}" style="text-transform:uppercase"><button class="btn primary block" data-a="saveTeam">Save</button></div>`)},
-  setupBack(){setupStep=0;render()},
+  setupBack(){setupStep=0;render();setTimeout(setupPrev,0)},
+  introNext(){if(introIdx>=2){S.seenIntro=1;save()}else introIdx++;render();if(S.seenIntro)setTimeout(setupPrev,0)},
+  introSkip(){S.seenIntro=1;save();render();setTimeout(setupPrev,0)},
+  setupLogo(d){const v=id=>(document.getElementById(id)||{}).value||'';draftTeam={city:v('fCity'),name:v('fName'),ab:v('fAb')};S.cos={...(S.cos||{}),logo:d.v};save();render();setTimeout(setupPrev,0)},
   setupBack1(){setupStep=1;render()},
   toTipoff(){if(squadReady()){setupStep=2;render();scrollTo(0,0)}},
   tipoff(d){
