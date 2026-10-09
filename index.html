@@ -1627,7 +1627,7 @@ function cssIcons(){const r=document.documentElement.style,u=svg=>`url("data:ima
   r.setProperty('--icx-bat',u(pixIcon('bat')));r.setProperty('--icx-pumpkin',u(pixIcon('pumpkin')));r.setProperty('--icx-trophy',u(pixArt(CUP,'allstar')))}
 function pix(html){return String(html).split(/(<[^>]*>)/).map(p=>p[0]==='<'?p:p.replace(EMO_RE,pxIcon)).join('')}
 /* ===================== team logos (original pixel art) ===================== */
-const LOGOS=[['ball','Basketball'],['shield','Shield'],['flame','Flame'],['bolt','Bolt'],['mountain','Summit'],['swords','Crossed swords'],['crown','Crown'],['owl','Night owl'],['rocket','Rocket'],['star','Superstar'],['anchor','Anchor'],['jacko',"Jack-o'-lantern"],['reindeer','Reindeer'],['shamrock','Shamrock'],['boombox','Boombox'],['neonhoop','Neon Hoop']];
+const LOGOS=[['ball','Basketball'],['flame','Flame'],['bolt','Bolt'],['mountain','Summit'],['swords','Crossed swords'],['crown','Crown'],['owl','Night owl'],['rocket','Rocket'],['star','Superstar'],['anchor','Anchor'],['jacko',"Jack-o'-lantern"],['reindeer','Reindeer'],['shamrock','Shamrock'],['boombox','Boombox'],['neonhoop','Neon Hoop']];
 function logoGridOf(id){
   const G=Array.from({length:16},()=>Array(16).fill(null)),ink='#140b06';
   const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
@@ -1637,7 +1637,6 @@ function logoGridOf(id){
   const star=(cx,cy,c)=>{rows({[cy-3]:[cx,cx+1],[cy-2]:[cx,cx+1],[cy-1]:[cx-3,cx+4],[cy]:[cx-2,cx+3],[cy+1]:[cx-1,cx+2],[cy+2]:[cx-2,cx+3]},c);set(cx-2,cy+3,c);set(cx+3,cy+3,c)};
   switch(id){
     case 'ball':{disc(7.5,7.5,6.6,'#ff7a1a');const d='#3a1600';for(let i=2;i<=13;i++){set(7,i,d);set(i,7,d)}[[5,3],[4,4],[4,5],[4,6],[4,8],[4,9],[4,10],[5,11],[5,12]].forEach(([x,y])=>{set(x,y,d);set(15-x,y,d)});set(5,2,d);set(10,2,d);break}
-    case 'shield':{for(let y=2;y<=13;y++){const h=y<=8?6:Math.max(1,14-y);row(y,8-h,7+h,y<=3?'#fbbf24':'#2563eb')}star(7,8,'#fbbf24');break}
     case 'flame':{rows({1:[8,8],2:[7,8],3:[7,9],4:[6,9],5:[6,10],6:[5,10],7:[5,11],8:[4,11],9:[4,11],10:[4,11],11:[4,11],12:[5,10],13:[6,9]},'#ef4444');rows({5:[8,8],6:[7,8],7:[7,9],8:[6,9],9:[6,9],10:[6,9],11:[6,9],12:[7,8]},'#fb923c');rows({9:[7,8],10:[7,8],11:[7,8]},'#fde047');break}
     case 'bolt':{disc(7.5,7.5,7.4,'#1e293b');rows({1:[8,11],2:[7,10],3:[7,9],4:[6,9],5:[5,11],6:[6,10],7:[7,9],8:[6,8],9:[6,8],10:[5,7],11:[5,6],12:[4,5],13:[4,4]},'#facc15');break}
     case 'mountain':{disc(7.5,7.5,7.4,'#7dd3fc');for(let y=3;y<=13;y++){const h=Math.round((y-3)*.75);row(y,10-h,10+h,y<=5?'#ffffff':'#475569')}for(let y=6;y<=13;y++){const h=Math.round((y-6)*.8);row(y,4-h,4+h,y<=7?'#ffffff':'#64748b')}row(14,1,14,'#334155');break}
@@ -1659,7 +1658,9 @@ function logoGridOf(id){
 // Custom logos from art/library.json: 16x16 grids keyed by id
 const CUSTOM_LOGO={};
 function logoGrid(id){return CUSTOM_LOGO[id]?CUSTOM_LOGO[id].map(r=>r.slice()):logoGridOf(id)}
-function logoSvg(id){return gridSvg(logoGrid(id))}
+// A logo the app doesn't know yet (e.g. a library logo before art/library.json has loaded) shows as the Basketball until it arrives.
+// The team's chosen logo is never changed.
+function logoSvg(id){return gridSvg(CUSTOM_LOGO[id]||LOGOS.some(x=>x[0]===id)?logoGrid(id):logoGridOf('ball'))}
 const myLogo=()=>(S.cos&&S.cos.logo)||'ball';
 const badge=(id,sz=46)=>{if(id==='me')return `<div class="badge logo" style="width:${sz}px;height:${sz}px">${logoSvg(myLogo())}</div>`;const t=team(id);return `<div class="badge" style="background:${t.c};width:${sz}px;height:${sz}px">${esc(t.ab)}</div>`};
 const mini=id=>{if(id==='me')return `<span class="mini logo">${logoSvg(myLogo())}</span>`;const t=team(id);return `<span class="mini" style="background:${t.c}">${esc(t.ab)}</span>`};
@@ -3639,10 +3640,12 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catc
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 // Hand-made pixel art from the Studio lives in art/library.json. Each entry: {type:'head',id,name,rarity,where,pal,px}.
 // It's loaded at start and the app redraws once it arrives (not during team setup, so typing isn't lost).
+// Library items that used to be built in keep their old place in the Locker
+const LIB_ORDER={'logo:shield':1};
 function addArt(lib){let n=0;for(const a of lib||[]){if(!a||!a.id)continue;
   if(a.type==='head'){if(!a.px||HEADS.some(h=>h.id===a.id))continue;
     HEADS.push({id:a.id,n:a.name,px:a.px,pal:a.pal,shape:'std',fx:[],skin:['#d39a6a','#b07a4e'],hair:'#1b120c',style:'bald',band:'none',mouth:'flat'});HEAD_LIST.push([a.id,a.name])}
-  else if(a.type==='logo'){if(!a.px||LOGOS.some(x=>x[0]===a.id))continue;CUSTOM_LOGO[a.id]=pxGrid(a);LOGOS.push([a.id,a.name])}
+  else if(a.type==='logo'){if(!a.px||LOGOS.some(x=>x[0]===a.id))continue;CUSTOM_LOGO[a.id]=pxGrid(a);const at=LIB_ORDER['logo:'+a.id];if(at!=null)LOGOS.splice(Math.min(at,LOGOS.length),0,[a.id,a.name]);else LOGOS.push([a.id,a.name])}
   else if(a.type==='kit'){if(KITDEF[a.id]||!KIT_PATS.includes(a.pat))continue;const K={n:a.name,b:a.b,t:a.t,num:a.num,pat:a.pat};for(const f of ['ns','sw','font','fw'])if(a[f]!=null)K[f]=a[f];KITDEF[a.id]=K;KITS.push([a.id,a.name])}
   else if(a.type==='pbg'){if(PBG_CSS[a.id]||!PBG_CSS[a.base]||CUSTOM_PBG[a.base])continue;const [bg,size]=PBG_CSS[a.base];PBG_CSS[a.id]=[swapColors(bg,a.colors),size];CUSTOM_PBG[a.id]=a.base;
     PBG_STYLE.textContent+='\n'+pbgRule(a.id,PBG_CSS[a.id][0],size);PBGS.push([a.id,a.name])}
