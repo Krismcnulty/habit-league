@@ -739,7 +739,13 @@ td.tpos{white-space:nowrap}
 .mvc{font-size:22px;color:var(--muted)}
 .mvrow.danger b{color:var(--red)}
 .mvrow.off{opacity:.5}
-.evrw{display:grid;grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:6px;margin-top:10px}
+.evrw{margin-top:10px}
+.evr-it{cursor:default}
+.si-tro svg{width:56px;height:56px;image-rendering:pixelated}
+.evq{background:var(--gold,#fbbf24)!important;color:#1a1000!important;letter-spacing:.04em;text-transform:uppercase;font-size:10px!important}
+.evq.semi{background:#c084fc!important;color:#1e0536!important}
+.ev-ss .evq:not(.semi){background:#86efac!important;color:#052e16!important}
+
 .evt{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;text-align:center}
 .evt .rwp{width:48px;height:48px;border-radius:12px;border:1px solid var(--line)}
 .evt .rwp svg{width:44px;height:44px}
@@ -2785,9 +2791,12 @@ function eventsList(){const today=gameDate(),ev=EVENTS.filter(e=>e.e>=today||(e.
 }
 function evCard(ev,today){
   return `${ev.map(e=>{const live=today>=e.s&&today<=e.e,over=today>e.e,T=EV_TROPHY[e.n];
-    const tiles=[`<div class="evt"><span class="rwp tro2">${pixArt(T.rows,'allstar',T.pal)}</span><small>${T.n}</small><em class="req">Winner</em></div>`].concat((EV_REWARDS[e.n]||[]).map(([k,v])=>`<div class="evt">${rewardPic(k,v)}<small>${cosName(k,v)}</small><em class="req ${EV_REQ[k+':'+v]?'semi':''}">${EV_REQ[k+':'+v]||'Winner'}</em></div>`)).join('');
+    // Rewards as Item Shop-style cards (rarity frame, no tile behind the item), at most 4: the cosmetics, plus the trophy if there's room.
+    const card=(r,pic,nm,type,lab,semi)=>`<div class="ish-it evr-it rr-${r}">${pic}<b>${nm}</b><small>${type}</small><span class="ish-p"><i class="evq ${semi?'semi':''}">${lab}</i></span></div>`;
+    const cos=(EV_REWARDS[e.n]||[]).map(([k,v])=>card(rarity(k,v),itemPreview(k,v,'store'),cosName(k,v),COS_NAMES[k],EV_REQ[k+':'+v]||'Winner',!!EV_REQ[k+':'+v]));
+    const tiles=(cos.length<4?[card('leg',`<span class="sprev si-tro">${pixArt(T.rows,'allstar',T.pal)}</span>`,T.n,'trophy','Winner',false)]:[]).concat(cos).slice(0,4).join('');
     return `<div class="card evc ev-${{'Halloween Shootout':'hw','Winter Classic':'wc','New Year Cup':'ny','Spring Slam':'ss'}[e.n]||'x'}"><div class="ach"><div class="ic" style="filter:none;opacity:1">${{'Halloween Shootout':'🎃','Winter Classic':'❄️','New Year Cup':'🎆','Spring Slam':'🌸'}[e.n]||'🏆'}</div><div class="sp"><div class="row"><b class="sp">${e.n}</b><span class="small ${live?'':'muted'}" style="${live?'color:var(--green)':''}">${over?'Finished':live?'Live now':nice(e.s,{day:'numeric',month:'short'})+' – '+nice(e.e,{day:'numeric',month:'short'})}</span></div><div class="small muted">${e.d}</div>
-      <div class="evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):''}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}</div>`}).join('')}`;
+      <div class="ish-grid evrw">${tiles}</div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'head'):''}</div></div>${e.n==='Halloween Shootout'?hsCardBody(today,e,'bracket'):''}</div>`}).join('')}`;
 }
 // Locker: collection counts per category (premium items only count once you can see them).
 function gearVisible(k){const L=k==='head'?HEADS.map(h=>[h.id,h.n]):COS_LISTS[k];return L.filter(([v])=>!(isPrem(k,v)&&!cosUnlocked(k,v))&&!hidPack(k,v))}
