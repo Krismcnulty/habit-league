@@ -26,7 +26,7 @@ const BUILTIN={
 const PBG_CSS=JSON.parse(app.match(/const PBG_CSS=(\{.*?\});\n/)[1]);
 const KIT_PATS=arr('KIT_PATS'),KIT_FONTS=arr('KIT_FONTS');
 const HEX6=/^#[0-9a-fA-F]{6}$/,HEX=/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/;
-const SIZE={head:32,logo:16},WHAT={head:'head',logo:'team logo',kit:'kit',pbg:'player background'};
+const SIZE={head:[32,64],logo:[16]},WHAT={head:'head',logo:'team logo',kit:'kit',pbg:'player background'};
 
 // 3. check each design
 const seen=new Set();
@@ -39,8 +39,8 @@ for(const x of items){
   if(!x.name||String(x.name).length>20)fail('The name must be 1–20 characters.');
   if(!['rare','epic','leg'].includes(x.rarity))fail('Rarity must be rare, epic or leg.');
   if(!['shop','none'].includes(x.where))fail('Where must be shop or none.');
-  if(t==='head'||t==='logo'){const N=SIZE[t];
-    if(!Array.isArray(x.px)||x.px.length!==N||x.px.some(r=>typeof r!=='string'||r.length!==N))fail(`A ${w} grid must be exactly ${N} rows of ${N} characters.`);
+  if(t==='head'||t==='logo'){const N=Array.isArray(x.px)?x.px.length:0,OK=SIZE[t];
+    if(!Array.isArray(x.px)||!OK.includes(N)||x.px.some(r=>typeof r!=='string'||r.length!==N))fail(`A ${w} grid must be ${OK.map(n=>`${n} rows of ${n} characters`).join(' or ')}.`);
     if(!x.pal||typeof x.pal!=='object')fail('The palette (pal) is missing.');
     for(const [k,v] of Object.entries(x.pal))if(k.length!==1||k==='.'||!HEX6.test(v))fail(`Palette entry "${k}": "${v}" isn't a #rrggbb colour.`);
     const bad=[...new Set(x.px.join('').replace(/\./g,''))].filter(c=>!(c in x.pal));if(bad.length)fail(`These letters aren't in the palette: ${bad.join(' ')}`);
@@ -98,7 +98,7 @@ const swatches=cols=>{const G=Array.from({length:10},()=>Array(cols.length*7+1).
 fs.mkdirSync('art/previews',{recursive:true});
 const prevName=x=>x.type==='head'?x.id:`${x.type}-${x.id}`;
 for(const x of items){let out;
-  if(x.type==='head'||x.type==='logo')out=gridPng(outlined(x.px.map(r=>[...r].map(c=>c==='.'?null:x.pal[c]))),x.type==='head'?8:16);
+  if(x.type==='head'||x.type==='logo')out=gridPng(outlined(x.px.map(r=>[...r].map(c=>c==='.'?null:x.pal[c]))),x.type==='head'?(x.px.length>32?4:8):16);
   if(x.type==='kit')out=gridPng(swatches([x.b,x.t,x.num].concat(x.ns?[x.ns]:[])),8);
   if(x.type==='pbg')out=gridPng(swatches(Object.values(x.colors)),8);
   fs.writeFileSync(`art/previews/${prevName(x)}.png`,out)}
