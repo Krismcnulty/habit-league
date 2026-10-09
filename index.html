@@ -1657,7 +1657,7 @@ const HAIRS=['#1b120c','#3b2416','#6b3e1f','#c98b2e','#e8c36a','#b4441b','#8e8e8
 const HAIR_STYLES=[['short','Short'],['buzz','Buzz'],['flat','Flat top'],['bald','Bald'],['curly','Curly'],['mohawk','Mohawk'],['afro','Afro'],['spiky','Spiky'],['topknot','Top knot']];
 const BANDS=[['none','None'],['#ef4444','Red'],['#ffffff','White'],['#2563eb','Blue'],['#22c55e','Green'],['#a78bfa','Purple'],['#fbbf24','Gold'],['#22d3ee','Neon'],['#ec4899','Pink']];
 const EXTRAS=[['none','None'],['glasses','Glasses'],['beard','Beard'],['stache','Moustache'],['shades','Shades'],['crown','Crown'],['goggles','Goggles'],['warpaint','Face paint']];
-// Collectible heads: original legend-style looks (not based on real people). A head replaces the player's default head.
+// Collectible heads: original legend-style looks (not based on real people). A head replaces the player's own plain default head.
 const HEADS=[
  {id:'hothand',n:'Hot Hand',sk:2,hair:'#1b120c',style:'flat',band:'#ef4444',fx:[],mouth:'grin'},
  {id:'retro',n:'Retro Ace',sk:3,hair:'#4a2c17',style:'afro',band:'#ffffff',fx:['stache'],mouth:'smile'},
@@ -1683,9 +1683,11 @@ const HEAD_LIST=HEADS.map(h=>[h.id,h.n]);
 function faceParams(p){
   const H=p.head&&HEADS.find(h=>h.id===p.head);
   if(H){const[sk,sh]=H.skin||SKINS[H.sk];const fx={};H.fx.forEach(k=>fx[k]=true);return{sk,sh,hair:H.hair,style:H.style,mouth:H.mouth,band:H.band,extra:'none',fx,shape:H.shape||'std'}}
-  // No head equipped: every player wears the same default head (no random scouted faces), so heads stay a cosmetic worth collecting.
-  const [sk,sh]=SKINS[2];
-  return{sk,sh,hair:'#2a1a12',style:'short',mouth:'smile',band:'none',extra:'none',fx:{},shape:'std'};
+  // No head equipped: each player has their own plain default head, fixed to them (skin, hair colour, a simple haircut and expression).
+  // No accessories, beards, headbands or special shapes, so collectible heads stay worth having.
+  const r=rng('face'+(p.face||p.id)),pick=a=>a[Math.floor(r()*a.length)];
+  const [sk,sh]=pick(SKINS),hair=pick(['#1b120c','#1b120c','#3b2416','#6b3e1f','#c98b2e','#2a2a3a']);
+  return{sk,sh,hair,style:pick(['short','short','buzz','flat','bald','curly']),mouth:pick(['smile','flat','smile']),band:'none',extra:'none',fx:{},shape:'std'};
 }
 // ===== HD heads (32x32): same face parameters as the 16x16 heads, drawn with more shading and detail =====
 function hexMix(a,b,t){const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
