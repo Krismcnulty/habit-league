@@ -90,7 +90,7 @@ iframe{position:absolute;width:390px;height:844px;left:-9999px;top:0;border:0;vi
         <h2>Details</h2>
         <label>Name</label><input id="fName" placeholder="e.g. Sky Hook" maxlength="20">
         <div class="row"><div style="flex:1"><label>Rarity</label><select id="fRar"><option value="rare">Rare · 49p</option><option value="epic" selected>Epic · 79p</option><option value="leg">Legendary · 99p</option></select></div>
-          <div style="flex:1"><label>Where</label><select id="fWhere"><option value="shop">Item Shop</option><option value="none">Not for sale yet</option></select></div></div>
+          <div style="flex:1"><label>Where</label><select id="fWhere"><option value="shop">Shop pool</option><option value="none">Held back</option></select></div></div>
         <div class="row" style="margin-top:10px"><button class="btn primary" id="save">💾 Save</button><button class="btn" id="export">📋 Copy code</button><button class="btn" id="png">🖼 PNG</button></div>
       </div>
       <div class="card" style="margin-top:14px">
@@ -186,7 +186,7 @@ function encode(){const cols=[...new Set(grid.flat().filter(Boolean))],L='abcdef
 function decode(d){if(!d||!Array.isArray(d.px)||d.px.length!==N)throw new Error('bad');return d.px.map(r=>[...r].map(c=>c==='.'?null:(d.pal[c]||null)))}
 const store=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(_){return[]}};
 const keep=l=>{try{localStorage.setItem(KEY,JSON.stringify(l))}catch(_){toast('Could not save in this browser')}};
-function list(){const l=store();$('list').innerHTML=l.length?l.map((d,i)=>`<div class="it"><div class="av">${ART.svg(decode(d))}</div><b>${d.name.replace(/</g,'&lt;')}<small>${d.rarity} · ${d.where==='shop'?'Item Shop':'not for sale'}</small></b><button class="tb" data-open="${i}">Open</button><button class="tb" data-del="${i}">✕</button></div>`).join(''):'<p class="note" style="margin:0">Nothing saved yet.</p>';
+function list(){const l=store();$('list').innerHTML=l.length?l.map((d,i)=>`<div class="it"><div class="av">${ART.svg(decode(d))}</div><b>${d.name.replace(/</g,'&lt;')}<small>${d.rarity} · ${d.where==='shop'?'Shop pool':'held back'}</small></b><button class="tb" data-open="${i}">Open</button><button class="tb" data-del="${i}">✕</button></div>`).join(''):'<p class="note" style="margin:0">Nothing saved yet.</p>';
   document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openD(store()[+b.dataset.open]));
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(!confirm('Delete this design?'))return;const l=store();l.splice(+b.dataset.del,1);keep(l);list()})}
 function openD(d){load(decode(d));curId=d.id;$('fName').value=d.name;$('fRar').value=d.rarity||'epic';$('fWhere').value=d.where||'shop';$('code').value=JSON.stringify(d)}
