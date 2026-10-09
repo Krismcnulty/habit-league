@@ -107,6 +107,11 @@ for(const x of items){let out;
 const repo=process.env.GITHUB_REPOSITORY||'Krismcnulty/habit-league',sha=process.env.GITHUB_REF_NAME||'main';
 const pics=items.map(x=>`![${x.name}](https://raw.githubusercontent.com/${repo}/${sha}/art/previews/${prevName(x)}.png)`).join(' ');
 const names=items.map(x=>`**${x.name}**${x.type==='head'?'':` (${WHAT[x.type]})`}`).join(', ');
+// Logos and kits that used to be built in keep their unlock rules (rewards, packs, shop) in the app, whatever where/rarity say.
+const libOrder=(()=>{const m=app.match(/const LIB_ORDER=(\{.*?\});/);try{return m?Function("return "+m[1])():{}}catch(_){return {}}})();
+const wasBuiltIn=x=>!!(libOrder[x.type]&&libOrder[x.type].includes(x.id));
+const status=x=>wasBuiltIn(x)?'its artwork is updated; how it\'s unlocked stays the same':x.where==='shop'?'it joins the Item Shop pool and will turn up on random days':'free for every team';
+const lines=items.map(x=>`- **${x.name}**${x.type==='head'?'':` (${WHAT[x.type]})`}: ${status(x)}.`).join('\n');
 reply(draft?`💾 Saved ${names} to the repo drafts (\`art/drafts.json\`). It isn't in the app. Open it from **Repo drafts** in Pixel Studio on any device.\n\n${pics}`
-  :`✅ Added ${names} to the app (\`art/library.json\`)${items.some(x=>x.where==='shop')?'. It joins the Item Shop pool and will turn up on random days.':', held back (not for sale).'} Live in about a minute; reopen the app to see it.\n\n${pics}`);
+  :`✅ Added to the app (\`art/library.json\`):\n${lines}\n\nLive in about a minute; reopen the app to see it.\n\n${pics}`);
 fs.writeFileSync('.art-commit-msg',`${draft?'Art draft':'Add art'}: ${items.map(x=>x.name).join(', ')}`);

@@ -1628,40 +1628,15 @@ function cssIcons(){const r=document.documentElement.style,u=svg=>`url("data:ima
   r.setProperty('--icx-bat',u(pixIcon('bat')));r.setProperty('--icx-pumpkin',u(pixIcon('pumpkin')));r.setProperty('--icx-trophy',u(pixArt(CUP,'allstar')))}
 function pix(html){return String(html).split(/(<[^>]*>)/).map(p=>p[0]==='<'?p:p.replace(EMO_RE,pxIcon)).join('')}
 /* ===================== team logos (original pixel art) ===================== */
-const LOGOS=[['ball','Basketball'],['flame','Flame'],['bolt','Bolt'],['mountain','Summit'],['swords','Crossed swords'],['crown','Crown'],['owl','Night owl'],['rocket','Rocket'],['star','Superstar'],['anchor','Anchor'],['jacko',"Jack-o'-lantern"],['reindeer','Reindeer'],['shamrock','Shamrock'],['boombox','Boombox'],['neonhoop','Neon Hoop']];
-function logoGridOf(id){
-  const G=Array.from({length:16},()=>Array(16).fill(null)),ink='#140b06';
-  const set=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&x<16&&y>=0&&y<16)G[y][x]=c};
-  const row=(y,a,b,c)=>{for(let x=a;x<=b;x++)set(x,y,c)};
-  const disc=(cx,cy,r,c)=>{for(let y=0;y<16;y++)for(let x=0;x<16;x++)if((x-cx)**2+(y-cy)**2<=r*r)set(x,y,c)};
-  const rows=(m,c)=>Object.entries(m).forEach(([y,[a,b]])=>row(+y,a,b,c));
-  const star=(cx,cy,c)=>{rows({[cy-3]:[cx,cx+1],[cy-2]:[cx,cx+1],[cy-1]:[cx-3,cx+4],[cy]:[cx-2,cx+3],[cy+1]:[cx-1,cx+2],[cy+2]:[cx-2,cx+3]},c);set(cx-2,cy+3,c);set(cx+3,cy+3,c)};
-  switch(id){
-    case 'ball':{disc(7.5,7.5,6.6,'#ff7a1a');const d='#3a1600';for(let i=2;i<=13;i++){set(7,i,d);set(i,7,d)}[[5,3],[4,4],[4,5],[4,6],[4,8],[4,9],[4,10],[5,11],[5,12]].forEach(([x,y])=>{set(x,y,d);set(15-x,y,d)});set(5,2,d);set(10,2,d);break}
-    case 'flame':{rows({1:[8,8],2:[7,8],3:[7,9],4:[6,9],5:[6,10],6:[5,10],7:[5,11],8:[4,11],9:[4,11],10:[4,11],11:[4,11],12:[5,10],13:[6,9]},'#ef4444');rows({5:[8,8],6:[7,8],7:[7,9],8:[6,9],9:[6,9],10:[6,9],11:[6,9],12:[7,8]},'#fb923c');rows({9:[7,8],10:[7,8],11:[7,8]},'#fde047');break}
-    case 'bolt':{disc(7.5,7.5,7.4,'#1e293b');rows({1:[8,11],2:[7,10],3:[7,9],4:[6,9],5:[5,11],6:[6,10],7:[7,9],8:[6,8],9:[6,8],10:[5,7],11:[5,6],12:[4,5],13:[4,4]},'#facc15');break}
-    case 'mountain':{disc(7.5,7.5,7.4,'#7dd3fc');for(let y=3;y<=13;y++){const h=Math.round((y-3)*.75);row(y,10-h,10+h,y<=5?'#ffffff':'#475569')}for(let y=6;y<=13;y++){const h=Math.round((y-6)*.8);row(y,4-h,4+h,y<=7?'#ffffff':'#64748b')}row(14,1,14,'#334155');break}
-    case 'swords':{for(let i=2;i<=11;i++){set(i,i,'#e2e8f0');set(i+1,i,'#94a3b8');set(15-i-1,i,'#e2e8f0');set(15-i-2,i,'#94a3b8')}rows({10:[2,4],11:[2,4]},'#fbbf24');rows({10:[11,13],11:[11,13]},'#fbbf24');[[2,12],[1,13],[13,12],[14,13]].forEach(([x,y])=>set(x,y,'#92400e'));break}
-    case 'crown':{rows({9:[2,13],10:[2,13],11:[2,13],12:[2,13]},'#fbbf24');[[2,4],[7,3],[8,3],[13,4]].forEach(([x,t])=>{for(let y=t;y<9;y++)set(x,y,'#fbbf24')});rows({6:[3,4],7:[3,5],8:[3,12]},'#fbbf24');rows({6:[11,12],7:[10,12]},'#fbbf24');rows({5:[6,9],6:[6,9],7:[5,10]},'#fbbf24');set(7,10,'#ef4444');set(8,10,'#ef4444');set(4,10,'#3b82f6');set(11,10,'#22c55e');row(13,2,13,'#b45309');break}
-    case 'owl':{disc(7.5,8.5,6.2,'#7c4a2a');[[3,2],[4,3],[12,2],[11,3]].forEach(([x,y])=>set(x,y,'#7c4a2a'));disc(5,7,2.2,'#ffffff');disc(10,7,2.2,'#ffffff');set(5,7,ink);set(10,7,ink);set(4,7,ink);set(11,7,ink);rows({10:[7,8],11:[7,8]},'#fbbf24');rows({12:[4,11],13:[5,10]},'#a0673f');break}
-    case 'rocket':{rows({1:[7,8],2:[6,9]},'#ef4444');for(let y=3;y<=10;y++)row(y,6,9,'#f1f5f9');disc(7.5,5.5,1.2,'#38bdf8');rows({9:[4,5],10:[4,5],11:[4,5]},'#ef4444');rows({9:[10,11],10:[10,11],11:[10,11]},'#ef4444');row(11,6,9,'#94a3b8');rows({12:[6,9],13:[7,8]},'#fb923c');set(7,14,'#fde047');set(8,14,'#fde047');break}
-    case 'star':{disc(7.5,7.5,7.4,'#4c1d95');star(7,8,'#fde047');[[2,3],[13,2],[12,12],[3,12]].forEach(([x,y])=>set(x,y,'#e9d5ff'));break}
-    case 'jacko':{disc(7.5,8.5,6.6,'#f97316');const d='#c2410c';for(let y=3;y<=14;y++){set(4,y,d);set(11,y,d)}row(1,7,8,'#15803d');set(8,2,'#15803d');set(9,1,'#22c55e');const k='#1c0a00',g='#fde047';[[4,6],[5,6],[5,5],[10,6],[11,6],[10,5]].forEach(([x,y])=>set(x,y,k));set(5,6,g);set(10,6,g);set(7,8,k);set(8,8,k);row(10,3,12,k);row(11,4,11,k);[4,6,9,11].forEach(x=>set(x,10,g));[5,7,8,10].forEach(x=>set(x,11,'#f97316'));break}
-    case 'reindeer':case 'shamrock':case 'boombox':{const ic=id==='shamrock'?'clover':id;
-      if(id==='reindeer')disc(7.5,7.5,7.4,'#14532d');if(id==='shamrock'){disc(7.5,7.5,7.4,'#fbbf24');disc(7.5,7.5,6.4,'#f0fdf4')}if(id==='boombox')disc(7.5,7.5,7.4,'#f472b6');
-      PIXI[ic].forEach((r,y)=>[...r].forEach((c,x)=>{if(c!=='.')set(x,y,IPAL[c])}));if(id==='reindeer'){[[2,13],[13,12],[1,4],[14,9]].forEach(([x,y])=>set(x,y,'#ffffff'))}break}
-    case 'neonhoop':{disc(7.5,7.5,7.4,'#120624');for(let y=0;y<16;y++)for(let x=0;x<16;x++){const d=Math.hypot(x-7.5,y-7.5);if(d>5.6&&d<=6.7)set(x,y,'#f472b6')}
-      const c='#22d3ee';for(let i=3;i<=12;i++){set(7,i,c);set(i,7,c)}[[5,3],[4,4],[4,5],[4,6],[4,8],[4,9],[4,10],[5,11]].forEach(([x,y])=>{set(x,y,c);set(15-x,y,c)});set(4,2,'#fbcfe8');set(3,3,'#fbcfe8');break}
-    case 'anchor':{disc(7.5,7.5,7.4,'#e0f2fe');const c='#1e3a8a';disc(7.5,3,1.6,c);set(7,3,'#e0f2fe');set(8,3,'#e0f2fe');for(let y=4;y<=12;y++)row(y,7,8,c);row(6,4,11,c);rows({10:[2,3],11:[2,4],12:[3,6],13:[5,10]},c);rows({10:[12,13],11:[11,13],12:[9,12]},c);break}
-  }
-  return G;
-}
-// Custom logos from art/library.json: 16x16 grids keyed by id
+// Team logos all live in art/library.json (edit them in Pixel Studio). LIB_ORDER (near addArt) keeps their Locker order.
+const LOGOS=[];
+// Shown only while art/library.json hasn't loaded yet: a copy of the Basketball (the default logo). Not a cosmetic.
+const LOGO_FALLBACK={pal:{"a": "#ff7a1a", "b": "#3a1600"},px:["................", ".......aa.......", "....ababaaba....", "...aababaabaa...", "..aabaabaaabaa..", "..aabaabaaabaa..", "..aabaabaaabaa..", ".abbbbbbbbbbbba.", ".aaabaabaaabaaa.", "..aabaabaaabaa..", "..aabaabaaabaa..", "..aaababaabaaa..", "...aababaabaa...", "....aaabaaaa....", ".......aa.......", "................"]};
 const CUSTOM_LOGO={};
-function logoGrid(id){return CUSTOM_LOGO[id]?CUSTOM_LOGO[id].map(r=>r.slice()):logoGridOf(id)}
-// A logo the app doesn't know yet (e.g. a library logo before art/library.json has loaded) shows as the Basketball until it arrives.
+function logoGrid(id){return CUSTOM_LOGO[id]?CUSTOM_LOGO[id].map(r=>r.slice()):Array.from({length:16},()=>Array(16).fill(null))}
+// A logo the app doesn't know yet (e.g. before art/library.json has loaded) shows as the Basketball until it arrives.
 // The team's chosen logo is never changed.
-function logoSvg(id){return gridSvg(CUSTOM_LOGO[id]||LOGOS.some(x=>x[0]===id)?logoGrid(id):logoGridOf('ball'))}
+function logoSvg(id){return gridSvg(CUSTOM_LOGO[id]?logoGrid(id):pxGrid(LOGO_FALLBACK))}
 const myLogo=()=>(S.cos&&S.cos.logo)||'ball';
 const badge=(id,sz=46)=>{if(id==='me')return `<div class="badge logo" style="width:${sz}px;height:${sz}px">${logoSvg(myLogo())}</div>`;const t=team(id);return `<div class="badge" style="background:${t.c};width:${sz}px;height:${sz}px">${esc(t.ab)}</div>`};
 const mini=id=>{if(id==='me')return `<span class="mini logo">${logoSvg(myLogo())}</span>`;const t=team(id);return `<span class="mini" style="background:${t.c}">${esc(t.ab)}</span>`};
@@ -1930,14 +1905,10 @@ const SOUNDS=[['arena','Arena'],['street','Street Court'],['arcade','Retro Arcad
 const SND_ICON={arena:'speaker',street:'sneaker',arcade:'joystick',organ:'keys',haunted:'bell',jingle:'jbell',ceili:'harp',boombox:'boombox',synth:'tape'};
 const BALLS=[['classic','Classic'],['street','Street'],['aba','ABA'],['gold','Gold'],['glow','Glow'],['pumpkin','Pumpkin'],['galaxy','Galaxy'],['candy','Candy corn'],['bauble','Bauble'],['lucky','Lucky clover'],['graffiti','Graffiti']];
 // Kits: a player's jersey (shown on player cards and retired jerseys, never on the court).
-const KITDEF={home:{n:'Home',b:'#ff7a1a',t:'#ffffff',num:'#ffffff',pat:'plain'},away:{n:'Away',b:'#f1f5f9',t:'#ff7a1a',num:'#ff7a1a',pat:'plain'},
- retro:{n:'Retro',b:'#facc15',t:'#7c2d12',num:'#7c2d12',pat:'retro'},pinstripe:{n:'Pinstripe',b:'#1e3a8a',t:'#e2e8f0',num:'#ffffff',pat:'pin'},
- legend:{n:'Legend',b:'#0b0b0b',t:'#d4a017',num:'#d4a017',pat:'panels'},neon:{n:'Neon',b:'#140726',t:'#22d3ee',num:'#f0abfc',pat:'panels'},
- sunset:{n:'Sunset',b:'#f97316',t:'#db2777',num:'#ffffff',pat:'grad'},galaxy:{n:'Galaxy',b:'#312e81',t:'#c4b5fd',num:'#ffffff',pat:'galaxy'},
- witch:{n:"Witch's Brew",b:'#3b0764',t:'#a3e635',num:'#bef264',pat:'witch',font:'Creepster,cursive'},
- jumper:{n:'Ugly Jumper',b:'#b91c1c',t:'#f8fafc',num:'#f8fafc',ns:'#7f1d1d',sw:3,pat:'jumper',font:"'Mountains of Christmas',cursive",fw:700},
- hoops:{n:'Emerald Hoops',b:'#15803d',t:'#fbbf24',num:'#fbbf24',ns:'#14532d',sw:3.5,pat:'hoops'},
- tagged:{n:'Tagged Up',b:'#18181b',t:'#f472b6',num:'#ffffff',ns:'#18181b',sw:3,pat:'tags',font:"'Permanent Marker',cursive"}};
+// Kits all live in art/library.json (edit them in Pixel Studio). Behaviour tied to an id (e.g. Home's plain number, Away's dark number outline) stays in jerseySvg.
+const KITDEF={};
+// Used only while art/library.json hasn't loaded yet: the Home kit's settings. Not a cosmetic.
+const KIT_FALLBACK={"b": "#ff7a1a", "t": "#ffffff", "num": "#ffffff", "pat": "plain", "n": "Home"};
 const KITS=Object.entries(KITDEF).map(([k,v])=>[k,v.n]);
 // Patterns jerseySvg draws, and the kit fonts the app loads (no font = the default bold sans)
 const KIT_PATS=['plain','retro','pin','panels','grad','galaxy','witch','jumper','hoops','tags'];
@@ -1947,7 +1918,7 @@ const myKit=()=>(S.cos&&S.cos.kit)||'home';
 let jsyN=0;
 function jerseySvg(kitOrDef,name,num){
   const isDef=!!kitOrDef&&typeof kitOrDef==='object',kit=isDef?(kitOrDef.id||'d'+(++jsyN)):kitOrDef;
-  const K=isDef?kitOrDef:(KITDEF[kit]||KITDEF.home),id='jk'+kit,shirt='M30 6Q50 15 70 6L78 8Q80 28 92 34L92 104Q50 110 8 104L8 34Q20 28 22 8Z';
+  const K=isDef?kitOrDef:(KITDEF[kit]||KIT_FALLBACK),id='jk'+kit,shirt='M30 6Q50 15 70 6L78 8Q80 28 92 34L92 104Q50 110 8 104L8 34Q20 28 22 8Z';
   let fill=K.b,defs='',deco='';
   if(K.pat==='grad'){defs=`<linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${K.b}"/><stop offset="1" stop-color="${K.t}"/></linearGradient>`;fill=`url(#${id}g)`}
   if(K.pat==='galaxy'){defs=`<radialGradient id="${id}g" cx=".4" cy=".35" r=".9"><stop offset="0" stop-color="#7c3aed"/><stop offset=".6" stop-color="${K.b}"/><stop offset="1" stop-color="#0b0b2a"/></radialGradient>`;fill=`url(#${id}g)`;deco=[[24,44],[70,30],[80,70],[30,90],[60,96],[18,70]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.3" fill="#fff"/>`).join('')}
@@ -2103,6 +2074,15 @@ function lockSheet(k,v){
     <div class="ls-top"><div class="ls-pic rr-${r}">${itemPreview(k,v)}</div><span class="rar rr-${r}">${RAR_N[r]}</span><h2>${esc(nm)}</h2><div class="small muted">${COS_NAMES[k]} · 🔒 locked</div></div>
     <div class="ls-how">${how}</div>${k==='snd'?`<button class="btn block" style="margin-top:10px" data-a="sndDemo" data-v="${v}">🔊 Hear it</button>`:''}${prog}${btn}${more}`);
 }
+// Plain-English unlock rule for an item (used by Pixel Studio via HL_ART.unlockInfo). Mirrors cosUnlocked().
+function unlockInfo(k,v){if(!COS_LISTS[k]||!COS_LISTS[k].some(x=>x[0]===v))return 'Not in the app';
+  const P=packOf(k,v);if(P){const C=colOf(P.col);return `Store pack: ${P.n} (${C.sh||C.n})`+(fromVault(k,v)?', also in the Item Shop from the vault':'')}
+  if(k==='atm'&&v==='dynasty')return `Reward: reach the ${ATM_TOP()[1]} club level`;
+  if(k==='pbg'&&RANK_BG[v]!=null)return `Reward: get any player to ${PRANKS[RANK_BG[v]].n}`;
+  if(EV_ONLY[k+':'+v])return `Event: ${EV_ONLY[k+':'+v]}`;
+  if(isPrem(k,v))return `Item Shop (${RAR_N[shopRar(k,v)].toLowerCase()})`;
+  const a=lockAch(k,v);if(a)return `Reward: ${a.d}`;
+  return 'Free for everyone'}
 function lockMsg(k,v){if(packOf(k,v))return inShop(k,v)?`🛍️ In today's Item Shop`:`🛍️ Part of the ${packOf(k,v).n} pack`;if(k==='atm'&&v==='dynasty')return `🏛️ Reach the ${ATM_TOP()[1]} club level to unlock`;if(k==='pbg'&&RANK_BG[v]!=null)return `🔒 Unlocks when any player reaches ${RSYM[RANK_BG[v]]} ${PRANKS[RANK_BG[v]].n}`;if(EV_ONLY[k+':'+v])return `${EV_ICON[EV_ONLY[k+':'+v]]||'🏆'} Win the ${EV_ONLY[k+':'+v]} to unlock`;if(isPrem(k,v))return inShop(k,v)?`🛍️ In today's Item Shop`:'🛍️ Comes and goes in the Item Shop';const a=lockAch(k,v);return `🔒 Unlock with ${a.n}: ${a.d}`}
 function stats(){
   const today=gameDate(),days=Object.keys(S.days).sort();
@@ -2549,7 +2529,7 @@ function squadView(){
     :tile('locked','🔒','Trades',se&&t>tradeDeadline(se)?'Closed':'0 left',se&&t>tradeDeadline(se)?'Deadline passed':'Used up · next season');
   const rs=tile('injury','🩹','Rests',`${INJURY_USES} a week`,'Per player','');
   const chips=[lvl,tr,rs];
-  const K=KITDEF[myKit()]||KITDEF.home;
+  const K=KITDEF[myKit()]||KIT_FALLBACK;
   return `<div class="top"><h1 class="cond">Squad</h1></div>
   <div class="teamhd" style="--kc:${K.b}">
     <div class="th-main"><button class="th-logo" data-a="go" data-v="awards" aria-label="Change logo">${logoSvg(myLogo())}</button>
@@ -3642,17 +3622,27 @@ if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceW
 // Hand-made pixel art from the Studio lives in art/library.json. Each entry: {type:'head',id,name,rarity,where,pal,px}.
 // It's loaded at start and the app redraws once it arrives (not during team setup, so typing isn't lost).
 // Library items that used to be built in keep their old place in the Locker
-const LIB_ORDER={'logo:shield':1};
+const LIB_ORDER={logo:["ball", "shield", "flame", "bolt", "mountain", "swords", "crown", "owl", "rocket", "star", "anchor", "jacko", "reindeer", "shamrock", "boombox", "neonhoop"],kit:["home", "away", "retro", "pinstripe", "legend", "neon", "sunset", "galaxy", "witch", "jumper", "hoops", "tagged"]};
+// Their unlock rules (achievements, Store packs, Item Shop, events) stay in the code by id: the library only holds the artwork and name,
+// so a library entry's where/rarity never changes how one of these is unlocked.
+const wasBuiltIn=(k,v)=>!!(LIB_ORDER[k]&&LIB_ORDER[k].includes(v));
+function libSort(list,k){const O=LIB_ORDER[k]||[],pos=new Map(list.map((x,i)=>[x[0],i])),key=id=>O.includes(id)?O.indexOf(id):O.length+pos.get(id);list.sort((a,b)=>key(a[0])-key(b[0]))}
 function addArt(lib){let n=0;for(const a of lib||[]){if(!a||!a.id)continue;
   if(a.type==='head'){if(!a.px||HEADS.some(h=>h.id===a.id))continue;
     HEADS.push({id:a.id,n:a.name,px:a.px,pal:a.pal,shape:'std',fx:[],skin:['#d39a6a','#b07a4e'],hair:'#1b120c',style:'bald',band:'none',mouth:'flat'});HEAD_LIST.push([a.id,a.name])}
-  else if(a.type==='logo'){if(!a.px||LOGOS.some(x=>x[0]===a.id))continue;CUSTOM_LOGO[a.id]=pxGrid(a);const at=LIB_ORDER['logo:'+a.id];if(at!=null)LOGOS.splice(Math.min(at,LOGOS.length),0,[a.id,a.name]);else LOGOS.push([a.id,a.name])}
+  else if(a.type==='logo'){if(!a.px||LOGOS.some(x=>x[0]===a.id))continue;CUSTOM_LOGO[a.id]=pxGrid(a);LOGOS.push([a.id,a.name])}
   else if(a.type==='kit'){if(KITDEF[a.id]||!KIT_PATS.includes(a.pat))continue;const K={n:a.name,b:a.b,t:a.t,num:a.num,pat:a.pat};for(const f of ['ns','sw','font','fw'])if(a[f]!=null)K[f]=a[f];KITDEF[a.id]=K;KITS.push([a.id,a.name])}
   else if(a.type==='pbg'){if(PBG_CSS[a.id]||!PBG_CSS[a.base]||CUSTOM_PBG[a.base])continue;const [bg,size]=PBG_CSS[a.base];PBG_CSS[a.id]=[swapColors(bg,a.colors),size];CUSTOM_PBG[a.id]=a.base;
     PBG_STYLE.textContent+='\n'+pbgRule(a.id,PBG_CSS[a.id][0],size);PBGS.push([a.id,a.name])}
   else continue;
-  if(a.where==='shop'){RESERVED.push([a.type,a.id]);SHOP_RAR[a.type+':'+a.id]=a.rarity||CAT_RAR[a.type]||'epic'}n++}return n}
-fetch('art/library.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).then(l=>{if(addArt(l)&&S.team&&S.firstStart)render()}).catch(()=>{});
+  if(a.where==='shop'&&!wasBuiltIn(a.type,a.id)){RESERVED.push([a.type,a.id]);SHOP_RAR[a.type+':'+a.id]=a.rarity||CAT_RAR[a.type]||'epic'}n++}
+  if(n){libSort(LOGOS,'logo');libSort(KITS,'kit')}return n}
+// Logos and kits come from the library, so the first render waits for it (cached by the service worker, so this is quick, even offline).
+// If it takes longer than 1.5s the app starts with the fallbacks and re-renders when it arrives. The team's choices are never changed.
+let booted=false,libReady;const LIB_READY=new Promise(r=>libReady=r);
+function boot(){if(booted)return;booted=true;render()}
+fetch('art/library.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).then(l=>{const n=addArt(l);libReady(n);if(!booted)boot();else if(n&&S.team&&S.firstStart)render()}).catch(()=>{libReady(0);boot()});
+setTimeout(boot,1500);
 // Used by the Studio page (studio.html), which loads the app in a hidden frame to draw with the app's own code.
 window.HL_ART={grid:p=>faceGridHD(p),svg:(G,scale)=>headGridSvg(G,scale),heads:()=>HEADS.map(h=>({id:h.id,n:h.n})),
   headGrid:id=>{const H=HEADS.find(h=>h.id===id);return H&&H.px?pxGrid(H):faceGridHD({id:'x',head:id})},
@@ -3668,8 +3658,11 @@ window.HL_ART={grid:p=>faceGridHD(p),svg:(G,scale)=>headGridSvg(G,scale),heads:(
   kitPatterns:KIT_PATS,kitFonts:KIT_FONTS,kitSvg:(def,name,num)=>jerseySvg(def,name,num),
   // player backgrounds
   pbgs:()=>PBGS.map(([id,n])=>{const [bg,size]=PBG_CSS[id]||['',''],o={id,n,bg,size};if(CUSTOM_PBG[id])o.base=CUSTOM_PBG[id];return o}),
-  pbgStyle:(bg,size)=>pbgStyle(bg,size)};
-render();
+  pbgStyle:(bg,size)=>pbgStyle(bg,size),
+  // how an item is unlocked, in plain English (the app's rules, by id)
+  unlockInfo:(type,id)=>unlockInfo(type,id),
+  // resolves once art/library.json has been added (logos and kits live there)
+  ready:LIB_READY};
 </script>
 </body>
 </html>
